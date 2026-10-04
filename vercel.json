@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/realestate.js": {
+      "maxDuration": 60
+    }
+  }
+}
