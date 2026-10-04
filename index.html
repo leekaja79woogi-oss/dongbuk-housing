@@ -359,7 +359,8 @@ document.addEventListener('input', e => {
   calcAll();
 });
 calcAll();
-try { const t = localStorage.getItem('dbh:tab'); if (t) showTab(t); } catch(e) {}
+showTab('search');
+try { localStorage.setItem('dbh:tab','search'); } catch(e) {}
 
 // 실거래 조회 (서버 /api/realestate 경유, 키는 서버에만 있음)
 let DATA=null, TOKEN='';
