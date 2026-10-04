@@ -70,25 +70,17 @@ th{background:#f1f5f9;color:#475569}
   </div>
   <div id="iosHint" class="install">아이폰은 Safari 공유 버튼에서 "홈 화면에 추가"를 누르면 설치됩니다.</div>
 
-  <div class="section">
-    <div class="card">
-      <b>공통 입력</b>
-      <label for="complex">단지명</label>
-      <input id="complex" autocomplete="off" placeholder="단지명 입력">
-      <div class="grid2">
-        <div><label for="recent">최근 실거래(억원)</label><input id="recent" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 7.80"></div>
-        <div><label for="cash">가용 현금(억원)</label><input id="cash" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 1.00"></div>
-        <div><label for="rent">현재 월 주거비(만원)</label><input id="rent" type="number" inputmode="decimal" min="0" placeholder="예: 145"></div>
-      </div>
-      <button type="button" id="resetBtn" class="ghost" style="margin-top:12px;width:100%">입력 초기화</button>
-    </div>
-  </div>
+  <input id="recent" type="hidden">
 
-  <!-- 매수 -->
   <div class="section" id="tab-search">
-    <div class="card"><b>실거래 자동 조회</b>
-      <label>지역 선택</label><div id="chips" class="chips"></div><div class="mini" style="margin-top:6px">지역을 고르면 그 지역만 조회해 더 빠르고 호출량도 줄어듭니다. 선택하지 않으면 전체에서 찾습니다.</div>
-      <button id="searchBtn" type="button" style="width:100%;margin-top:10px">실거래 조회</button>
+    <div class="card"><b>단지 빠른 조회</b>
+      <label>지역</label><div id="chips" class="chips"></div>
+      <label for="subregion">세부지역</label>
+      <select id="subregion"><option value="">전체</option></select>
+      <label for="complex">단지명</label>
+      <input id="complex" autocomplete="off" placeholder="예: 별내자이">
+      <div class="mini" style="margin-top:7px">처음에는 최근 3개월만 빠르게 조회합니다. 필요할 때 12개월 상세내역을 추가로 불러옵니다.</div>
+      <button id="searchBtn" type="button" style="width:100%;margin-top:10px">빠른 조회</button>
       <div id="status" class="status">단지명을 입력하고 조회하세요.</div><div id="cands"></div>
       <div id="result" class="hide"><label for="areaSelect">전용면적</label><select id="areaSelect"></select>
         <div class="kpis" style="margin-top:12px">
@@ -99,7 +91,7 @@ th{background:#f1f5f9;color:#475569}
         </div>
         <div id="note" class="mini" style="margin-top:8px"></div>
         <div class="tablewrap"><table><thead><tr><th>구분</th><th>계약일</th><th>전용㎡</th><th>가격</th><th>층</th></tr></thead><tbody id="txBody"></tbody></table></div>
-        <div class="mini" style="margin-top:8px">조회값은 매수·전세 탭의 최근 실거래·전세 시세에 자동 반영됩니다.</div>
+        <button id="detailBtn" type="button" class="ghost" style="width:100%;margin-top:12px">최근 12개월 상세조회</button><div class="mini" style="margin-top:8px">빠른 조회는 최근 3개월 기준입니다. 상세조회 시 12개월 거래내역으로 확장됩니다.</div>
       </div></div>
   </div>
 
@@ -108,6 +100,8 @@ th{background:#f1f5f9;color:#475569}
     <div class="card">
       <b>매수 시나리오</b>
       <div class="grid2">
+        <div><label for="cash">가용 현금(억원)</label><input id="cash" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 1.00"></div>
+        <div><label for="rent">현재 월 주거비(만원)</label><input id="rent" type="number" inputmode="decimal" min="0" placeholder="예: 145"></div>
         <div><label for="price">매수희망가(억원)</label><input id="price" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 7.30"></div>
         <div><label for="ask">현재 호가(억원)</label><input id="ask" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 8.30"></div>
         <div><label for="jeonse">현재 전세 시세(억원)</label><input id="jeonse" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 5.50"></div>
@@ -140,6 +134,8 @@ th{background:#f1f5f9;color:#475569}
     <div class="card">
       <b>전세 이동·재계약 시나리오</b>
       <div class="grid2">
+        <div><label for="cashJ">가용 현금(억원)</label><input id="cashJ" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 1.00"></div>
+        <div><label for="rentJ">현재 월 주거비(만원)</label><input id="rentJ" type="number" inputmode="decimal" min="0" placeholder="예: 145"></div>
         <div><label for="newJ">신규 전세금(억원)</label><input id="newJ" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 5.50"></div>
         <div><label for="budget">전세 예산 상한(억원)</label><input id="budget" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 4.00"></div>
         <div><label for="deposit">현재 보증금 회수액(만원)</label><input id="deposit" type="number" inputmode="decimal" min="0" placeholder="예: 6000"></div>
@@ -256,7 +252,7 @@ function calcBuy(){
 
 function calcJeonse(){
   const newJ = num('newJ'), budget = num('budget'), deposit = num('deposit'), limit = num('loanLimit'),
-        rateJ = num('rateJ'), cash = num('cash'), rent = num('rent'), recent = num('recent'), renew = num('renew');
+        rateJ = num('rateJ'), cash = num('cashJ'), rent = num('rentJ'), recent = num('recent'), renew = num('renew');
   const kp = ['j-need','j-loan','j-self','j-int','j-ratio'];
   const bad = [];
   if (!(newJ > 0)) bad.push('신규 전세금');
@@ -313,14 +309,18 @@ function showTab(t){
 document.querySelectorAll('.bottom button').forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
 
 // 입력값 저장·복원 (실패해도 앱은 동작)
-const FIELDS = ['complex','recent','cash','rent','price','ask','jeonse','ltv','rate','years','acq','newJ','budget','deposit','loanLimit','rateJ','renew'];
+const FIELDS = ['complex','recent','cash','rent','cashJ','rentJ','price','ask','jeonse','ltv','rate','years','acq','newJ','budget','deposit','loanLimit','rateJ','renew'];
 try {
-  const saved = JSON.parse(localStorage.getItem('dbh:v3') || '{}');
+  const saved = JSON.parse(localStorage.getItem('dbh:v4') || '{}');
   FIELDS.forEach(id => { if (id in saved) $(id).value = saved[id]; });
 } catch(e) {}
 document.addEventListener('input', e => {
   if (!e.target.matches('input')) return;
-  try { localStorage.setItem('dbh:v3', JSON.stringify(Object.fromEntries(FIELDS.map(id => [id, $(id).value])))); } catch(err) {}
+  if(e.target.id==='cash' && $('cashJ').value!==e.target.value)$('cashJ').value=e.target.value;
+  if(e.target.id==='cashJ' && $('cash').value!==e.target.value)$('cash').value=e.target.value;
+  if(e.target.id==='rent' && $('rentJ').value!==e.target.value)$('rentJ').value=e.target.value;
+  if(e.target.id==='rentJ' && $('rent').value!==e.target.value)$('rent').value=e.target.value;
+  try { localStorage.setItem('dbh:v4', JSON.stringify(Object.fromEntries(FIELDS.map(id => [id, $(id).value])))); } catch(err) {}
   calcAll();
 });
 calcAll();
@@ -341,14 +341,14 @@ async function api(qs,retry){
 }
 async function search(region,apt){
   const q=$('complex').value.trim();if(!q)return;
-  const b=$('searchBtn');b.disabled=true;b.textContent='조회 중…';say('단지를 찾고 실거래를 불러오는 중입니다.','load');
+  const b=$('searchBtn');b.disabled=true;b.textContent='빠른 조회 중…';say('최근 3개월 거래를 빠르게 확인하는 중입니다.','load');
   $('cands').textContent='';$('result').classList.add('hide');
   try{
-    const p=new URLSearchParams({complex:q,months:12});if(region){p.set('region',region);p.set('apt',apt)}else if(SCOPE)p.set('scope',SCOPE);
+    const p=new URLSearchParams({complex:q,months:3});if(region){p.set('region',region);p.set('apt',apt)}else{if(SCOPE)p.set('scope',SCOPE);if(SUB)p.set('sub',SUB)}
     const d=await api(p.toString());
     if(d.candidates){
       say('같은 이름의 단지가 여러 곳 있습니다. 선택하세요.');
-      d.candidates.forEach(c=>{const x=document.createElement('button');x.type='button';x.style.cssText='display:block;width:100%;margin-top:8px;text-align:left';x.textContent=c.regionName+' · '+c.name;x.onclick=()=>search(c.region,c.name);$('cands').appendChild(x)});
+      d.candidates.forEach(c=>{const x=document.createElement('button');x.type='button';x.style.cssText='display:block;width:100%;margin-top:8px;text-align:left';x.textContent=c.regionName+(c.dong?' · '+c.dong:'')+' · '+c.name;x.onclick=()=>search(c.region,c.name);$('cands').appendChild(x)});
       return;
     }
     DATA=d;
@@ -361,7 +361,18 @@ async function search(region,apt){
     if(near)$('areaSelect').value=near;
     $('result').classList.remove('hide');applyArea();
   }catch(e){say(e.message,'bad')}
-  finally{b.disabled=false;b.textContent='실거래 조회'}
+  finally{b.disabled=false;b.textContent='빠른 조회'}
+}
+async function loadDetail(){
+  if(!DATA)return;
+  const b=$('detailBtn');b.disabled=true;b.textContent='12개월 조회 중…';say('최근 12개월 매매·전월세를 불러오는 중입니다.','load');
+  try{
+    const p=new URLSearchParams({complex:DATA.complexName,months:12,region:DATA.regionCode,apt:DATA.complexName});
+    DATA=await api(p.toString());
+    say(DATA.complexName+' · '+DATA.regionName+' · 최근 12개월 · 매매 '+DATA.trades.length+'건 · 임대차 '+DATA.rents.length+'건'+(DATA.rentError?'\n전월세 조회 실패: '+DATA.rentError:''),DATA.rentError?'warn':'');
+    applyArea();
+  }catch(e){say(e.message,'bad')}
+  finally{b.disabled=false;b.textContent='최근 12개월 상세조회'}
 }
 function applyArea(){
   if(!DATA)return;const a=+$('areaSelect').value,ok=x=>Math.abs(x.area-a)<=.15,by=(x,y)=>y.date.localeCompare(x.date);
@@ -381,15 +392,34 @@ function applyArea(){
 }
 // 지역 카테고리
 const SCOPES=[['','전체'],['41310','구리'],['41360','남양주'],['41150','의정부'],['11260','중랑'],['11350','노원'],['11320','도봉'],['11305','강북'],['11215','광진'],['11230','동대문'],['11200','성동'],['11290','성북'],['11740','강동']];
+const SUBREGIONS={
+  '41310':['갈매동','인창동','수택동','교문동','토평동','아천동'],
+  '41360':['별내동','다산동','퇴계원읍','진접읍','오남읍','화도읍','호평동','평내동','와부읍','진건읍','금곡동','수동면','조안면'],
+  '41150':['민락동','고산동','낙양동','신곡동','용현동','장암동','호원동','의정부동','가능동','녹양동'],
+  '11260':['신내동','망우동','면목동','중화동','상봉동','묵동'],
+  '11350':['공릉동','월계동','중계동','상계동','하계동'],
+  '11320':['창동','쌍문동','방학동','도봉동'],
+  '11305':['미아동','번동','수유동','우이동'],
+  '11215':['구의동','자양동','광장동','화양동','중곡동'],
+  '11230':['장안동','휘경동','이문동','답십리동','전농동','청량리동','용두동','제기동'],
+  '11200':['성수동1가','성수동2가','송정동','행당동','옥수동','금호동','왕십리동'],
+  '11290':['장위동','석관동','길음동','돈암동','정릉동','종암동','하월곡동'],
+  '11740':['고덕동','상일동','명일동','암사동','천호동','성내동','둔촌동','길동']
+};
+let SUB='';
 let SCOPE='';try{SCOPE=localStorage.getItem('dbh:scope')||''}catch(e){}
 SCOPES.forEach(([c,n])=>{const b=document.createElement('button');b.type='button';b.className='chip'+(c===SCOPE?' on':'');b.textContent=n;
-  b.onclick=()=>{SCOPE=c;try{localStorage.setItem('dbh:scope',c)}catch(e){}document.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x===b))};$('chips').appendChild(b)});
-$('resetBtn').addEventListener('click',()=>{
-  if(!confirm('입력값을 모두 지울까요?'))return;
-  FIELDS.forEach(id=>{$(id).value=''});try{localStorage.removeItem('dbh:v3')}catch(e){}
-  DATA=null;$('result').classList.add('hide');$('cands').textContent='';say('단지명을 입력하고 조회하세요.');calcAll();
-});
+  b.onclick=()=>{SCOPE=c;SUB='';try{localStorage.setItem('dbh:scope',c)}catch(e){}document.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x===b));fillSubs()};$('chips').appendChild(b)});
+function fillSubs(){
+  const sel=$('subregion');sel.textContent='';
+  const all=document.createElement('option');all.value='';all.textContent='전체';sel.appendChild(all);
+  (SUBREGIONS[SCOPE]||[]).forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n;sel.appendChild(o)});
+  sel.value=SUB;
+}
+$('subregion').addEventListener('change',e=>{SUB=e.target.value});
+fillSubs();
 $('searchBtn').addEventListener('click',()=>search());
+$('detailBtn').addEventListener('click',loadDetail);
 $('areaSelect').addEventListener('change',applyArea);
 $('complex').addEventListener('keydown',e=>{if(e.key==='Enter')search()});
 
