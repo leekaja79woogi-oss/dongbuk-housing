@@ -341,9 +341,14 @@ document.querySelectorAll('.bottom button').forEach(b => b.addEventListener('cli
 const FIELDS = ['complex','recent','cash','rent','cashJ','rentJ','price','ask','jeonse','ltv','rate','years','acq','newJ','budget','deposit','loanLimit','rateJ','renew','recScope','recArea'];
 try {
   const saved = JSON.parse(localStorage.getItem('dbh:v4') || '{}');
-  FIELDS.forEach(id => { if (id in saved && id !== 'complex') $(id).value = saved[id]; });
+  const noRestore = new Set(['complex','cash','rent','price','ask','jeonse','ltv','rate','years','acq']);
+  FIELDS.forEach(id => { if (id in saved && !noRestore.has(id)) $(id).value = saved[id]; });
   $('complex').value = '';
-} catch(e) { $('complex').value = ''; }
+  ['cash','rent','price','ask','jeonse','ltv','rate','years','acq'].forEach(id=>$(id).value='');
+} catch(e) {
+  $('complex').value = '';
+  ['cash','rent','price','ask','jeonse','ltv','rate','years','acq'].forEach(id=>$(id).value='');
+}
 document.addEventListener('input', e => {
   if (!e.target.matches('input')) return;
   if(e.target.id==='cash' && $('cashJ').value!==e.target.value)$('cashJ').value=e.target.value;
