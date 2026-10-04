@@ -88,9 +88,16 @@ th{background:#f1f5f9;color:#475569}
           <div class="kpi"><div class="name">최근 매매(3건 중앙값)</div><div id="sTrade" class="val">-</div></div>
           <div class="kpi"><div class="name">신규 전세(3건 중앙값)</div><div id="sRent" class="val">-</div></div>
           <div class="kpi"><div class="name">전세가율</div><div id="sRatio" class="val">-</div></div>
-          <div class="kpi"><div class="name">매매 / 전세 거래수</div><div id="sCnt" class="val">-</div></div>
+          <div class="kpi"><div class="name">매매 / 전세 / 월세</div><div id="sCnt" class="val">-</div></div>
         </div>
         <div id="note" class="mini" style="margin-top:8px"></div>
+        <label>거래 표시</label>
+        <div id="txFilter" class="chips">
+          <button type="button" class="chip on" data-kind="all">전체</button>
+          <button type="button" class="chip" data-kind="매매">매매</button>
+          <button type="button" class="chip" data-kind="전세">전세</button>
+          <button type="button" class="chip" data-kind="월세">월세</button>
+        </div>
         <div class="tablewrap"><table><thead><tr><th>구분</th><th>계약일</th><th>전용㎡</th><th>가격</th><th>층</th></tr></thead><tbody id="txBody"></tbody></table></div>
         <button id="detailBtn" type="button" class="ghost" style="width:100%;margin-top:12px">최근 12개월 상세조회</button><div class="mini" style="margin-top:8px">빠른 조회는 최근 3개월 기준입니다. 상세조회 시 12개월 거래내역으로 확장됩니다.</div>
       </div></div>
@@ -382,19 +389,51 @@ async function loadDetail(){
   }catch(e){say(e.message,'bad')}
   finally{b.disabled=false;b.textContent='최근 12개월 상세조회'}
 }
+let TX_KIND='all';
 function applyArea(){
-  if(!DATA)return;const a=+$('areaSelect').value,ok=x=>Math.floor(x.area)===a,by=(x,y)=>y.date.localeCompare(x.date);
+  if(!DATA)return;
+  const a=+$('areaSelect').value,ok=x=>Math.floor(x.area)===a,by=(x,y)=>y.date.localeCompare(x.date);
   const tr=DATA.trades.filter(ok).sort(by);
-  const rr=DATA.rents.filter(x=>ok(x)&&x.monthly===0&&x.deposit>0&&!x.renewal).sort(by);
-  const t=med(tr.slice(0,3).map(x=>x.price))/10000,j=med(rr.slice(0,3).map(x=>x.deposit))/10000,ratio=j/t*100;
+  const jeonse=DATA.rents.filter(x=>ok(x)&&x.monthly===0&&x.deposit>0&&!x.renewal).sort(by);
+  const monthly=DATA.rents.filter(x=>ok(x)&&x.monthly>0).sort(by);
+
+  const t=med(tr.slice(0,3).map(x=>x.price))/10000;
+  const j=med(jeonse.slice(0,3).map(x=>x.deposit))/10000;
+  const ratio=j/t*100;
+
   const set=(id,v,c)=>{$(id).textContent=v;$(id).className='val '+(c||'')};
-  set('sTrade',isNaN(t)?'-':eok(t));set('sRent',isNaN(j)?'-':eok(j));
+  set('sTrade',isNaN(t)?'-':eok(t));
+  set('sRent',isNaN(j)?'-':eok(j));
   set('sRatio',isNaN(ratio)?'-':ratio.toFixed(1)+'%',ratio>=80?'bad':ratio>=70?'warn':'');
-  set('sCnt',tr.length+' / '+rr.length+'건');
-  $('note').textContent=(tr.length<3||rr.length<3?'표본이 적어 대표값으로 보기 어렵습니다. ':'')+'같은 ㎡형은 소수점 면적 차이를 묶어 보여줍니다. 전세는 월세 0원·갱신계약 제외, 매매는 해제 거래 제외입니다. 신고 지연으로 최근 한 달은 비어 보일 수 있습니다.';
-  const rows=[...tr.slice(0,6).map(x=>['매매',x,x.price/10000]),...rr.slice(0,6).map(x=>['전세',x,x.deposit/10000])].sort((p,q)=>q[1].date.localeCompare(p[1].date)).slice(0,10);
+  set('sCnt',tr.length+' / '+jeonse.length+' / '+monthly.length+'건');
+
+  $('note').textContent=(tr.length<3||jeonse.length<3?'표본이 적어 대표값으로 보기 어렵습니다. ':'')+
+    '같은 ㎡형은 소수점 면적 차이를 묶어 보여줍니다. 전세 대표값은 월세 0원·갱신계약 제외 기준입니다.';
+
+  let rows=[
+    ...tr.map(x=>({kind:'매매',x,price:eok(x.price/10000)})),
+    ...jeonse.map(x=>({kind:'전세',x,price:eok(x.deposit/10000)})),
+    ...monthly.map(x=>({kind:'월세',x,price:(x.deposit?man(x.deposit)+' / ':'')+Math.round(x.monthly).toLocaleString('ko-KR')+'만'}))
+  ].sort((p,q)=>q.x.date.localeCompare(p.x.date));
+
+  if(TX_KIND!=='all') rows=rows.filter(r=>r.kind===TX_KIND);
+  rows=rows.slice(0,20);
+
   const body=$('txBody');body.textContent='';
-  rows.forEach(([k,x,v])=>{const tr_=document.createElement('tr');[k,x.date,x.area.toFixed(2),eok(v),(x.floor||'-')+'층'].forEach((c,i)=>{const td=document.createElement('td');td.textContent=c;if(i===3)td.style.fontWeight='800';tr_.appendChild(td)});body.appendChild(tr_)});
+  if(!rows.length){
+    const tr_=document.createElement('tr'),td=document.createElement('td');
+    td.colSpan=5;td.textContent='해당 거래유형의 내역이 없습니다.';td.style.color='#64748b';td.style.textAlign='center';
+    tr_.appendChild(td);body.appendChild(tr_);
+  }else{
+    rows.forEach(({kind,x,price})=>{
+      const tr_=document.createElement('tr');
+      [kind,x.date,x.area.toFixed(2),price,(x.floor||'-')+'층'].forEach((c,i)=>{
+        const td=document.createElement('td');td.textContent=c;if(i===3)td.style.fontWeight='800';tr_.appendChild(td)
+      });
+      body.appendChild(tr_)
+    });
+  }
+
   if(!isNaN(t))setVal('recent',t.toFixed(2));
   if(!isNaN(j))setVal('jeonse',j.toFixed(2));
 }
@@ -429,6 +468,12 @@ fillSubs();
 $('searchBtn').addEventListener('click',()=>search());
 $('detailBtn').addEventListener('click',loadDetail);
 $('areaSelect').addEventListener('change',applyArea);
+$('txFilter').addEventListener('click',e=>{
+  const b=e.target.closest('button[data-kind]');if(!b)return;
+  TX_KIND=b.dataset.kind;
+  document.querySelectorAll('#txFilter .chip').forEach(x=>x.classList.toggle('on',x===b));
+  applyArea();
+});
 $('complex').addEventListener('keydown',e=>{if(e.key==='Enter')search()});
 
 // PWA: http(s)에서만 서비스워커 등록
