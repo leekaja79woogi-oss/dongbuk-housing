@@ -51,10 +51,52 @@ export default async function handler(req,res){
   if(!key)return res.status(500).json({error:"서버 환경변수 DATA_GO_KR_SERVICE_KEY가 설정되지 않았습니다."});
   if(key.includes("%"))key=decodeURIComponent(key);
   const q=String(req.query.complex||"").trim();
-  if(!q)return res.status(400).json({error:"단지명을 입력하세요."});
   const months=Math.min(Math.max(+req.query.months||12,1),24);
   const ok=body=>{res.setHeader("Cache-Control","s-maxage=3600, stale-while-revalidate=21600");return res.status(200).json(body)};
   try{
+    if(String(req.query.mode||"")==="recommend"){
+      const cash=Math.max(+req.query.cash||0,0);
+      const ltv=Math.min(Math.max(+req.query.ltv||0,0),100);
+      const acq=Math.max(+req.query.acq||0,0);
+      const amin=Math.max(+req.query.areaMin||74,1);
+      const amax=Math.max(+req.query.areaMax||85,amin);
+      const scope=String(req.query.scope||"");
+      const regionCodes=REGIONS[scope]?[scope]:Object.keys(REGIONS);
+      if(!(cash>0))return res.status(400).json({error:"가용 현금을 입력하세요."});
+      if(!(ltv>=0&&ltv<=100))return res.status(400).json({error:"LTV를 확인하세요."});
+      const pm=monthsBack(3),tasks=[];
+      for(const c of regionCodes)for(const m of pm)tasks.push(()=>tradeMonth(key,c,m).then(xs=>({c,xs})));
+      const rs=await pool(tasks),errs=rs.filter(r=>r.e),groups=new Map();
+      rs.forEach(r=>{
+        if(!r.v)return;
+        parseTrade(r.v.xs).filter(x=>!x.direct&&x.area>=amin&&x.area<=amax&&x.name).forEach(x=>{
+          const ag=Math.floor(x.area),k=r.v.c+"|"+x.name+"|"+(x.dong||"")+"|"+ag;
+          if(!groups.has(k))groups.set(k,[]);
+          groups.get(k).push(x);
+        });
+      });
+      const out=[];
+      for(const [k,xs] of groups){
+        xs.sort((a,b)=>b.date.localeCompare(a.date));
+        const [c,name,dong,ag]=k.split("|");
+        const prices=xs.slice(0,3).map(x=>x.price).sort((a,b)=>a-b);
+        const mid=prices.length%2?prices[prices.length>>1]:(prices[prices.length/2-1]+prices[prices.length/2])/2;
+        const priceEok=mid/10000;
+        const loan=priceEok*ltv/100;
+        const need=priceEok-loan+priceEok*acq/100;
+        if(need<=cash){
+          out.push({
+            region:c,regionName:REGIONS[c],name,dong,area:+ag,
+            price:+priceEok.toFixed(2),loan:+loan.toFixed(2),need:+need.toFixed(2),
+            count:xs.length,lastDate:xs[0].date,lastPrice:+(xs[0].price/10000).toFixed(2),
+            headroom:+(cash-need).toFixed(2)
+          });
+        }
+      }
+      out.sort((a,b)=>b.count-a.count||b.lastDate.localeCompare(a.lastDate)||a.need-b.need);
+      return ok({mode:"recommend",months:3,criteria:{cash,ltv,acq,areaMin:amin,areaMax:amax,scope},recommendations:out.slice(0,12),partialErrors:errs.length});
+    }
+    if(!q)return res.status(400).json({error:"단지명을 입력하세요."});
     let code=req.query.region,apt=req.query.apt;
     if(!code){
       const pm=monthsBack(3),tasks=[];
