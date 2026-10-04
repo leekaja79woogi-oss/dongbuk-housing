@@ -11,12 +11,27 @@ const cp=s=>String(s||"").replace(/\s/g,"").toLowerCase();
 const dateOf=x=>{const y=tag(x,["dealYear"]),m=tag(x,["dealMonth"]),d=tag(x,["dealDay"]);return y?`${y}-${m.padStart(2,"0")}-${d.padStart(2,"0")}`:""};
 
 async function page(url,key,lawd,ym,p){
-  const qs=new URLSearchParams({serviceKey:key,LAWD_CD:lawd,DEAL_YMD:ym,numOfRows:"1000",pageNo:String(p)});
-  const r=await fetch(`${url}?${qs}`);const t=await r.text();
-  if(!r.ok)throw new Error("공공데이터 HTTP "+r.status);
-  const code=tag(t,["returnReasonCode","resultCode"]);
-  if(code&&!/^0+$/.test(code))throw new Error((tag(t,["returnAuthMsg","resultMsg"])||"API 오류")+" ("+code+")");
-  return t;
+  const clean=String(key||"").trim().replace(/^["']|["']$/g,"");
+  let decoded=clean;
+  try{if(clean.includes("%"))decoded=decodeURIComponent(clean)}catch(e){}
+  const tails=`&LAWD_CD=${encodeURIComponent(lawd)}&DEAL_YMD=${encodeURIComponent(ym)}&numOfRows=1000&pageNo=${encodeURIComponent(String(p))}`;
+  const urls=[
+    `${url}?serviceKey=${encodeURIComponent(decoded)}${tails}`,
+    ...(clean!==decoded ? [`${url}?serviceKey=${clean}${tails}`] : [])
+  ];
+  let last;
+  for(const u of urls){
+    const r=await fetch(u);const t=await r.text();
+    if(r.ok){
+      const code=tag(t,["returnReasonCode","resultCode"]);
+      if(code&&!/^0+$/.test(code))throw new Error((tag(t,["returnAuthMsg","resultMsg"])||"API 오류")+" ("+code+")");
+      return t;
+    }
+    const msg=(tag(t,["returnAuthMsg","resultMsg","message"])||t.replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim()).slice(0,180);
+    last=new Error("공공데이터 HTTP "+r.status+(msg?": "+msg:""));
+    if(r.status!==401&&r.status!==403)break;
+  }
+  throw last||new Error("공공데이터 호출 실패");
 }
 async function all(url,key,lawd,ym){
   const first=await page(url,key,lawd,ym,1);let xs=items(first);const total=+tag(first,["totalCount"])||xs.length;
