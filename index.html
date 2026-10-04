@@ -34,7 +34,7 @@ hr{border:0;border-top:1px solid var(--line);margin:14px 0}
 .hide{display:none}
 .opt{font-weight:400}
 @media(min-width:700px){.kpis{grid-template-columns:repeat(3,1fr)}}
-.status{background:#f2f4f7;border-radius:12px;padding:11px 12px;font-size:13px;line-height:1.5;margin-top:10px}.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:12px;margin-top:12px}table{border-collapse:collapse;width:100%;min-width:480px}th,td{padding:10px;border-bottom:1px solid #eee;font-size:13px;white-space:nowrap;text-align:left}th{background:#fafafa}
+.status{background:#f2f4f7;border-radius:12px;padding:11px 12px;font-size:13px;line-height:1.5;margin-top:10px}.status.idle{background:#fafafa;border:1px dashed #d7dce3;color:#64748b}.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:12px;margin-top:12px}table{border-collapse:collapse;width:100%;min-width:480px}th,td{padding:10px;border-bottom:1px solid #eee;font-size:13px;white-space:nowrap;text-align:left}th{background:#fafafa}
 
 :root{--accent:#1f6feb;--accent2:#12b3a8}
 .top{position:relative;background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 58%,#0e7490 100%);color:#fff;border-radius:0 0 28px 28px;padding:calc(26px + env(safe-area-inset-top)) 20px 26px;border:0;overflow:hidden;backdrop-filter:none}
@@ -79,9 +79,10 @@ th{background:#f1f5f9;color:#475569}
       <select id="subregion"><option value="">전체</option></select>
       <label for="complex">단지명</label>
       <input id="complex" autocomplete="off" placeholder="단지명 입력">
-      <div class="mini" style="margin-top:7px">처음에는 최근 3개월만 빠르게 조회합니다. 필요할 때 12개월 상세내역을 추가로 불러옵니다.</div>
+      <div class="mini" style="margin-top:7px">지역을 선택하면 검색 범위가 줄어 더 빠릅니다. 세부지역은 선택사항입니다.</div>
+      <div class="mini" style="margin-top:3px">처음에는 최근 3개월만 빠르게 조회하고, 필요할 때 12개월 상세내역을 추가로 불러옵니다.</div>
       <button id="searchBtn" type="button" style="width:100%;margin-top:10px">빠른 조회</button>
-      <div id="status" class="status">조회 결과가 여기에 표시됩니다.</div><div id="cands"></div>
+      <div id="status" class="status idle">조회 전 · 결과가 이 영역에 표시됩니다.</div><div id="cands"></div>
       <div id="result" class="hide"><label for="areaSelect">전용면적</label><select id="areaSelect"></select>
         <div class="kpis" style="margin-top:12px">
           <div class="kpi"><div class="name">최근 매매(3건 중앙값)</div><div id="sTrade" class="val">-</div></div>
@@ -342,7 +343,7 @@ async function api(qs,retry){
 }
 async function search(region,apt){
   const q=$('complex').value.trim();if(!q)return;
-  const b=$('searchBtn');b.disabled=true;b.textContent='빠른 조회 중…';say('최근 3개월 거래를 빠르게 확인하는 중입니다.','load');
+  const b=$('searchBtn');b.disabled=true;b.textContent='빠른 조회 중…';say('최근 거래정보를 확인 중입니다…','load');
   $('cands').textContent='';$('result').classList.add('hide');
   try{
     const p=new URLSearchParams({complex:q,months:3});if(region){p.set('region',region);p.set('apt',apt)}else{if(SCOPE)p.set('scope',SCOPE);if(SUB)p.set('sub',SUB)}
@@ -352,14 +353,17 @@ async function search(region,apt){
       d.candidates.forEach(c=>{const x=document.createElement('button');x.type='button';x.style.cssText='display:block;width:100%;margin-top:8px;text-align:left';x.textContent=c.regionName+(c.dong?' · '+c.dong:'')+' · '+c.name;x.onclick=()=>search(c.region,c.name);$('cands').appendChild(x)});
       return;
     }
+    const uniqRent=new Map();
+    (d.rents||[]).forEach(x=>{const k=[x.name,x.date,x.area,x.deposit,x.monthly,x.floor,x.renewal].join('|');if(!uniqRent.has(k))uniqRent.set(k,x)});
+    d.rents=[...uniqRent.values()];
     DATA=d;
     say(d.complexName+' · '+d.regionName+' · 최근 '+d.months+'개월 · 매매 '+d.trades.length+'건 · 임대차 '+d.rents.length+'건'+(d.rentError?'\n전월세 조회 실패: '+d.rentError:''),d.rentError?'warn':'');
-    const areas=[...new Set([...d.trades,...d.rents].map(x=>Math.round(x.area*100)/100).filter(Boolean))].sort((a,b)=>a-b);
+    const areas=[...new Set([...d.trades,...d.rents].map(x=>Math.floor(x.area)).filter(Boolean))].sort((a,b)=>a-b);
     if(!areas.length){say('거래 내역이 없습니다.','warn');return}
     $('areaSelect').textContent='';
-    areas.forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a.toFixed(2)+'㎡ · 약 '+(a/3.3058).toFixed(1)+'평';$('areaSelect').appendChild(o)});
-    const near=areas.filter(a=>a>=74&&a<=85).sort((x,y)=>Math.abs(x-84)-Math.abs(y-84))[0];
-    if(near)$('areaSelect').value=near;
+    areas.forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a+'㎡형 · 약 '+(a/3.3058).toFixed(1)+'평';$('areaSelect').appendChild(o)});
+    const near=areas.filter(a=>a>=74&&a<=84).sort((x,y)=>Math.abs(x-84)-Math.abs(y-84))[0];
+    if(near!==undefined)$('areaSelect').value=near;
     $('result').classList.remove('hide');applyArea();
   }catch(e){say(e.message,'bad')}
   finally{b.disabled=false;b.textContent='빠른 조회'}
@@ -370,13 +374,16 @@ async function loadDetail(){
   try{
     const p=new URLSearchParams({complex:DATA.complexName,months:12,region:DATA.regionCode,apt:DATA.complexName});
     DATA=await api(p.toString());
+    const uniqRent=new Map();
+    (DATA.rents||[]).forEach(x=>{const k=[x.name,x.date,x.area,x.deposit,x.monthly,x.floor,x.renewal].join('|');if(!uniqRent.has(k))uniqRent.set(k,x)});
+    DATA.rents=[...uniqRent.values()];
     say(DATA.complexName+' · '+DATA.regionName+' · 최근 12개월 · 매매 '+DATA.trades.length+'건 · 임대차 '+DATA.rents.length+'건'+(DATA.rentError?'\n전월세 조회 실패: '+DATA.rentError:''),DATA.rentError?'warn':'');
     applyArea();
   }catch(e){say(e.message,'bad')}
   finally{b.disabled=false;b.textContent='최근 12개월 상세조회'}
 }
 function applyArea(){
-  if(!DATA)return;const a=+$('areaSelect').value,ok=x=>Math.abs(x.area-a)<=.15,by=(x,y)=>y.date.localeCompare(x.date);
+  if(!DATA)return;const a=+$('areaSelect').value,ok=x=>Math.floor(x.area)===a,by=(x,y)=>y.date.localeCompare(x.date);
   const tr=DATA.trades.filter(ok).sort(by);
   const rr=DATA.rents.filter(x=>ok(x)&&x.monthly===0&&x.deposit>0&&!x.renewal).sort(by);
   const t=med(tr.slice(0,3).map(x=>x.price))/10000,j=med(rr.slice(0,3).map(x=>x.deposit))/10000,ratio=j/t*100;
@@ -384,7 +391,7 @@ function applyArea(){
   set('sTrade',isNaN(t)?'-':eok(t));set('sRent',isNaN(j)?'-':eok(j));
   set('sRatio',isNaN(ratio)?'-':ratio.toFixed(1)+'%',ratio>=80?'bad':ratio>=70?'warn':'');
   set('sCnt',tr.length+' / '+rr.length+'건');
-  $('note').textContent=(tr.length<3||rr.length<3?'표본이 적어 대표값으로 보기 어렵습니다. ':'')+'전세는 월세 0원·갱신계약 제외, 매매는 해제 거래 제외입니다. 신고 지연으로 최근 한 달은 비어 보일 수 있습니다.';
+  $('note').textContent=(tr.length<3||rr.length<3?'표본이 적어 대표값으로 보기 어렵습니다. ':'')+'같은 ㎡형은 소수점 면적 차이를 묶어 보여줍니다. 전세는 월세 0원·갱신계약 제외, 매매는 해제 거래 제외입니다. 신고 지연으로 최근 한 달은 비어 보일 수 있습니다.';
   const rows=[...tr.slice(0,6).map(x=>['매매',x,x.price/10000]),...rr.slice(0,6).map(x=>['전세',x,x.deposit/10000])].sort((p,q)=>q[1].date.localeCompare(p[1].date)).slice(0,10);
   const body=$('txBody');body.textContent='';
   rows.forEach(([k,x,v])=>{const tr_=document.createElement('tr');[k,x.date,x.area.toFixed(2),eok(v),(x.floor||'-')+'층'].forEach((c,i)=>{const td=document.createElement('td');td.textContent=c;if(i===3)td.style.fontWeight='800';tr_.appendChild(td)});body.appendChild(tr_)});
