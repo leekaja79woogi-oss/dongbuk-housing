@@ -456,7 +456,23 @@ const SUBREGIONS={
 let SUB='';
 let SCOPE='';
 SCOPES.forEach(([c,n])=>{const b=document.createElement('button');b.type='button';b.className='chip'+(c===SCOPE?' on':'');b.textContent=n;
-  b.onclick=()=>{SCOPE=c;SUB='';try{localStorage.setItem('dbh:scope',c)}catch(e){}document.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x===b));fillSubs()};$('chips').appendChild(b)});
+  b.onclick=()=>{
+  if(SCOPE===c)return;
+  SCOPE=c;SUB='';TX_KIND='all';DATA=null;
+  $('complex').value='';
+  $('cands').textContent='';
+  $('result').classList.add('hide');
+  say('조회 전 · 결과가 이 영역에 표시됩니다.','idle');
+  document.querySelectorAll('#txFilter .chip').forEach(x=>x.classList.toggle('on',x.dataset.kind==='all'));
+  try{
+    localStorage.setItem('dbh:scope',c);
+    const saved=JSON.parse(localStorage.getItem('dbh:v4')||'{}');
+    saved.complex='';
+    localStorage.setItem('dbh:v4',JSON.stringify(saved));
+  }catch(e){}
+  document.querySelectorAll('#chips .chip').forEach(x=>x.classList.toggle('on',x===b));
+  fillSubs();
+};$('chips').appendChild(b)});
 function fillSubs(){
   const sel=$('subregion');sel.textContent='';
   const all=document.createElement('option');all.value='';all.textContent='전체';sel.appendChild(all);
