@@ -41,8 +41,8 @@ async function all(url,key,lawd,ym){
 async function tradeMonth(key,lawd,ym){let last;for(const u of TRADE){try{return await all(u,key,lawd,ym)}catch(e){last=e}}throw last}
 async function pool(tasks,n=8){const out=[];let i=0;await Promise.all(Array.from({length:n},async()=>{while(i<tasks.length){const k=i++;out[k]=await tasks[k]().then(v=>({v}),e=>({e}))}}));return out}
 
-const parseTrade=xs=>xs.filter(x=>tag(x,["cdealType"])!=="O").map(x=>({name:tag(x,["aptNm"]),date:dateOf(x),area:+tag(x,["excluUseAr"]),price:num(tag(x,["dealAmount"])),floor:+tag(x,["floor"])||0,direct:tag(x,["dealingGbn"])==="직거래"}));
-const parseRent=xs=>xs.map(x=>({name:tag(x,["aptNm"]),date:dateOf(x),area:+tag(x,["excluUseAr"]),deposit:num(tag(x,["deposit"])),monthly:num(tag(x,["monthlyRent"])),floor:+tag(x,["floor"])||0,renewal:tag(x,["contractType"])==="갱신"||tag(x,["useRRRight"])==="사용"}));
+const parseTrade=xs=>xs.filter(x=>tag(x,["cdealType"])!=="O").map(x=>({name:tag(x,["aptNm"]),dong:tag(x,["umdNm","sggNm"]),date:dateOf(x),area:+tag(x,["excluUseAr"]),price:num(tag(x,["dealAmount"])),floor:+tag(x,["floor"])||0,direct:tag(x,["dealingGbn"])==="직거래"}));
+const parseRent=xs=>xs.map(x=>({name:tag(x,["aptNm"]),dong:tag(x,["umdNm","sggNm"]),date:dateOf(x),area:+tag(x,["excluUseAr"]),deposit:num(tag(x,["deposit"])),monthly:num(tag(x,["monthlyRent"])),floor:+tag(x,["floor"])||0,renewal:tag(x,["contractType"])==="갱신"||tag(x,["useRRRight"])==="사용"}));
 
 export default async function handler(req,res){
   const need=process.env.APP_TOKEN;
@@ -53,19 +53,19 @@ export default async function handler(req,res){
   const q=String(req.query.complex||"").trim();
   if(!q)return res.status(400).json({error:"단지명을 입력하세요."});
   const months=Math.min(Math.max(+req.query.months||12,1),24);
-  const ok=body=>{res.setHeader("Cache-Control","s-maxage=21600, stale-while-revalidate=43200");return res.status(200).json(body)};
+  const ok=body=>{res.setHeader("Cache-Control","s-maxage=3600, stale-while-revalidate=21600");return res.status(200).json(body)};
   try{
     let code=req.query.region,apt=req.query.apt;
     if(!code){
       const pm=monthsBack(3),tasks=[];
       for(const c of (REGIONS[req.query.scope]?[req.query.scope]:Object.keys(REGIONS)))for(const m of pm)tasks.push(()=>tradeMonth(key,c,m).then(xs=>({c,xs})));
-      const rs=await pool(tasks),errs=rs.filter(r=>r.e),found=new Map();
-      rs.forEach(r=>{if(r.v)parseTrade(r.v.xs).filter(x=>x.name&&cp(x.name).includes(cp(q))).forEach(x=>{const k=r.v.c+"|"+x.name;found.set(k,(found.get(k)||0)+1)})});
+      const rs=await pool(tasks),errs=rs.filter(r=>r.e),found=new Map(),sub=cp(req.query.sub||"");
+      rs.forEach(r=>{if(r.v)parseTrade(r.v.xs).filter(x=>x.name&&cp(x.name).includes(cp(q))&&(!sub||cp(x.dong).includes(sub))).forEach(x=>{const k=r.v.c+"|"+x.name+"|"+(x.dong||"");found.set(k,(found.get(k)||0)+1)})});
       if(!found.size){
         if(errs.length)return res.status(502).json({error:"조회 중 오류: "+errs[0].e.message+(errs.length<rs.length?" (일부 지역 실패)":"")});
         return res.status(404).json({error:"최근 3개월 매매 거래에서 단지를 찾지 못했습니다. 표기를 바꿔 다시 검색해보세요."});
       }
-      const cands=[...found].map(([k,n])=>{const [c,nm]=k.split("|");return{region:c,regionName:REGIONS[c],name:nm,count:n}}).sort((a,b)=>b.count-a.count);
+      const cands=[...found].map(([k,n])=>{const [c,nm,dong]=k.split("|");return{region:c,regionName:REGIONS[c],name:nm,dong,count:n}}).sort((a,b)=>b.count-a.count);
       if(cands.length>1)return ok({candidates:cands});
       code=cands[0].region;apt=cands[0].name;
     }
