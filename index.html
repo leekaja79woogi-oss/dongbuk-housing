@@ -115,8 +115,8 @@ th{background:#f1f5f9;color:#475569}
       <div class="grid2">
         <div><label for="cash">가용 현금(억원)</label><input id="cash" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 1.00"></div>
         <div><label for="rent">현재 월 주거비(만원) <span class="opt">· 선택</span></label><input id="rent" type="number" inputmode="decimal" min="0" placeholder="월세·대출상환 등"></div>
-        <div><label for="price">매수희망가(억원)</label><input id="price" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 7.30"></div>
-        <div><label for="ask">현재 호가(억원)</label><input id="ask" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 8.30"></div>
+        <div><label for="price">목표 매수가(억원)</label><input id="price" type="number" inputmode="decimal" step="0.01" min="0" placeholder="내가 사고 싶은 가격"></div>
+        <div><label for="ask">현재 매도 호가(억원) <span class="opt">· 선택</span></label><input id="ask" type="number" inputmode="decimal" step="0.01" min="0" placeholder="매물 확인 시 입력"></div>
         <div><label for="jeonse">현재 전세 시세(억원)</label><input id="jeonse" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 5.50"></div>
         <div><label for="ltv">LTV(%)</label><input id="ltv" type="number" inputmode="decimal" step="1" min="0" max="100" placeholder="예: 40"></div>
         <div><label for="rate">주담대 금리(%)</label><input id="rate" type="number" inputmode="decimal" step="0.1" min="0" placeholder="예: 4.5"></div>
@@ -230,7 +230,7 @@ function calcBuy(){
         acq = num('acq'), years = num('years');
   const kp = ['k-disc','k-ask','k-jratio','k-loan','k-need','k-pay'];
   const bad = [];
-  if (!(price > 0)) bad.push('매수희망가');
+  if (!(price > 0)) bad.push('목표 매수가');
   if (!(recent > 0)) bad.push('최근 실거래');
   if (!(jeonse >= 0)) bad.push('전세 시세');
   if (!(cash >= 0)) bad.push('가용 현금');
