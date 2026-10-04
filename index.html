@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#111111">
+<meta name="theme-color" content="#0f172a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -35,13 +35,33 @@ hr{border:0;border-top:1px solid var(--line);margin:14px 0}
 .opt{font-weight:400}
 @media(min-width:700px){.kpis{grid-template-columns:repeat(3,1fr)}}
 .status{background:#f2f4f7;border-radius:12px;padding:11px 12px;font-size:13px;line-height:1.5;margin-top:10px}.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:12px;margin-top:12px}table{border-collapse:collapse;width:100%;min-width:480px}th,td{padding:10px;border-bottom:1px solid #eee;font-size:13px;white-space:nowrap;text-align:left}th{background:#fafafa}
+
+:root{--accent:#1f6feb;--accent2:#12b3a8}
+.top{position:relative;background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 58%,#0e7490 100%);color:#fff;border-radius:0 0 28px 28px;padding:calc(26px + env(safe-area-inset-top)) 20px 26px;border:0;overflow:hidden;backdrop-filter:none}
+.title{color:#fff;font-size:27px;letter-spacing:-.5px;position:relative}.sub{color:rgba(255,255,255,.78);position:relative;max-width:78%}
+.sky{position:absolute;right:-4px;bottom:0;width:190px;opacity:.2;pointer-events:none}
+.card{border-radius:20px;box-shadow:0 8px 26px rgba(15,23,42,.08)}
+.card>b:first-child{display:flex;align-items:center;gap:9px;font-size:16px}.card>b:first-child::before{content:"";width:6px;height:18px;border-radius:4px;background:linear-gradient(var(--accent),var(--accent2))}
+button{background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 4px 14px rgba(31,111,235,.28)}button:disabled{opacity:.6}
+button.ghost{background:#eef2f7;color:#334155;box-shadow:none}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 6px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;background:#eef2f7;color:#334155;box-shadow:none;padding:9px 15px;border-radius:999px;font-size:13px;font-weight:600}.chip.on{background:#0f172a;color:#fff}
+.kpi{border-left:4px solid var(--accent);border-radius:16px;padding:14px 14px 14px 12px}.kpi:nth-child(2n){border-left-color:var(--accent2)}.kpi .val{font-size:22px;letter-spacing:-.4px}
+.section{animation:rise .35s ease both}@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.status.load{background:linear-gradient(90deg,#f2f4f7,#e2eafc,#f2f4f7);background-size:200% 100%;animation:sh 1.1s linear infinite}@keyframes sh{to{background-position:-200% 0}}
+.status{white-space:pre-line}
+.bottom{box-shadow:0 -6px 24px rgba(15,23,42,.08);border-radius:22px 22px 0 0;border:0}.bottom button{box-shadow:none;background:transparent}
+.bottom .active{color:var(--accent);background:linear-gradient(#e8f0ff,#fff);border-radius:14px}
+input:focus,select:focus{border-color:var(--accent);outline:0;box-shadow:0 0 0 3px rgba(31,111,235,.15)}
+th{background:#f1f5f9;color:#475569}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="top">
     <div class="title">동북권 집찾기</div>
-    <div class="sub">갈매 · 별내 · 퇴계원 · 다산 · 서울 동부권 실거주 의사결정</div>
+    <div class="sub">구리 · 남양주 · 의정부 · 서울 동북권 실거래 기반 의사결정</div>
+    <svg class="sky" viewBox="0 0 200 90" aria-hidden="true"><g fill="#fff"><rect x="4" y="46" width="22" height="44"/><rect x="30" y="22" width="26" height="68"/><rect x="60" y="38" width="20" height="52"/><rect x="84" y="8" width="28" height="82"/><rect x="116" y="30" width="22" height="60"/><rect x="142" y="50" width="24" height="40"/><rect x="170" y="34" width="26" height="56"/></g><g fill="#0f172a" opacity=".55"><rect x="34" y="30" width="5" height="6"/><rect x="44" y="30" width="5" height="6"/><rect x="90" y="18" width="5" height="6"/><rect x="100" y="18" width="5" height="6"/><rect x="90" y="34" width="5" height="6"/><rect x="100" y="34" width="5" height="6"/><rect x="174" y="42" width="5" height="6"/><rect x="184" y="42" width="5" height="6"/></g></svg>
   </div>
 
   <div id="installBox" class="install">
@@ -54,19 +74,20 @@ hr{border:0;border-top:1px solid var(--line);margin:14px 0}
     <div class="card">
       <b>공통 입력</b>
       <label for="complex">단지명</label>
-      <input id="complex" value="갈매와이시티" autocomplete="off">
+      <input id="complex" autocomplete="off" placeholder="단지명 입력">
       <div class="grid2">
-        <div><label for="recent">최근 실거래(억원)</label><input id="recent" type="number" inputmode="decimal" step="0.01" min="0" value="7.80"></div>
-        <div><label for="cash">가용 현금(억원)</label><input id="cash" type="number" inputmode="decimal" step="0.01" min="0" value="1.00"></div>
-        <div><label for="rent">현재 월 주거비(만원)</label><input id="rent" type="number" inputmode="decimal" min="0" value="145"></div>
+        <div><label for="recent">최근 실거래(억원)</label><input id="recent" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 7.80"></div>
+        <div><label for="cash">가용 현금(억원)</label><input id="cash" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 1.00"></div>
+        <div><label for="rent">현재 월 주거비(만원)</label><input id="rent" type="number" inputmode="decimal" min="0" placeholder="예: 145"></div>
       </div>
+      <button type="button" id="resetBtn" class="ghost" style="margin-top:12px;width:100%">입력 초기화</button>
     </div>
   </div>
 
   <!-- 매수 -->
   <div class="section" id="tab-search">
     <div class="card"><b>실거래 자동 조회</b>
-      <div class="mini" style="margin-top:6px">위 단지명으로 구리·남양주·의정부·서울 동북권에서 찾아 최근 12개월 매매·순수전세(신규)를 불러옵니다.</div>
+      <label>지역 선택</label><div id="chips" class="chips"></div><div class="mini" style="margin-top:6px">지역을 고르면 그 지역만 조회해 더 빠르고 호출량도 줄어듭니다. 선택하지 않으면 전체에서 찾습니다.</div>
       <button id="searchBtn" type="button" style="width:100%;margin-top:10px">실거래 조회</button>
       <div id="status" class="status">단지명을 입력하고 조회하세요.</div><div id="cands"></div>
       <div id="result" class="hide"><label for="areaSelect">전용면적</label><select id="areaSelect"></select>
@@ -87,13 +108,13 @@ hr{border:0;border-top:1px solid var(--line);margin:14px 0}
     <div class="card">
       <b>매수 시나리오</b>
       <div class="grid2">
-        <div><label for="price">매수희망가(억원)</label><input id="price" type="number" inputmode="decimal" step="0.01" min="0" value="7.30"></div>
-        <div><label for="ask">현재 호가(억원)</label><input id="ask" type="number" inputmode="decimal" step="0.01" min="0" value="8.30"></div>
-        <div><label for="jeonse">현재 전세 시세(억원)</label><input id="jeonse" type="number" inputmode="decimal" step="0.01" min="0" value="5.50"></div>
-        <div><label for="ltv">LTV(%)</label><input id="ltv" type="number" inputmode="decimal" step="1" min="0" max="100" value="40"></div>
-        <div><label for="rate">주담대 금리(%)</label><input id="rate" type="number" inputmode="decimal" step="0.1" min="0" value="4.5"></div>
-        <div><label for="years">상환기간(년)</label><input id="years" type="number" inputmode="numeric" step="1" min="1" value="30"></div>
-        <div><label for="acq">취득·중개 비용(%)</label><input id="acq" type="number" inputmode="decimal" step="0.1" min="0" value="3"></div>
+        <div><label for="price">매수희망가(억원)</label><input id="price" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 7.30"></div>
+        <div><label for="ask">현재 호가(억원)</label><input id="ask" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 8.30"></div>
+        <div><label for="jeonse">현재 전세 시세(억원)</label><input id="jeonse" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 5.50"></div>
+        <div><label for="ltv">LTV(%)</label><input id="ltv" type="number" inputmode="decimal" step="1" min="0" max="100" placeholder="예: 40"></div>
+        <div><label for="rate">주담대 금리(%)</label><input id="rate" type="number" inputmode="decimal" step="0.1" min="0" placeholder="예: 4.5"></div>
+        <div><label for="years">상환기간(년)</label><input id="years" type="number" inputmode="numeric" step="1" min="1" placeholder="예: 30"></div>
+        <div><label for="acq">취득·중개 비용(%)</label><input id="acq" type="number" inputmode="decimal" step="0.1" min="0" placeholder="예: 3"></div>
       </div>
     </div>
 
@@ -119,11 +140,11 @@ hr{border:0;border-top:1px solid var(--line);margin:14px 0}
     <div class="card">
       <b>전세 이동·재계약 시나리오</b>
       <div class="grid2">
-        <div><label for="newJ">신규 전세금(억원)</label><input id="newJ" type="number" inputmode="decimal" step="0.01" min="0" value="5.50"></div>
-        <div><label for="budget">전세 예산 상한(억원)</label><input id="budget" type="number" inputmode="decimal" step="0.01" min="0" value="4.00"></div>
-        <div><label for="deposit">현재 보증금 회수액(만원)</label><input id="deposit" type="number" inputmode="decimal" min="0" value="6000"></div>
-        <div><label for="loanLimit">전세대출 한도(억원)</label><input id="loanLimit" type="number" inputmode="decimal" step="0.01" min="0" value="3.50"></div>
-        <div><label for="rateJ">전세대출 금리(%)</label><input id="rateJ" type="number" inputmode="decimal" step="0.1" min="0" value="4.5"></div>
+        <div><label for="newJ">신규 전세금(억원)</label><input id="newJ" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 5.50"></div>
+        <div><label for="budget">전세 예산 상한(억원)</label><input id="budget" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 4.00"></div>
+        <div><label for="deposit">현재 보증금 회수액(만원)</label><input id="deposit" type="number" inputmode="decimal" min="0" placeholder="예: 6000"></div>
+        <div><label for="loanLimit">전세대출 한도(억원)</label><input id="loanLimit" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 3.50"></div>
+        <div><label for="rateJ">전세대출 금리(%)</label><input id="rateJ" type="number" inputmode="decimal" step="0.1" min="0" placeholder="예: 4.5"></div>
         <div><label for="renew">재계약 시 월세(만원) <span class="opt">· 선택</span></label><input id="renew" type="number" inputmode="decimal" min="0" placeholder="인상 시 입력"></div>
       </div>
     </div>
@@ -192,6 +213,7 @@ function calcBuy(){
   if (!(years >= 1)) bad.push('상환기간');
   if (!(acq >= 0)) bad.push('취득·중개 비용');
   if (!(rent >= 0)) bad.push('현재 월 주거비');
+  if (isNaN(price) && isNaN(recent)) { clearKpis(kp); return render('buyDecision', [['mini','값을 입력하거나 [단지검색]에서 조회하면 결과가 여기에 표시됩니다.']]); }
   if (bad.length) return invalid('buyDecision', kp, bad);
 
   const discount = (recent - price) / recent * 100;
@@ -244,6 +266,7 @@ function calcJeonse(){
   if (!(rateJ >= 0)) bad.push('전세대출 금리');
   if (!(cash >= 0)) bad.push('가용 현금');
   if (!(rent >= 0)) bad.push('현재 월 주거비');
+  if (isNaN(newJ) && isNaN(deposit)) { clearKpis(kp); return render('jDecision', [['mini','값을 입력하면 결과가 여기에 표시됩니다.']]); }
   if (bad.length) return invalid('jDecision', kp, bad);
 
   const need = Math.max(0, newJ * 10000 - deposit);     // 만원
@@ -292,12 +315,12 @@ document.querySelectorAll('.bottom button').forEach(b => b.addEventListener('cli
 // 입력값 저장·복원 (실패해도 앱은 동작)
 const FIELDS = ['complex','recent','cash','rent','price','ask','jeonse','ltv','rate','years','acq','newJ','budget','deposit','loanLimit','rateJ','renew'];
 try {
-  const saved = JSON.parse(localStorage.getItem('dbh:v2') || '{}');
+  const saved = JSON.parse(localStorage.getItem('dbh:v3') || '{}');
   FIELDS.forEach(id => { if (id in saved) $(id).value = saved[id]; });
 } catch(e) {}
 document.addEventListener('input', e => {
   if (!e.target.matches('input')) return;
-  try { localStorage.setItem('dbh:v2', JSON.stringify(Object.fromEntries(FIELDS.map(id => [id, $(id).value])))); } catch(err) {}
+  try { localStorage.setItem('dbh:v3', JSON.stringify(Object.fromEntries(FIELDS.map(id => [id, $(id).value])))); } catch(err) {}
   calcAll();
 });
 calcAll();
@@ -318,10 +341,10 @@ async function api(qs,retry){
 }
 async function search(region,apt){
   const q=$('complex').value.trim();if(!q)return;
-  const b=$('searchBtn');b.disabled=true;b.textContent='조회 중…';say('단지를 찾고 실거래를 불러오는 중입니다.');
+  const b=$('searchBtn');b.disabled=true;b.textContent='조회 중…';say('단지를 찾고 실거래를 불러오는 중입니다.','load');
   $('cands').textContent='';$('result').classList.add('hide');
   try{
-    const p=new URLSearchParams({complex:q,months:12});if(region){p.set('region',region);p.set('apt',apt)}
+    const p=new URLSearchParams({complex:q,months:12});if(region){p.set('region',region);p.set('apt',apt)}else if(SCOPE)p.set('scope',SCOPE);
     const d=await api(p.toString());
     if(d.candidates){
       say('같은 이름의 단지가 여러 곳 있습니다. 선택하세요.');
@@ -356,6 +379,16 @@ function applyArea(){
   if(!isNaN(t))setVal('recent',t.toFixed(2));
   if(!isNaN(j))setVal('jeonse',j.toFixed(2));
 }
+// 지역 카테고리
+const SCOPES=[['','전체'],['41310','구리'],['41360','남양주'],['41150','의정부'],['11260','중랑'],['11350','노원'],['11320','도봉'],['11305','강북'],['11215','광진'],['11230','동대문'],['11200','성동'],['11290','성북'],['11740','강동']];
+let SCOPE='';try{SCOPE=localStorage.getItem('dbh:scope')||''}catch(e){}
+SCOPES.forEach(([c,n])=>{const b=document.createElement('button');b.type='button';b.className='chip'+(c===SCOPE?' on':'');b.textContent=n;
+  b.onclick=()=>{SCOPE=c;try{localStorage.setItem('dbh:scope',c)}catch(e){}document.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x===b))};$('chips').appendChild(b)});
+$('resetBtn').addEventListener('click',()=>{
+  if(!confirm('입력값을 모두 지울까요?'))return;
+  FIELDS.forEach(id=>{$(id).value=''});try{localStorage.removeItem('dbh:v3')}catch(e){}
+  DATA=null;$('result').classList.add('hide');$('cands').textContent='';say('단지명을 입력하고 조회하세요.');calcAll();
+});
 $('searchBtn').addEventListener('click',()=>search());
 $('areaSelect').addEventListener('change',applyArea);
 $('complex').addEventListener('keydown',e=>{if(e.key==='Enter')search()});
