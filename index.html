@@ -111,6 +111,22 @@ th{background:#f1f5f9;color:#475569}
   <!-- 매수 -->
   <div class="section hide" id="tab-buy">
     <div class="card">
+      <b>매수 시나리오</b>
+      <div class="grid2">
+        <div><label for="cash">가용 현금(억원)</label><input id="cash" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 1.00"></div>
+        <div><label for="rent">현재 월 주거비(만원) <span class="opt">· 선택</span></label><input id="rent" type="number" inputmode="decimal" min="0" placeholder="월세·대출상환 등"></div>
+        <div><label for="price">매수희망가(억원)</label><input id="price" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 7.30"></div>
+        <div><label for="ask">현재 호가(억원)</label><input id="ask" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 8.30"></div>
+        <div><label for="jeonse">현재 전세 시세(억원)</label><input id="jeonse" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 5.50"></div>
+        <div><label for="ltv">LTV(%)</label><input id="ltv" type="number" inputmode="decimal" step="1" min="0" max="100" placeholder="예: 40"></div>
+        <div><label for="rate">주담대 금리(%)</label><input id="rate" type="number" inputmode="decimal" step="0.1" min="0" placeholder="예: 4.5"></div>
+        <div><label for="years">상환기간(년)</label><input id="years" type="number" inputmode="numeric" step="1" min="1" placeholder="예: 30"></div>
+        <div><label for="acq">취득·중개 비용(%)</label><input id="acq" type="number" inputmode="decimal" step="0.1" min="0" placeholder="예: 3"></div>
+      </div>
+      <div class="mini" style="margin-top:9px">현재 월 주거비는 월세뿐 아니라 주담대 이자·원리금 등 현재 실제 월 부담액을 넣는 비교용 항목입니다. 비교가 필요 없으면 비워두세요.</div>
+    </div>
+
+    <div class="card">
       <b>내 자금으로 가능한 단지 찾기</b>
       <div class="grid2">
         <div><label for="recScope">추천지역</label><select id="recScope"></select></div>
@@ -120,25 +136,10 @@ th{background:#f1f5f9;color:#475569}
           <option value="84,101">84~101㎡</option>
         </select></div>
       </div>
-      <div class="mini" style="margin-top:8px">가용 현금·LTV·취득비용을 기준으로 최근 3개월 실거래가 있는 단지를 추천합니다.</div>
+      <div class="mini" style="margin-top:8px">위 시나리오의 가용 현금·LTV·취득비용을 기준으로 최근 3개월 실거래 단지를 추천합니다.</div>
       <button id="recommendBtn" type="button" style="width:100%;margin-top:10px">내 자금으로 가능한 단지 찾기</button>
-      <div id="recStatus" class="status idle">조건을 입력하면 추천 결과가 여기에 표시됩니다.</div>
+      <div id="recStatus" class="status idle">매수 시나리오의 자금조건을 먼저 입력하세요.</div>
       <div id="recResults"></div>
-    </div>
-
-    <div class="card">
-      <b>매수 시나리오</b>
-      <div class="grid2">
-        <div><label for="cash">가용 현금(억원)</label><input id="cash" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 1.00"></div>
-        <div><label for="rent">현재 월 주거비(만원)</label><input id="rent" type="number" inputmode="decimal" min="0" placeholder="예: 145"></div>
-        <div><label for="price">매수희망가(억원)</label><input id="price" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 7.30"></div>
-        <div><label for="ask">현재 호가(억원)</label><input id="ask" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 8.30"></div>
-        <div><label for="jeonse">현재 전세 시세(억원)</label><input id="jeonse" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 5.50"></div>
-        <div><label for="ltv">LTV(%)</label><input id="ltv" type="number" inputmode="decimal" step="1" min="0" max="100" placeholder="예: 40"></div>
-        <div><label for="rate">주담대 금리(%)</label><input id="rate" type="number" inputmode="decimal" step="0.1" min="0" placeholder="예: 4.5"></div>
-        <div><label for="years">상환기간(년)</label><input id="years" type="number" inputmode="numeric" step="1" min="1" placeholder="예: 30"></div>
-        <div><label for="acq">취득·중개 비용(%)</label><input id="acq" type="number" inputmode="decimal" step="0.1" min="0" placeholder="예: 3"></div>
-      </div>
     </div>
 
     <div class="kpis">
@@ -237,7 +238,6 @@ function calcBuy(){
   if (!(ltv >= 0 && ltv <= 100)) bad.push('LTV(0~100)');
   if (!(years >= 1)) bad.push('상환기간');
   if (!(acq >= 0)) bad.push('취득·중개 비용');
-  if (!(rent >= 0)) bad.push('현재 월 주거비');
   if (isNaN(price) && isNaN(recent)) { clearKpis(kp); return render('buyDecision', [['mini','값을 입력하거나 [단지검색]에서 조회하면 결과가 여기에 표시됩니다.']]); }
   if (bad.length) return invalid('buyDecision', kp, bad);
 
@@ -271,11 +271,16 @@ function calcBuy(){
   else L.push(['', '전세가율 ', {b: jratio.toFixed(1) + '%'}, '입니다.']);
   if (need > cash) L.push(['bad', '필요 현금 ', {b: eok(need)}, '(취득·중개 비용 ' + acq + '% 포함)로, 가용 현금보다 ', {b: eok(need - cash)}, ' 부족합니다.']);
   else L.push(['good', '필요 현금 ' + eok(need) + '으로 가용 현금 범위 안입니다.']);
-  const dInt = int1 - rent;
-  L.push(['', years + '년 원리금균등 월 상환액은 약 ', {b: Math.round(pay).toLocaleString('ko-KR') + '만원'},
-    '(첫 달 이자 ' + Math.round(int1).toLocaleString('ko-KR') + '만 + 원금 ' + Math.round(prin1).toLocaleString('ko-KR') + '만)입니다. ',
-    '원금은 자산으로 쌓이므로 순수 비용은 이자 쪽이며, 현재 월 주거비 대비 이자만 보면 ',
-    {b: sign(dInt), c: dInt > 0 ? 'bad' : 'good'}, ' 수준입니다.']);
+  if(rent>=0){
+    const dInt = int1 - rent;
+    L.push(['', years + '년 원리금균등 월 상환액은 약 ', {b: Math.round(pay).toLocaleString('ko-KR') + '만원'},
+      '(첫 달 이자 ' + Math.round(int1).toLocaleString('ko-KR') + '만 + 원금 ' + Math.round(prin1).toLocaleString('ko-KR') + '만)입니다. ',
+      '현재 월 주거비와 비교하면 대출 이자만 ',
+      {b: sign(dInt), c: dInt > 0 ? 'bad' : 'good'}, ' 수준입니다.']);
+  }else{
+    L.push(['', years + '년 원리금균등 월 상환액은 약 ', {b: Math.round(pay).toLocaleString('ko-KR') + '만원'},
+      '(첫 달 이자 ' + Math.round(int1).toLocaleString('ko-KR') + '만 + 원금 ' + Math.round(prin1).toLocaleString('ko-KR') + '만)입니다.']);
+  }
   render('buyDecision', L);
 }
 
