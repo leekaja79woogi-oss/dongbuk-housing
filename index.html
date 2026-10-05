@@ -79,7 +79,7 @@ body{background:var(--bg);color:var(--ink);font-size:15px;-webkit-font-smoothing
 body[data-tab="home"] .top{position:relative;padding:calc(46px + env(safe-area-inset-top)) 24px 40px;border-radius:0 0 34px 34px}
 body[data-tab="home"] .title{font-size:32px;letter-spacing:-1px}
 body[data-tab="home"] .sub{font-size:14px;margin-top:8px}
-body[data-tab="home"] .sky{width:230px;opacity:.16}
+body[data-tab="home"] .sky{width:230px;opacity:.10}
 body:not([data-tab="home"]) .top{padding:calc(12px + env(safe-area-inset-top)) 20px 13px;border-radius:0 0 20px 20px}
 body:not([data-tab="home"]) .title{font-size:17px}
 body:not([data-tab="home"]) .sub,body:not([data-tab="home"]) .sky{display:none}
@@ -120,7 +120,8 @@ details.fold-s[open]>summary{margin-bottom:10px}
 .mi svg{width:26px;height:26px;fill:none;stroke:var(--accent);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .mt{flex:1;display:flex;flex-direction:column;gap:4px}.mt b{font-size:18px;letter-spacing:-.4px}.mt i{font-style:normal;font-size:13.5px;color:var(--muted);font-weight:500}
 .go{font-size:26px;color:#b6c0d1}
-.credit{text-align:center;margin:44px 0 8px;color:var(--muted)}
+.credit{text-align:center;margin:auto 0 10px;padding-top:38px;color:var(--muted)}
+#tab-home:not(.hide){display:flex;flex-direction:column;min-height:calc(100vh - 250px);padding-bottom:18px}
 .mono{width:44px;height:44px;margin:0 auto 10px;border-radius:15px;background:linear-gradient(135deg,var(--ink),#1e3a8a);color:#fff;display:grid;place-items:center;font-weight:800;font-size:19px}
 .cn{font-size:14px}.cn b{color:var(--ink);font-size:15px}.cs{font-size:12px;margin-top:6px}
 .bottom{grid-template-columns:repeat(4,1fr);padding:6px 8px calc(8px + env(safe-area-inset-bottom))}
@@ -154,13 +155,13 @@ details.fold-s[open]>summary{margin-bottom:10px}
   <div class="section" id="tab-home">
   <div class="menu">
     <button type="button" class="mcard" data-go="search"><span class="mi"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span><span class="mt"><b>단지 검색</b><i>단지명으로 최근 실거래 확인</i></span><span class="go">›</span></button>
-    <button type="button" class="mcard" data-go="buy"><span class="mi"><svg viewBox="0 0 24 24"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/></svg></span><span class="mt"><b>매수 분석</b><i>내 자금으로 가능한지 판정</i></span><span class="go">›</span></button>
+    <button type="button" class="mcard" data-go="buy"><span class="mi"><svg viewBox="0 0 24 24"><path d="M5 21V4h10v17"/><path d="M15 9h4v12"/><path d="M8 8h4M8 12h4M8 16h4"/><path d="M3 21h18"/></svg></span><span class="mt"><b>매수 분석</b><i>내 자금으로 가능한지 판정</i></span><span class="go">›</span></button>
     <button type="button" class="mcard" data-go="jeonse"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M8 15h3"/></svg></span><span class="mt"><b>전세 · 재계약</b><i>이동과 재계약 비교</i></span><span class="go">›</span></button>
   </div>
   <div class="credit">
     <div class="mono">W</div>
     <div class="cn">Made by <b>Woogi</b></div>
-    <div class="cs">국토교통부 실거래가 공개자료 기반 · 참고용</div>
+    <div class="cs">국토교통부 실거래가 공개자료 기반 · 참고용 · v9</div>
   </div>
 </div>
 
@@ -376,7 +377,7 @@ details.fold-s[open]>summary{margin-bottom:10px}
 <nav class="bottom">
   <button type="button" id="nav-home" class="active" data-tab="home"><svg viewBox="0 0 24 24"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/></svg><span>홈</span></button>
   <button type="button" id="nav-search" data-tab="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>검색</span></button>
-  <button type="button" id="nav-buy" data-tab="buy"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg><span>매수</span></button>
+  <button type="button" id="nav-buy" data-tab="buy"><svg viewBox="0 0 24 24"><path d="M5 21V4h10v17"/><path d="M15 9h4v12"/><path d="M8 8h4M8 12h4M8 16h4"/><path d="M3 21h18"/></svg><span>매수</span></button>
   <button type="button" id="nav-jeonse" data-tab="jeonse"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg><span>전세</span></button>
 </nav>
 
