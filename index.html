@@ -79,6 +79,24 @@ th{background:#f1f5f9;color:#475569}
 .recgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
 .reccell{background:#f8fafc;border-radius:12px;padding:10px}.reccell .n{font-size:11px;color:var(--muted)}.reccell .v{font-size:15px;font-weight:800;margin-top:3px}
 .recitem button{width:100%;margin-top:10px}
+#recommendCard .grid2>button.recActionBtn{
+  min-height:78px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  line-height:1.28;
+  padding:12px 10px;
+  text-align:center;
+  white-space:normal;
+  word-break:keep-all;
+}
+#recommendCard .recActionBtn span{display:block}
+@media(max-width:380px){
+  #recommendCard .grid2>button.recActionBtn{font-size:14px;min-height:74px;padding:10px 7px}
+}
+
 
 /* ===== v7 redesign ===== */
 :root{--bg:#f3f5fa;--accent:#2f5bff;--accent2:#12b3a8;--ink:#0f172a;--muted:#64748b}
@@ -273,8 +291,8 @@ details.fold-s[open]>summary{margin-bottom:10px}
         </select></div>
       </div>
       <div class="grid2" style="margin-top:10px">
-        <button id="recommendBtn" type="button">내 자금으로 살 수 있는 단지</button>
-        <button id="targetRecommendBtn" type="button" class="ghost">내가 원하는 가격대 단지</button>
+        <button id="recommendBtn" type="button" class="recActionBtn"><span>내 자금으로</span><span>살 수 있는 단지</span></button>
+        <button id="targetRecommendBtn" type="button" class="ghost recActionBtn"><span>내가 원하는 가격대</span><span>단지</span></button>
       </div>
       <div id="recStatus" class="status idle">먼저 목표 매수가와 자금조건을 입력하세요.</div>
       <div id="recResults"></div>
