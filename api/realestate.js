@@ -2,6 +2,15 @@ const REGIONS={"41310":"구리시","41360":"남양주시","41150":"의정부시"
 const TRADE=["https://apis.data.go.kr/1613000/RTMSDataSvcAptTrade/getRTMSDataSvcAptTrade","https://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev/getRTMSDataSvcAptTradeDev"];
 const RENT="https://apis.data.go.kr/1613000/RTMSDataSvcAptRent/getRTMSDataSvcAptRent";
 
+const MONTH_CACHE=new Map();
+const CACHE_TTL=60*60*1000;
+const isAuthOrQuotaError=e=>{
+  const m=String(e?.message||"").toLowerCase();
+  return [401,403,429].includes(e?.status)||/quota|rate.?limit|servicekey|auth|인증|트래픽|한도/.test(m);
+};
+const noStore=res=>res.setHeader("Cache-Control","private, no-store, max-age=0");
+
+
 const monthsBack=n=>{const k=new Date(Date.now()+9*3600e3);return Array.from({length:n},(_,i)=>{const d=new Date(Date.UTC(k.getUTCFullYear(),k.getUTCMonth()-i,1));return `${d.getUTCFullYear()}${String(d.getUTCMonth()+1).padStart(2,"0")}`})};
 const dec=s=>String(s||"").replace(/<!\[CDATA\[|\]\]>/g,"").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&amp;/g,"&").trim();
 const tag=(x,names)=>{for(const n of names){const m=x.match(new RegExp(`<${n}>([\\s\\S]*?)</${n}>`,"i"));if(m)return dec(m[1])}return""};
@@ -24,11 +33,17 @@ async function page(url,key,lawd,ym,p){
     const r=await fetch(u);const t=await r.text();
     if(r.ok){
       const code=tag(t,["returnReasonCode","resultCode"]);
-      if(code&&!/^0+$/.test(code))throw new Error((tag(t,["returnAuthMsg","resultMsg"])||"API 오류")+" ("+code+")");
+      if(code&&!/^0+$/.test(code)){
+        const err=new Error((tag(t,["returnAuthMsg","resultMsg"])||"API 오류")+" ("+code+")");
+        if(isAuthOrQuotaError(err))err.noFallback=true;
+        throw err;
+      }
       return t;
     }
     const msg=(tag(t,["returnAuthMsg","resultMsg","message"])||t.replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim()).slice(0,180);
     last=new Error("공공데이터 HTTP "+r.status+(msg?": "+msg:""));
+    last.status=r.status;
+    if(isAuthOrQuotaError(last))last.noFallback=true;
     if(r.status!==401&&r.status!==403)break;
   }
   throw last||new Error("공공데이터 호출 실패");
@@ -38,7 +53,24 @@ async function all(url,key,lawd,ym){
   for(let p=2;(p-1)*1000<total&&p<=10;p++)xs=xs.concat(items(await page(url,key,lawd,ym,p)));
   return xs;
 }
-async function tradeMonth(key,lawd,ym){let last;for(const u of TRADE){try{return await all(u,key,lawd,ym)}catch(e){last=e}}throw last}
+async function tradeMonth(key,lawd,ym){
+  let last;
+  for(let i=0;i<TRADE.length;i++){
+    try{return await all(TRADE[i],key,lawd,ym)}
+    catch(e){
+      last=e;
+      if(e?.noFallback||isAuthOrQuotaError(e))throw e;
+    }
+  }
+  throw last;
+}
+async function cachedMonth(type,key,lawd,ym){
+  const ck=type+"|"+lawd+"|"+ym,hit=MONTH_CACHE.get(ck);
+  if(hit&&Date.now()-hit.at<CACHE_TTL)return hit.data;
+  const data=type==="trade"?await tradeMonth(key,lawd,ym):await all(RENT,key,lawd,ym);
+  MONTH_CACHE.set(ck,{at:Date.now(),data});
+  return data;
+}
 async function pool(tasks,n=8){const out=[];let i=0;await Promise.all(Array.from({length:n},async()=>{while(i<tasks.length){const k=i++;out[k]=await tasks[k]().then(v=>({v}),e=>({e}))}}));return out}
 
 const parseTrade=xs=>xs.filter(x=>tag(x,["cdealType"])!=="O").map(x=>({name:tag(x,["aptNm"]),dong:tag(x,["umdNm","sggNm"]),date:dateOf(x),area:+tag(x,["excluUseAr"]),price:num(tag(x,["dealAmount"])),floor:+tag(x,["floor"])||0,direct:tag(x,["dealingGbn"])==="직거래"}));
@@ -65,10 +97,11 @@ export default async function handler(req,res){
   if(need&&(req.headers["x-app-token"]||req.query.token)!==need)return res.status(401).json({error:"접근 토큰이 필요합니다."});
   let key=process.env.DATA_GO_KR_SERVICE_KEY;
   if(!key)return res.status(500).json({error:"서버 환경변수 DATA_GO_KR_SERVICE_KEY가 설정되지 않았습니다."});
-  if(key.includes("%"))key=decodeURIComponent(key);
+  try{if(key.includes("%"))key=decodeURIComponent(key)}catch(e){noStore(res);return res.status(500).json({error:"공공데이터 키 형식을 확인하세요."})}
   const q=String(req.query.complex||"").trim();
   const months=Math.min(Math.max(+req.query.months||12,1),24);
-  const ok=body=>{res.setHeader("Cache-Control","s-maxage=3600, stale-while-revalidate=21600");return res.status(200).json(body)};
+  const ok=body=>{res.setHeader("Cache-Control","private, max-age=300");res.setHeader("Vary","x-app-token");return res.status(200).json(body)};
+  const fail=(status,message)=>{noStore(res);return res.status(status).json({error:message})};
   try{
     if(String(req.query.mode||"")==="jeonseRecommend"){
       const cash=Math.max(+req.query.cash||0,0);
@@ -81,8 +114,9 @@ export default async function handler(req,res){
       const maxBudget=cash+deposit+loanLimit;
       if(!(maxBudget>0))return res.status(400).json({error:"보증금·추가 현금·전세대출 한도를 입력하세요."});
       const pm=monthsBack(3),tasks=[];
-      for(const c of regionCodes)for(const m of pm)tasks.push(()=>all(RENT,key,c,m).then(xs=>({c,xs})));
+      for(const c of regionCodes)for(const m of pm)tasks.push(()=>cachedMonth("rent",key,c,m).then(xs=>({c,xs})));
       const rs=await pool(tasks),errs=rs.filter(r=>r.e),groups=new Map();
+      if(errs.length)return fail(502,"전세 실거래 조회 중 일부 지역/월 호출이 실패했습니다. 잠시 후 다시 시도하세요. ("+errs.length+"건 실패)");
       rs.forEach(r=>{
         if(!r.v)return;
         parseRent(r.v.xs).filter(x=>x.monthly===0&&x.deposit>0&&!x.renewal&&x.area>=amin&&x.area<=amax&&x.name).forEach(x=>{
@@ -125,8 +159,9 @@ export default async function handler(req,res){
       if(!(cash>0))return res.status(400).json({error:"가용 현금을 입력하세요."});
       if(!(ltv>=0&&ltv<=100))return res.status(400).json({error:"LTV를 확인하세요."});
       const pm=monthsBack(3),tasks=[];
-      for(const c of regionCodes)for(const m of pm)tasks.push(()=>tradeMonth(key,c,m).then(xs=>({c,xs})));
+      for(const c of regionCodes)for(const m of pm)tasks.push(()=>cachedMonth("trade",key,c,m).then(xs=>({c,xs})));
       const rs=await pool(tasks),errs=rs.filter(r=>r.e),groups=new Map();
+      if(errs.length)return fail(502,"매매 실거래 조회 중 일부 지역/월 호출이 실패했습니다. 잠시 후 다시 시도하세요. ("+errs.length+"건 실패)");
       rs.forEach(r=>{
         if(!r.v)return;
         parseTrade(r.v.xs).filter(x=>!x.direct&&x.area>=amin&&x.area<=amax&&x.name).forEach(x=>{
@@ -163,10 +198,10 @@ export default async function handler(req,res){
       return ok({mode:"recommend",months:3,criteria:{cash,ltv,areaMin:amin,areaMax:amax,scope,strategy,target},recommendations:out.slice(0,12),partialErrors:errs.length});
     }
     if(!q)return res.status(400).json({error:"단지명을 입력하세요."});
-    let code=req.query.region,apt=req.query.apt;
+    let code=req.query.region,apt=req.query.apt,dong=String(req.query.dong||"").trim();
     if(!code){
       const pm=monthsBack(3),tasks=[];
-      for(const c of (REGIONS[req.query.scope]?[req.query.scope]:Object.keys(REGIONS)))for(const m of pm)tasks.push(()=>tradeMonth(key,c,m).then(xs=>({c,xs})));
+      for(const c of (REGIONS[req.query.scope]?[req.query.scope]:Object.keys(REGIONS)))for(const m of pm)tasks.push(()=>cachedMonth("trade",key,c,m).then(xs=>({c,xs})));
       const rs=await pool(tasks),errs=rs.filter(r=>r.e),found=new Map(),sub=cp(req.query.sub||"");
       rs.forEach(r=>{if(r.v)parseTrade(r.v.xs).filter(x=>x.name&&cp(x.name).includes(cp(q))&&(!sub||cp(x.dong).includes(sub))).forEach(x=>{const k=r.v.c+"|"+x.name+"|"+(x.dong||"");found.set(k,(found.get(k)||0)+1)})});
       if(!found.size){
@@ -175,17 +210,17 @@ export default async function handler(req,res){
       }
       const cands=[...found].map(([k,n])=>{const [c,nm,dong]=k.split("|");return{region:c,regionName:REGIONS[c],name:nm,dong,count:n}}).sort((a,b)=>b.count-a.count);
       if(cands.length>1)return ok({candidates:cands});
-      code=cands[0].region;apt=cands[0].name;
+      code=cands[0].region;apt=cands[0].name;dong=cands[0].dong||"";
     }
     if(!REGIONS[code])return res.status(400).json({error:"지원하지 않는 지역입니다."});
     const ml=monthsBack(months),tt=[],rt=[];
-    ml.forEach(ym=>{tt.push(()=>tradeMonth(key,code,ym));rt.push(()=>all(RENT,key,code,ym))});
+    ml.forEach(ym=>{tt.push(()=>cachedMonth("trade",key,code,ym));rt.push(()=>cachedMonth("rent",key,code,ym))});
     const [tr,rr]=await Promise.all([pool(tt),pool(rt)]);
     if(tr.some(r=>r.e))throw tr.find(r=>r.e).e;
     const rentErr=rr.find(r=>r.e);
-    const same=x=>cp(x.name)===cp(apt),byDate=(a,b)=>b.date.localeCompare(a.date);
+    const same=x=>cp(x.name)===cp(apt)&&(!dong||cp(x.dong)===cp(dong)),byDate=(a,b)=>b.date.localeCompare(a.date);
     const trades=tr.flatMap(r=>parseTrade(r.v)).filter(same).sort(byDate);
     const rents=rentErr?[]:rr.flatMap(r=>parseRent(r.v)).filter(same).sort(byDate);
-    return ok({complexName:apt,regionCode:code,regionName:REGIONS[code],months,trades,rents,rentError:rentErr?rentErr.e.message+" — 전월세 API 활용신청/승인을 확인하세요.":""});
-  }catch(e){return res.status(500).json({error:e.message||"공공데이터 조회 중 오류가 발생했습니다."})}
+    return ok({complexName:apt,regionCode:code,regionName:REGIONS[code],dong,months,trades,rents,rentError:rentErr?rentErr.e.message+" — 전월세 API 활용신청/승인을 확인하세요.":""});
+  }catch(e){noStore(res);return res.status(isAuthOrQuotaError(e)?502:500).json({error:e.message||"공공데이터 조회 중 오류가 발생했습니다."})}
 }
