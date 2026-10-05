@@ -206,15 +206,16 @@ export default async function handler(req,res){
     }
     if(String(req.query.mode||"")==="recommend"){
       const cash=Math.max(+req.query.cash||0,0);
-      const ltv=Math.min(Math.max(+req.query.ltv||0,0),100);
+      const loanAmount=+req.query.loanAmount||0;
       const amin=Math.max(+req.query.areaMin||74,1);
       const amax=Math.max(+req.query.areaMax||85,amin);
       const scope=String(req.query.scope||"");
       const strategy=String(req.query.strategy||"budget");
       const target=Math.max(+req.query.target||0,0);
       const regionCodes=REGIONS[scope]?[scope]:Object.keys(REGIONS);
-      if(!(cash>0))return res.status(400).json({error:"가용 현금을 입력하세요."});
-      if(!(ltv>=0&&ltv<=100))return res.status(400).json({error:"LTV를 확인하세요."});
+      if(!Number.isFinite(loanAmount)||loanAmount<0)return res.status(400).json({error:"대출 가능 금액을 확인하세요."});
+      if(strategy==="budget"&&cash+loanAmount<=0)return res.status(400).json({error:"가용 현금과 대출 가능 금액을 입력하세요."});
+      if(strategy==="target"&&!(target>0))return res.status(400).json({error:"희망 매수가를 입력하세요."});
       const pm=monthsBack(3),tasks=[];
       for(const c of regionCodes)for(const m of pm)tasks.push(()=>cachedMonth("trade",key,c,m).then(xs=>({c,xs})));
       const rs=await pool(tasks),errs=rs.filter(r=>r.e),groups=new Map();
@@ -234,7 +235,7 @@ export default async function handler(req,res){
         const prices=xs.slice(0,3).map(x=>x.price).sort((a,b)=>a-b);
         const mid=prices.length%2?prices[prices.length>>1]:(prices[prices.length/2-1]+prices[prices.length/2])/2;
         const priceEok=mid/10000;
-        const loan=priceEok*ltv/100;
+        const loan=Math.min(priceEok,loanAmount);
         const costs=estimatedBuyCosts(priceEok,+ag);
         const need=priceEok-loan+costs;
         const headroom=Math.max(0,cash-need),shortfall=Math.max(0,need-cash);
@@ -252,7 +253,7 @@ export default async function handler(req,res){
       }
       if(strategy==="target"&&target>0)out.sort((a,b)=>Math.abs(a.price-target)-Math.abs(b.price-target)||b.count-a.count||b.lastDate.localeCompare(a.lastDate));
       else out.sort((a,b)=>b.count-a.count||b.lastDate.localeCompare(a.lastDate)||a.need-b.need);
-      return ok({mode:"recommend",months:3,criteria:{cash,ltv,areaMin:amin,areaMax:amax,scope,strategy,target},recommendations:out.slice(0,12),partialErrors:errs.length},errs.length===0);
+      return ok({mode:"recommend",months:3,criteria:{cash,loanAmount,areaMin:amin,areaMax:amax,scope,strategy,target},recommendations:out.slice(0,12),partialErrors:errs.length},errs.length===0);
     }
     if(!q)return res.status(400).json({error:"단지명을 입력하세요."});
     let code=req.query.region,apt=req.query.apt,dong=String(req.query.dong||"").trim();
