@@ -578,7 +578,7 @@ function renderSelectedSummary(price,cash,ltv){
     const requiredLoan=Math.max(0,price+estimatedBuyCosts(price,SELECTED.area).total-cash);
     const requiredLtv=requiredLoan/price*100;
     if(short>0){
-      let msg='집을 못 사는 것이 아니라 현재 조건에서 목표가격을 맞추려면 조정이 필요합니다. ';
+      let msg='현재 자금조건과 목표 매수가 사이에 차이가 있습니다. ';
       msg+='지금 현금과 LTV 기준으로는 약 '+eok(maxPrice)+'까지가 현실적인 매수범위입니다. ';
       msg+='현재 목표가 '+eok(price)+'를 유지하려면 현금을 약 '+eok(short)+' 더 준비하거나';
       if(requiredLtv>ltv && requiredLtv<=80) msg+=', 실제 대출 가능 여부를 확인해 LTV가 약 '+requiredLtv.toFixed(1)+'% 수준까지 가능한지 점검해야 합니다.';
