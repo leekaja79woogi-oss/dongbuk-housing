@@ -657,7 +657,7 @@ function renderRecommendations(list){
     const t=document.createElement('div');t.className='rtitle';t.textContent=(i+1)+'. '+r.name;d.appendChild(t);
     const m=document.createElement('div');m.className='rmeta';m.textContent=r.regionName+(r.dong?' · '+r.dong:'')+' · '+r.area+'㎡형 · 최근 3개월 '+r.count+'건';d.appendChild(m);
     const g=document.createElement('div');g.className='recgrid';
-    [['최근 대표가격',eok(r.price)],['가장 최근 거래',eok(r.lastPrice)],['예상 대출금',eok(r.loan)],['내가 준비할 현금',eok(r.need)],['내 자금과 차이',r.shortfall>0?'부족 '+eok(r.shortfall):'여유 '+eok(r.headroom)]].forEach(([n,v])=>{
+    [['최근 대표가격',eok(r.price)],['가장 최근 거래',eok(r.lastPrice)],['예상 대출금',eok(r.loan)],['예상 취득·중개비',eok(r.costs||0)],['내가 준비할 현금',eok(r.need)],['내 자금과 차이',r.shortfall>0?'부족 '+eok(r.shortfall):'여유 '+eok(r.headroom)]].forEach(([n,v])=>{
       const c=document.createElement('div');c.className='reccell';
       const nn=document.createElement('div');nn.className='n';nn.textContent=n;
       const vv=document.createElement('div');vv.className='v';vv.textContent=v;
