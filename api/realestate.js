@@ -44,6 +44,22 @@ async function pool(tasks,n=8){const out=[];let i=0;await Promise.all(Array.from
 const parseTrade=xs=>xs.filter(x=>tag(x,["cdealType"])!=="O").map(x=>({name:tag(x,["aptNm"]),dong:tag(x,["umdNm","sggNm"]),date:dateOf(x),area:+tag(x,["excluUseAr"]),price:num(tag(x,["dealAmount"])),floor:+tag(x,["floor"])||0,direct:tag(x,["dealingGbn"])==="직거래"}));
 const parseRent=xs=>xs.map(x=>({name:tag(x,["aptNm"]),dong:tag(x,["umdNm","sggNm"]),date:dateOf(x),area:+tag(x,["excluUseAr"]),deposit:num(tag(x,["deposit"])),monthly:num(tag(x,["monthlyRent"])),floor:+tag(x,["floor"])||0,renewal:tag(x,["contractType"])==="갱신"||tag(x,["useRRRight"])==="사용"}));
 
+const estimatedBuyCosts=(price,area)=>{
+  let taxRate=price<=6?0.01:price<=9?((price*2/3)-3)/100:0.03;
+  taxRate=Math.max(0.01,Math.min(0.03,taxRate));
+  const acquisition=price*taxRate;
+  const education=acquisition*0.10;
+  const rural=area>85?price*0.002:0;
+  let broker=0;
+  if(price<0.5)broker=Math.min(price*0.006,0.0025);
+  else if(price<2)broker=Math.min(price*0.005,0.008);
+  else if(price<9)broker=price*0.004;
+  else if(price<12)broker=price*0.005;
+  else if(price<15)broker=price*0.006;
+  else broker=price*0.007;
+  return acquisition+education+rural+broker;
+};
+
 export default async function handler(req,res){
   const need=process.env.APP_TOKEN;
   if(need&&(req.headers["x-app-token"]||req.query.token)!==need)return res.status(401).json({error:"접근 토큰이 필요합니다."});
@@ -57,7 +73,6 @@ export default async function handler(req,res){
     if(String(req.query.mode||"")==="recommend"){
       const cash=Math.max(+req.query.cash||0,0);
       const ltv=Math.min(Math.max(+req.query.ltv||0,0),100);
-      const acq=Math.max(+req.query.acq||0,0);
       const amin=Math.max(+req.query.areaMin||74,1);
       const amax=Math.max(+req.query.areaMax||85,amin);
       const scope=String(req.query.scope||"");
@@ -85,11 +100,12 @@ export default async function handler(req,res){
         const mid=prices.length%2?prices[prices.length>>1]:(prices[prices.length/2-1]+prices[prices.length/2])/2;
         const priceEok=mid/10000;
         const loan=priceEok*ltv/100;
-        const need=priceEok-loan+priceEok*acq/100;
+        const costs=estimatedBuyCosts(priceEok,+ag);
+        const need=priceEok-loan+costs;
         const headroom=Math.max(0,cash-need),shortfall=Math.max(0,need-cash);
         const row={
           region:c,regionName:REGIONS[c],name,dong,area:+ag,
-          price:+priceEok.toFixed(2),loan:+loan.toFixed(2),need:+need.toFixed(2),
+          price:+priceEok.toFixed(2),loan:+loan.toFixed(2),costs:+costs.toFixed(2),need:+need.toFixed(2),
           count:xs.length,lastDate:xs[0].date,lastPrice:+(xs[0].price/10000).toFixed(2),
           headroom:+headroom.toFixed(2),shortfall:+shortfall.toFixed(2)
         };
@@ -101,7 +117,7 @@ export default async function handler(req,res){
       }
       if(strategy==="target"&&target>0)out.sort((a,b)=>Math.abs(a.price-target)-Math.abs(b.price-target)||b.count-a.count||b.lastDate.localeCompare(a.lastDate));
       else out.sort((a,b)=>b.count-a.count||b.lastDate.localeCompare(a.lastDate)||a.need-b.need);
-      return ok({mode:"recommend",months:3,criteria:{cash,ltv,acq,areaMin:amin,areaMax:amax,scope,strategy,target},recommendations:out.slice(0,12),partialErrors:errs.length});
+      return ok({mode:"recommend",months:3,criteria:{cash,ltv,areaMin:amin,areaMax:amax,scope,strategy,target},recommendations:out.slice(0,12),partialErrors:errs.length});
     }
     if(!q)return res.status(400).json({error:"단지명을 입력하세요."});
     let code=req.query.region,apt=req.query.apt;
