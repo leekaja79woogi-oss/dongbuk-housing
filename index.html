@@ -159,6 +159,10 @@ details.fold-s[open]>summary{margin-bottom:10px}
 @media(max-width:360px){.grid2{grid-template-columns:1fr}.kpis{grid-template-columns:1fr 1fr}.mcard{padding:17px}.mt b{font-size:17px}}
 @media(max-width:330px){.kpis{grid-template-columns:1fr}}
 .card:has(.status.bad),.card:has(.status.warn){scroll-margin-top:82px}
+
+#jMove .card>.grid2 label.deposit-label{display:block;align-content:end;word-break:keep-all;line-height:1.4}
+.deposit-unit{white-space:nowrap}
+.field-help{font-size:11px;color:var(--muted);line-height:1.5;margin-top:6px;word-break:keep-all}
 </style>
 </head>
 <body>
@@ -320,7 +324,7 @@ details.fold-s[open]>summary{margin-bottom:10px}
         <b>전세 자금 조건</b><div class="mini">현금을 먼저 사용하고 부족분만 대출합니다. 기존 대출 상환 후 돌려받는 보증금과 이사비·생활비를 제외하고 쓸 수 있는 현금을 입력하세요.</div>
         <div class="grid2">
           <div><label for="cashJ">추가 현금(억원)</label><input id="cashJ" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 1.00"></div>
-          <div><label for="deposit">실제 회수할 보증금(억원) <span class="opt">· 없으면 0</span></label><input id="deposit" type="number" inputmode="decimal" step="0.01" min="0" value="0" placeholder="예: 0.60"></div>
+          <div><label for="deposit" class="deposit-label"><span>실제 회수할 보증금</span> <span class="deposit-unit">(억원)</span></label><input id="deposit" type="number" inputmode="decimal" step="0.01" min="0" value="0" placeholder="예: 0.60" aria-describedby="depositHelp"><div id="depositHelp" class="field-help">회수할 보증금이 없으면 0을 입력하세요.</div></div>
           <div><label for="loanLimit">전세대출 한도(억원)</label><input id="loanLimit" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 3.00"></div>
           <div><label for="rateJ">전세대출 금리(%)</label><input id="rateJ" type="number" inputmode="decimal" step="0.1" min="0" placeholder="예: 5.2"></div>
         </div>
