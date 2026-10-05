@@ -1,22 +1,24 @@
 {
-  "name": "동북권 집찾기",
-  "short_name": "집찾기",
+  "name": "집의 기준",
+  "short_name": "집의 기준",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#f5f6f8",
-  "theme_color": "#111111",
+  "background_color": "#f3f5fa",
+  "theme_color": "#0f172a",
   "lang": "ko",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "icon-house-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "icon-512.png",
+      "src": "icon-house-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
