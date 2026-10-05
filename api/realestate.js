@@ -5,7 +5,7 @@ const RENT="https://apis.data.go.kr/1613000/RTMSDataSvcAptRent/getRTMSDataSvcApt
 const MONTH_CACHE=new Map();
 const MONTH_INFLIGHT=new Map();
 const CACHE_TTL=60*60*1000;
-const CACHE_MAX=120;
+const CACHE_MAX=40;
 const cachePut=(key,data)=>{
   MONTH_CACHE.delete(key);
   MONTH_CACHE.set(key,{at:Date.now(),data});
