@@ -143,10 +143,11 @@ th{background:#f1f5f9;color:#475569}
       <b>내 자금으로 가능한지</b>
       <div class="kpis" style="margin-top:12px">
         <div class="kpi"><div class="name">내가 사고 싶은 가격</div><div id="a-target" class="val">-</div></div>
-        <div class="kpi"><div class="name">현재 자금으로 살 수 있는 최대 집값</div><div id="a-max" class="val">-</div></div>
+        <div class="kpi"><div class="name">예상 대출금</div><div id="a-loan" class="val">-</div></div>
+        <div class="kpi"><div class="name">내가 준비할 현금</div><div id="a-need" class="val">-</div></div>
         <div class="kpi"><div class="name">추가로 필요한 현금</div><div id="a-short" class="val">-</div></div>
       </div>
-      <div id="affordNote" class="status idle">가용 현금·LTV를 넣으면 취득세와 중개보수를 자동 추정해 계산합니다.</div>
+      <div id="affordNote" class="status idle">가용 현금·LTV를 넣으면 자동으로 계산합니다.</div>
     </div>
 
     <div class="card" id="recommendCard">
@@ -347,25 +348,25 @@ function calcBuy(){
   // 자금 가능성은 단지 선택 없이도 계산
   const affordReady = price>0 && cash>=0 && ltv>=0 && ltv<=100;
   if(affordReady){
-    const maxPrice = maxAffordablePrice(cash,ltv,areaForCost);
     const loan0 = price*ltv/100;
     const cost0 = estimatedBuyCosts(price,areaForCost).total;
     const need0 = price-loan0+cost0;
     const short0 = Math.max(0,need0-cash);
     setKpi('a-target',eok(price));
-    setKpi('a-max',eok(maxPrice),maxPrice>=price?'good':'warn');
+    setKpi('a-loan',eok(loan0));
+    setKpi('a-need',eok(need0),need0>cash?'warn':'good');
     setKpi('a-short',short0>0?eok(short0):'0억',short0>0?'bad':'good');
     const an=$('affordNote');
     if(short0>0){
-      an.textContent='현재 조건으로 '+eok(price)+' 집을 사려면 현금이 '+eok(short0)+' 더 필요합니다.';
+      an.textContent=eok(price)+' - 대출 '+eok(loan0)+' + 예상 취득·중개비 '+eok(cost0)+' = 준비할 현금 '+eok(need0)+'. 현재 현금보다 '+eok(short0)+' 부족합니다.';
       an.className='status warn';
     }else{
-      an.textContent='현재 자금으로 목표가격 '+eok(price)+' 매수가 가능합니다.';
+      an.textContent=eok(price)+' - 대출 '+eok(loan0)+' + 예상 취득·중개비 '+eok(cost0)+' = 준비할 현금 '+eok(need0)+'. 현재 자금으로 가능합니다.';
       an.className='status good';
     }
   }else{
-    ['a-target','a-max','a-short'].forEach(id=>setKpi(id,'-'));
-    $('affordNote').textContent='가용 현금·LTV를 넣으면 취득세와 중개보수를 자동 추정해 계산합니다.';
+    ['a-target','a-loan','a-need','a-short'].forEach(id=>setKpi(id,'-'));
+    $('affordNote').textContent='가용 현금·목표 매수가·LTV를 넣으면 자동으로 계산합니다.';
     $('affordNote').className='status idle';
   }
 
@@ -712,10 +713,13 @@ $('complex').addEventListener('keydown',e=>{if(e.key==='Enter')search()});
 // 매수 추천
 const REC_SCOPES=[['','전체'],['41310','구리'],['41360','남양주'],['41150','의정부'],['11260','중랑'],['11350','노원'],['11320','도봉'],['11305','강북'],['11215','광진'],['11230','동대문'],['11200','성동'],['11290','성북'],['11740','강동']];
 REC_SCOPES.forEach(([c,n])=>{const o=document.createElement('option');o.value=c;o.textContent=n;$('recScope').appendChild(o)});
+$('recScope').value='';
+$('recArea').value='74,85';
 try{
   const saved=JSON.parse(localStorage.getItem('dbh:v4')||'{}');
-  if(saved.recScope!==undefined)$('recScope').value=saved.recScope;
-  if(saved.recArea!==undefined)$('recArea').value=saved.recArea;
+  saved.recScope='';
+  saved.recArea='74,85';
+  localStorage.setItem('dbh:v4',JSON.stringify(saved));
 }catch(e){}
 
 function recSay(t,c){const e=$('recStatus');e.textContent=t;e.className='status '+(c||'')}
@@ -796,8 +800,8 @@ async function recommend(strategy='budget'){
 }
 $('recommendBtn').addEventListener('click',()=>recommend('budget'));
 $('targetRecommendBtn').addEventListener('click',()=>recommend('target'));
-$('recScope').addEventListener('change',()=>{try{const d=JSON.parse(localStorage.getItem('dbh:v4')||'{}');d.recScope=$('recScope').value;localStorage.setItem('dbh:v4',JSON.stringify(d))}catch(e){}});
-$('recArea').addEventListener('change',()=>{try{const d=JSON.parse(localStorage.getItem('dbh:v4')||'{}');d.recArea=$('recArea').value;localStorage.setItem('dbh:v4',JSON.stringify(d))}catch(e){}});
+$('recScope').addEventListener('change',()=>{});
+$('recArea').addEventListener('change',()=>{});
 
 // PWA: http(s)에서만 서비스워커 등록
 if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
