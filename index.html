@@ -571,9 +571,9 @@ function clearJSelected(){
   calcJeonse();
 }
 function calcJeonse(){
-  const cash=num('cashJ'), deposit=num('deposit'), limit=num('loanLimit'), rateJ=num('rateJ');
-  const vals=[cash,deposit,limit,rateJ];
-  const ready=vals.every(v=>!isNaN(v)&&v>=0);
+  const cash=num('cashJ'), depositRaw=num('deposit'), deposit=isNaN(depositRaw)?0:depositRaw, limit=num('loanLimit'), rateJ=num('rateJ');
+  const vals=[cash,limit,rateJ];
+  const ready=vals.every(v=>!isNaN(v)&&v>=0)&&deposit>=0;
   if(ready){
     const maxJ=deposit+cash+limit;
     setKpi('j-base',eok(deposit));
@@ -584,7 +584,7 @@ function calcJeonse(){
     $('jRangeNote').className='status good';
   }else{
     if(!isNaN(cash)&&cash>=0)setKpi('j-cash',eok(cash)); else setKpi('j-cash','-');
-    if(!isNaN(deposit)&&deposit>=0)setKpi('j-base',eok(deposit)); else setKpi('j-base','-');
+    setKpi('j-base',eok(deposit));
     if(!isNaN(limit)&&limit>=0)setKpi('j-loan',eok(limit)); else setKpi('j-loan','-');
     setKpi('j-max','-');
     const missing=[];
@@ -702,9 +702,11 @@ try {
   const saved = JSON.parse(localStorage.getItem('dbh:v4') || '{}');
   const noRestore = new Set(FIELDS);
   FIELDS.forEach(id => { if (id in saved && !noRestore.has(id) && $(id)) $(id).value = saved[id]; });
-  ['complex','recent','cash','price','jeonse','ltv','rate','years','cashJ','deposit','loanLimit','rateJ','curDeposit','curRent','renewDeposit','renew'].forEach(id=>{if($(id))$(id).value='';});
+  ['complex','recent','cash','price','jeonse','ltv','rate','years','cashJ','loanLimit','rateJ','curDeposit','curRent','renewDeposit','renew'].forEach(id=>{if($(id))$(id).value='';});
+  if($('deposit'))$('deposit').value='0';
 } catch(e) {
-  ['complex','recent','cash','price','jeonse','ltv','rate','years','cashJ','deposit','loanLimit','rateJ','curDeposit','curRent','renewDeposit','renew'].forEach(id=>{if($(id))$(id).value='';});
+  ['complex','recent','cash','price','jeonse','ltv','rate','years','cashJ','loanLimit','rateJ','curDeposit','curRent','renewDeposit','renew'].forEach(id=>{if($(id))$(id).value='';});
+  if($('deposit'))$('deposit').value='0';
 }
 document.addEventListener('input', e => {
   if (!e.target.matches('input')) return;
