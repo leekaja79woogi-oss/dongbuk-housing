@@ -631,23 +631,42 @@ function renderRecommendations(list){
       c.append(nn,vv);g.appendChild(c);
     });
     d.appendChild(g);
-    const b=document.createElement('button');b.type='button';b.textContent='이 단지 실거래 보기';
+    const a=document.createElement('button');a.type='button';a.textContent='이 단지 선택';a.style.marginTop='10px';
+    a.onclick=()=>selectRecommendation(r,a);
+    d.appendChild(a);
+    const b=document.createElement('button');b.type='button';b.className='ghost';b.textContent='실거래 자세히 보기';b.style.marginTop='8px';
     b.onclick=()=>{$('complex').value=r.name;showTab('search');search(r.region,r.name)};
-    d.appendChild(b);
-    const a=document.createElement('button');a.type='button';a.className='ghost';a.textContent='이 단지를 분석에 선택';a.style.marginTop='8px';
-    a.onclick=async()=>{
-      $('complex').value=r.name;
-      showTab('search');
-      await search(r.region,r.name);
-      const opts=[...$('areaSelect').options];
-      const hit=opts.find(o=>+o.value===r.area);
-      if(hit)$('areaSelect').value=hit.value;
-      applyArea();
-      selectCurrentForBuy();
-    };
-    d.appendChild(a);box.appendChild(d);
+    d.appendChild(b);box.appendChild(d);
   });
 }
+async function selectRecommendation(r,btn){
+  const oldText=btn.textContent;
+  btn.disabled=true;btn.textContent='단지 선택 중…';
+  recSay(r.name+' 실거래를 불러와 분석에 연결하고 있습니다.','load');
+  try{
+    const p=new URLSearchParams({complex:r.name,months:3,region:r.region,apt:r.name});
+    const d=await api(p.toString());
+    const uniqRent=new Map();
+    (d.rents||[]).forEach(x=>{const k=[x.name,x.date,x.area,x.deposit,x.monthly,x.floor,x.renewal].join('|');if(!uniqRent.has(k))uniqRent.set(k,x)});
+    d.rents=[...uniqRent.values()];
+    DATA=d;
+    $('complex').value=r.name;
+    const areas=[...new Set([...d.trades,...d.rents].map(x=>Math.floor(x.area)).filter(Boolean))].sort((a,b)=>a-b);
+    $('areaSelect').textContent='';
+    areas.forEach(x=>{const o=document.createElement('option');o.value=x;o.textContent=x+'㎡형 · 약 '+(x/3.3058).toFixed(1)+'평';$('areaSelect').appendChild(o)});
+    const hit=areas.find(x=>x===r.area);
+    if(hit!==undefined)$('areaSelect').value=hit;
+    else if(areas.length)$('areaSelect').value=areas[0];
+    $('result').classList.remove('hide');
+    selectCurrentForBuy();
+    recSay(r.name+'을(를) 매수분석 단지로 선택했습니다.','good');
+  }catch(e){
+    recSay(e.message,'bad');
+  }finally{
+    btn.disabled=false;btn.textContent=oldText;
+  }
+}
+
 async function recommend(strategy='budget'){
   const cash=num('cash'),ltv=num('ltv'),acq=num('acq'),target=num('price');
   if(!(cash>0)||!(ltv>=0&&ltv<=100)||!(acq>=0)){
