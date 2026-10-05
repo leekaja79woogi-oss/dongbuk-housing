@@ -732,16 +732,16 @@ async function api(qs,retry){
   if(!r.ok)throw new Error(d.error||'조회 실패');
   return d;
 }
-async function search(region,apt){
+async function search(region,apt,dong){
   const q=$('complex').value.trim();if(!q)return;
   const b=$('searchBtn');b.disabled=true;b.textContent='빠른 조회 중…';say('최근 거래정보를 확인 중입니다…','load');
   $('cands').textContent='';$('result').classList.add('hide');
   try{
-    const p=new URLSearchParams({complex:q,months:3});if(region){p.set('region',region);p.set('apt',apt)}else{if(SCOPE)p.set('scope',SCOPE);if(SUB)p.set('sub',SUB)}
+    const p=new URLSearchParams({complex:q,months:3});if(region){p.set('region',region);p.set('apt',apt);if(dong)p.set('dong',dong)}else{if(SCOPE)p.set('scope',SCOPE);if(SUB)p.set('sub',SUB)}
     const d=await api(p.toString());
     if(d.candidates){
       say('같은 이름의 단지가 여러 곳 있습니다. 선택하세요.');
-      d.candidates.forEach(c=>{const x=document.createElement('button');x.type='button';x.style.cssText='display:block;width:100%;margin-top:8px;text-align:left';x.textContent=c.regionName+(c.dong?' · '+c.dong:'')+' · '+c.name;x.onclick=()=>search(c.region,c.name);$('cands').appendChild(x)});
+      d.candidates.forEach(c=>{const x=document.createElement('button');x.type='button';x.style.cssText='display:block;width:100%;margin-top:8px;text-align:left';x.textContent=c.regionName+(c.dong?' · '+c.dong:'')+' · '+c.name;x.onclick=()=>search(c.region,c.name,c.dong);$('cands').appendChild(x)});
       return;
     }
     const uniqRent=new Map();
@@ -763,7 +763,7 @@ async function loadDetail(){
   if(!DATA)return;
   const b=$('detailBtn');b.disabled=true;b.textContent='12개월 조회 중…';say('최근 12개월 매매·전월세를 불러오는 중입니다.','load');
   try{
-    const p=new URLSearchParams({complex:DATA.complexName,months:12,region:DATA.regionCode,apt:DATA.complexName});
+    const p=new URLSearchParams({complex:DATA.complexName,months:12,region:DATA.regionCode,apt:DATA.complexName,dong:DATA.dong||''});
     DATA=await api(p.toString());
     const uniqRent=new Map();
     (DATA.rents||[]).forEach(x=>{const k=[x.name,x.date,x.area,x.deposit,x.monthly,x.floor,x.renewal].join('|');if(!uniqRent.has(k))uniqRent.set(k,x)});
@@ -975,7 +975,7 @@ function renderRecommendations(list){
     a.onclick=()=>selectRecommendation(r,a);
     d.appendChild(a);
     const b=document.createElement('button');b.type='button';b.className='ghost';b.textContent='실거래 자세히 보기';b.style.marginTop='8px';
-    b.onclick=()=>{$('complex').value=r.name;showTab('search');search(r.region,r.name)};
+    b.onclick=()=>{$('complex').value=r.name;showTab('search');search(r.region,r.name,r.dong)};
     d.appendChild(b);box.appendChild(d);
   });
 }
@@ -984,7 +984,7 @@ async function selectRecommendation(r,btn){
   btn.disabled=true;btn.textContent='단지 선택 중…';
   recSay(r.name+' 실거래를 불러와 분석에 연결하고 있습니다.','load');
   try{
-    const p=new URLSearchParams({complex:r.name,months:3,region:r.region,apt:r.name});
+    const p=new URLSearchParams({complex:r.name,months:3,region:r.region,apt:r.name,dong:r.dong||''});
     const d=await api(p.toString());
     const uniqRent=new Map();
     (d.rents||[]).forEach(x=>{const k=[x.name,x.date,x.area,x.deposit,x.monthly,x.floor,x.renewal].join('|');if(!uniqRent.has(k))uniqRent.set(k,x)});
@@ -1079,7 +1079,7 @@ async function jRecommend(){
 async function selectJRecommendation(r,btn){
   const old=btn.textContent;btn.disabled=true;btn.textContent='불러오는 중…';
   try{
-    const p=new URLSearchParams({complex:r.name,months:3,region:r.region,apt:r.name});
+    const p=new URLSearchParams({complex:r.name,months:3,region:r.region,apt:r.name,dong:r.dong||''});
     const d=await api(p.toString());
     const uniqRent=new Map();
     (d.rents||[]).forEach(x=>{const k=[x.name,x.date,x.area,x.deposit,x.monthly,x.floor,x.renewal].join('|');if(!uniqRent.has(k))uniqRent.set(k,x)});
