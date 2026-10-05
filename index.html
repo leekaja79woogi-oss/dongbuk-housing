@@ -167,6 +167,7 @@ details.fold-s[open]>summary{margin-bottom:10px}
 .tab-tools{display:flex;justify-content:flex-end;margin:0 2px 10px}.tab-tools button.tab-reset{width:auto;min-height:36px;padding:7px 12px;background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:9px;font-size:12px;font-weight:600}
 .compare-options{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0}.compare-options label{display:flex;align-items:center;gap:6px;margin:0;font-size:14px}.compare-options input{width:18px;height:18px;margin:0;accent-color:#3358ff}
 #tab-jeonse .card>.grid2>div>label,#tab-jeonse #jMove .card>.grid2>div>label,#tab-jeonse #jRenew .card>.grid2>div>label{display:block;min-height:38px;line-height:1.45;word-break:keep-all;overflow-wrap:normal;margin:10px 0 7px} .field-unit{display:inline-block;white-space:nowrap}#tab-jeonse .field-help{line-height:1.5;margin-top:6px}#jRenew .card>.grid2{row-gap:10px}
+.rent-modes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:12px 0}.rent-modes button{padding:11px 3px;font-size:13px;min-height:44px;white-space:nowrap}.rent-options{border-top:1px solid var(--line);padding:14px 0 4px;margin-top:18px}.rent-options summary{font-size:14px;font-weight:650;cursor:pointer;color:#475569}.rent-group-title{font-size:14px;font-weight:700;margin-top:20px;padding-bottom:8px;border-bottom:1px solid var(--line)}#tab-jeonse .card .grid2{row-gap:8px}#tab-jeonse .card .grid2>div>label{min-height:0;font-size:12px;margin-top:14px}#tab-jeonse .mini,#tab-jeonse .field-help{word-break:keep-all;line-height:1.6}.rent-start{padding-bottom:18px}
 </style>
 </head>
 <body>
@@ -320,40 +321,28 @@ details.fold-s[open]>summary{margin-bottom:10px}
 
   <!-- 전세 -->
   <div class="section hide" id="tab-jeonse">
-  <div class="tab-tools"><button type="button" class="tab-reset" data-reset="jeonse">입력 초기화</button></div>
-    <div class="card">
-      <b>무엇을 비교할까요?</b>
-      <div class="grid2" style="margin-top:10px">
-        <button id="jModeMove" type="button">새 전세 찾기</button>
-        <button id="jModeRent" type="button" class="ghost">새 월세 찾기</button>
-        <button id="jModeRenew" type="button" class="ghost">현재 집 재계약</button>
-      </div>
-      <div id="jModeHelp" class="mini" style="margin-top:8px">첫 전세 또는 새 전세로 이동할 때 필요한 자금과 월 이자를 계산합니다.</div>
-    </div>
-
-    <div id="jMove">
-      <div class="card">
-        <b>전세 자금 조건</b><div class="mini">현금을 먼저 사용하고 부족분만 대출합니다. 기존 대출 상환 후 돌려받는 보증금과 이사비·생활비를 제외하고 쓸 수 있는 현금을 입력하세요.</div>
-        <div class="grid2">
-          <div><label for="cashJ">추가 현금 <span class="field-unit">(억원)</span></label><input id="cashJ" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 1.00"></div>
-          <div><label for="deposit" class="deposit-label"><span>실제 회수할 보증금</span> <span class="deposit-unit"> <span class="field-unit">(억원)</span></span></label><input id="deposit" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 0.60" aria-describedby="depositHelp"><div id="depositHelp" class="field-help">회수할 보증금이 없으면 0을 입력하세요.</div></div>
-          <div><label for="loanLimit">전세대출 한도 <span class="field-unit">(억원)</span></label><input id="loanLimit" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 3.00"></div>
-          <div><label for="rateJ">전세대출 금리 <span class="field-unit">(%)</span></label><input id="rateJ" type="number" inputmode="decimal" step="0.1" min="0" placeholder="예: 5.2"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <b>내가 가능한 전세 범위</b>
+<div class="tab-tools"><button type="button" class="tab-reset" data-reset="jeonse">입력 초기화</button></div>
+<div class="card rent-start"><b>어떤 조건을 확인할까요?</b><div class="rent-modes">
+<button id="jModeMove" type="button">전세</button><button id="jModeRent" type="button" class="ghost">월세</button><button id="jModeRenew" type="button" class="ghost">재계약</button><button id="jModeCompare" type="button" class="ghost">조건 비교</button></div><div id="jModeHelp" class="mini"></div></div>
+<div id="jMove">
+<div class="card"><b>전세 조건 입력</b><div class="grid2"><div><label for="cashJ">쓸 수 있는 현금 <span class="field-unit">(억원)</span></label><input id="cashJ" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 1.00"><div class="field-help">보증금과 별도로 준비한 현금</div></div>
+<div><label for="deposit">돌려받을 보증금 <span class="field-unit">(억원)</span></label><input id="deposit" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 0.60"><div class="field-help">기존 대출을 갚고 남는 금액</div></div>
+<div><label for="actualJeonse">새 전세금 <span class="field-unit">(억원)</span></label><input id="actualJeonse" type="number" min="0" step="0.01" inputmode="decimal" placeholder="예: 4.50"><div class="field-help">직접 입력하거나 단지를 선택하세요.</div></div></div>
+<details class="rent-options"><summary>대출·관리비 등 선택 입력</summary><div class="mini">해당 항목만 입력하세요. 비용이 없으면 비워두세요.</div><div class="grid2"><div><label for="loanLimit">대출 가능 한도 <span class="field-unit">(억원)</span></label><input id="loanLimit" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 3.00"></div>
+<div><label for="rateJ">대출 금리 <span class="field-unit">(%)</span></label><input id="rateJ" type="number" inputmode="decimal" step="0.1" min="0" placeholder="예: 5.2"></div>
+<div><label for="jeonseMgmt">월 관리비 <span class="field-unit">(만원)</span></label><input id="jeonseMgmt" type="number" inputmode="decimal" step="0.01" min="0" placeholder="비우면 0"></div>
+<div><label for="moveCost">이사·중개비 <span class="field-unit">(만원)</span></label><input id="moveCost" type="number" inputmode="decimal" step="10" min="0" placeholder="예: 300"></div></div></details>
+<details class="rent-options"><summary>실거래 단지 선택하기</summary><div id="jSelectedComplex" class="status idle"></div><div class="grid2"><button id="jChooseComplexBtn" type="button" class="ghost">단지 검색</button><button id="jClearSelectedBtn" type="button" class="ghost">선택 해제</button></div></details></div>
+<div class="card"><b>전세 계산 결과</b><div id="jeonseQuickStatus" class="status idle"></div><div class="kpis"><div class="kpi"><div class="name">추가 준비 현금</div><div id="jeonseQuickOwn" class="val">-</div></div><div class="kpi"><div class="name">자금 부족액</div><div id="jeonseQuickShort" class="val">-</div></div><div class="kpi"><div class="name">월 주거비</div><div id="jeonseQuickMonth" class="val">-</div></div><div class="kpi"><div class="name">2년 예상 비용</div><div id="jeonseQuickTwo" class="val">-</div></div></div><div class="field-help">월 주거비는 대출 이자와 관리비, 2년 비용은 월 주거비와 이사·중개비를 합산합니다. 보증금은 비용에서 제외합니다.</div></div>
+      <details class="card fold">
+        <summary>내 자금으로 가능한 전세 범위</summary>
         <div class="kpis" style="margin-top:12px">
           <div class="kpi"><div class="name">기존 보증금</div><div id="j-base" class="val">-</div></div>
           <div class="kpi"><div class="name">전세대출</div><div id="j-loan" class="val">-</div></div>
           <div class="kpi"><div class="name">추가 현금</div><div id="j-cash" class="val">-</div></div>
           <div class="kpi"><div class="name">가능한 최대 전세금</div><div id="j-max" class="val">-</div></div>
         </div>
-        <div id="jRangeNote" class="status idle">추가 현금·전세대출 한도를 넣으면 자동 계산됩니다. 처음 전세라면 기존 보증금은 0입니다.</div>
-      </div>
-
-      <details class="card fold" id="jRecommendCard"><summary>내 자금으로 가능한 전세단지</summary>
+        <div id="jRangeNote" class="status idle">추가 현금·전세대출 한도를 넣으면 자동 계산됩니다. 처음 전세라면 기존 보증금은 0입니다.</div></details>      <details class="card fold" id="jRecommendCard"><summary>내 자금으로 가능한 전세단지</summary>
         <div class="grid2">
           <div><label for="jRecScope">추천지역</label><select id="jRecScope"></select></div>
           <div><label for="jRecArea">희망 전용면적</label><select id="jRecArea">
@@ -366,17 +355,8 @@ details.fold-s[open]>summary{margin-bottom:10px}
         <div id="jRecStatus" class="status idle">지역을 선택하고 자금조건을 입력하면 최근 신규 전세 실거래 기준으로 추천합니다.</div>
         <div id="jRecResults"></div>
       </details>
-<div class="card">
-        <b>분석할 전세 단지</b><div class="grid2"><div><label for="jeonseMgmt">월 관리비 <span class="field-unit">(만원)</span> <span class="opt">· 선택</span></label><input id="jeonseMgmt" type="number" inputmode="decimal" step="0.01" min="0" placeholder="비우면 0"></div></div><div class="field-help">관리비는 월 주거비 비교에만 반영합니다. 최대 전세금 계산에는 포함하지 않습니다.</div><label for="actualJeonse">실제 매물 전세금 <span class="field-unit">(억원)</span> · 비우면 실거래 대표값</label><input id="actualJeonse" type="number" min="0" step="0.01" inputmode="decimal" placeholder="예: 4.50">
-        <div id="jSelectedComplex" class="status idle">선택된 단지가 없습니다.</div>
-        <div class="grid2" style="margin-top:10px">
-          <button id="jChooseComplexBtn" type="button" class="ghost">단지검색에서 선택</button>
-          <button id="jClearSelectedBtn" type="button" class="ghost">선택 해제</button>
-        </div>
-        </div>
-
-      <div class="card hide" id="jSummaryCard">
-        <b>선택단지 전세 분석</b>
+<details class="rent-options"><summary>선택단지 상세 분석</summary>      <div class="card hide" id="jSummaryCard">
+        <b>선택단지 실거래 상세</b>
         <div id="jVerdict" style="font-size:21px;font-weight:800;margin-top:12px"></div>
         <div class="kpis" style="margin-top:12px">
           <div class="kpi"><div class="name">분석에 적용한 전세금</div><div id="j-price" class="val">-</div></div>
@@ -388,34 +368,22 @@ details.fold-s[open]>summary{margin-bottom:10px}
         </div>
         <div id="jDecision" class="result" style="margin-top:10px"></div>
         <div id="jPlan" class="status" style="margin-top:12px"></div>
-        <button id="compareRenewBtn" type="button" class="ghost" style="width:100%;margin-top:10px">현재 집 재계약과 비교하기</button>
-      </div>
-    </div>
-
-<div id="jRent" class="hide"><div class="card"><b>새 월세 조건</b><div class="mini">회수할 보증금은 기존 대출을 상환한 뒤 실제 돌려받는 금액입니다. 월세 대출금은 확인한 금액을 직접 입력하세요. 대출이 없으면 0입니다.</div><div class="grid2"><div><label for="rentCash">월세에 쓸 추가 현금 <span class="field-unit">(억원)</span></label><input id="rentCash" type="number" inputmode="decimal" step="0.01" min="0"></div>
-<div><label for="rentRecovered">실제 회수할 보증금 <span class="field-unit">(억원)</span></label><input id="rentRecovered" type="number" inputmode="decimal" step="0.01" min="0" placeholder="비우면 0"></div>
-<div><label for="rentDeposit">새 월세 보증금 <span class="field-unit">(억원)</span></label><input id="rentDeposit" type="number" inputmode="decimal" step="0.01" min="0"></div>
-<div><label for="rentMonthly">새 월세 <span class="field-unit">(만원)</span></label><input id="rentMonthly" type="number" inputmode="decimal" step="0.01" min="0"></div>
-<div><label for="rentLoan">보증금에 사용할 대출금 <span class="field-unit">(억원)</span></label><input id="rentLoan" type="number" inputmode="decimal" step="0.01" min="0" placeholder="비우면 0"></div>
-<div><label for="rentRate">보증금 대출 금리 <span class="field-unit">(%)</span></label><input id="rentRate" type="number" inputmode="decimal" step="0.01" min="0" placeholder="비우면 0"></div>
-<div><label for="rentMgmt">새 월세 관리비 <span class="field-unit">(만원)</span></label><input id="rentMgmt" type="number" inputmode="decimal" step="0.01" min="0" placeholder="비우면 0"></div>
-<div><label for="rentMoveCost">월세 이사·중개비 <span class="field-unit">(만원)</span></label><input id="rentMoveCost" type="number" inputmode="decimal" step="0.01" min="0" placeholder="비우면 0"></div>
-</div><div id="rentStatus" class="status idle"></div><div class="kpis"><div class="kpi"><div class="name">추가로 준비할 현금</div><div class="val" id="rentOwn">-</div></div><div class="kpi"><div class="name">자금 부족액</div><div class="val" id="rentShort">-</div></div><div class="kpi"><div class="name">월 주거비</div><div class="val" id="rentMonth">-</div></div><div class="kpi"><div class="name">2년 예상 비용</div><div class="val" id="rentTwo">-</div></div></div></div></div>
-    <div id="jRenew" class="hide">
-      <div class="card">
-        <b>현재 집과 재계약 조건</b><div class="grid2"><div><label for="renewMgmt">재계약 관리비 <span class="field-unit">(만원)</span></label><input id="renewMgmt" type="number" inputmode="decimal" step="0.01" min="0" placeholder="비우면 0"></div><div><label for="renewExistingInterest">기존 대출 월 이자 <span class="field-unit">(만원)</span></label><input id="renewExistingInterest" type="number" inputmode="decimal" step="0.01" min="0" placeholder="비우면 0"></div></div>
-        <div class="grid2">
-          <div><label for="curDeposit">현재 보증금 <span class="field-unit">(억원)</span></label><input id="curDeposit" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 0.60"></div>
-          <div><label for="curRent">현재 월세 <span class="field-unit">(만원)</span></label><input id="curRent" type="number" inputmode="decimal" min="0" placeholder="예: 145"></div>
-          <div><label for="renewDeposit">집주인 제안 보증금 <span class="field-unit">(억원)</span></label><input id="renewDeposit" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 0.60"></div>
-          <div><label for="renew">집주인 제안 월세 <span class="field-unit">(만원)</span></label><input id="renew" type="number" inputmode="decimal" min="0" placeholder="예: 155"></div>
-          <div><label for="renewCash">추가 보증금에 쓸 현금 <span class="field-unit">(억원)</span></label><input id="renewCash" type="number" min="0" step="0.01" inputmode="decimal" placeholder="비우면 0"><div class="field-help">없으면 비워두세요. 0으로 계산합니다.</div></div>
-          <div><label for="renewRate">추가 대출 금리 <span class="field-unit">(%)</span></label><input id="renewRate" type="number" inputmode="decimal" step="0.1" min="0" placeholder="예: 5.2"><div class="field-help">없으면 비워두세요. 0으로 계산합니다.</div></div>
-          <div><label for="moveCost">이사·중개비 <span class="field-unit">(만원)</span></label><input id="moveCost" type="number" inputmode="decimal" step="10" min="0" placeholder="예: 300"><div class="field-help">없으면 비워두세요. 0으로 계산합니다.</div></div>
-        </div>
-      </div>
-
-      <div class="card">
+        <button id="compareRenewBtn" type="button" class="ghost" style="width:100%;margin-top:10px">재계약 조건 입력하기</button>
+      </div></details></div>
+<div id="jRent" class="hide"><div class="card"><b>월세 조건 입력</b><div class="grid2"><div><label for="rentCash">쓸 수 있는 현금 <span class="field-unit">(억원)</span></label><input id="rentCash" type="number" inputmode="decimal" step="0.01" min="0"></div>
+<div><label for="rentRecovered">돌려받을 보증금 <span class="field-unit">(억원)</span></label><input id="rentRecovered" type="number" inputmode="decimal" step="0.01" min="0" placeholder="비우면 0"><div class="field-help">기존 대출을 갚고 남는 금액</div></div>
+<div><label for="rentDeposit">새 보증금 <span class="field-unit">(억원)</span></label><input id="rentDeposit" type="number" inputmode="decimal" step="0.01" min="0"></div>
+<div><label for="rentMonthly">새 월세 <span class="field-unit">(만원)</span></label><input id="rentMonthly" type="number" inputmode="decimal" step="0.01" min="0"></div></div><details class="rent-options"><summary>대출·관리비 등 선택 입력</summary><div class="mini">해당 항목만 입력하세요. 비용이 없으면 비워두세요.</div><div class="grid2"><div><label for="rentLoan">보증금 대출금 <span class="field-unit">(억원)</span></label><input id="rentLoan" type="number" inputmode="decimal" step="0.01" min="0" placeholder="비우면 0"></div>
+<div><label for="rentRate">대출 금리 <span class="field-unit">(%)</span></label><input id="rentRate" type="number" inputmode="decimal" step="0.01" min="0" placeholder="비우면 0"></div>
+<div><label for="rentMgmt">월 관리비 <span class="field-unit">(만원)</span></label><input id="rentMgmt" type="number" inputmode="decimal" step="0.01" min="0" placeholder="비우면 0"></div>
+<div><label for="rentMoveCost">이사·중개비 <span class="field-unit">(만원)</span></label><input id="rentMoveCost" type="number" inputmode="decimal" step="0.01" min="0" placeholder="비우면 0"></div></div></details></div>
+<div class="card"><b>월세 계산 결과</b><div id="rentStatus" class="status idle"></div><div class="kpis"><div class="kpi"><div class="name">추가 준비 현금</div><div id="rentOwn" class="val">-</div></div><div class="kpi"><div class="name">자금 부족액</div><div id="rentShort" class="val">-</div></div><div class="kpi"><div class="name">월 주거비</div><div id="rentMonth" class="val">-</div></div><div class="kpi"><div class="name">2년 예상 비용</div><div id="rentTwo" class="val">-</div></div></div><div class="field-help">월 주거비는 월세·대출 이자·관리비의 합계입니다. 보증금은 비용에서 제외합니다.</div></div></div>
+<div id="jRenew" class="hide"><div class="card"><b>현재 조건과 제안 조건</b><div class="rent-group-title">현재 계약</div><div class="grid2"><div><label for="curDeposit">현재 보증금 <span class="field-unit">(억원)</span></label><input id="curDeposit" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 0.60"></div>
+<div><label for="curRent">현재 월세 <span class="field-unit">(만원)</span></label><input id="curRent" type="number" inputmode="decimal" min="0" placeholder="예: 145"><div class="field-help">전세라면 0 입력</div></div></div><div class="rent-group-title">재계약 제안</div><div class="grid2"><div><label for="renewDeposit">제안 보증금 <span class="field-unit">(억원)</span></label><input id="renewDeposit" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 0.60"></div>
+<div><label for="renew">제안 월세 <span class="field-unit">(만원)</span></label><input id="renew" type="number" inputmode="decimal" min="0" placeholder="예: 155"><div class="field-help">전세라면 0 입력</div></div></div><details class="rent-options"><summary>대출·관리비 등 선택 입력</summary><div class="mini">해당 항목만 입력하세요. 비용이 없으면 비워두세요.</div><div class="grid2"><div><label for="renewCash">추가 보증금에 쓸 현금 <span class="field-unit">(억원)</span></label><input id="renewCash" type="number" min="0" step="0.01" inputmode="decimal" placeholder="비우면 0"></div>
+<div><label for="renewRate">추가 대출 금리 <span class="field-unit">(%)</span></label><input id="renewRate" type="number" inputmode="decimal" step="0.1" min="0" placeholder="예: 5.2"></div>
+<div><label for="renewMgmt">재계약 관리비 <span class="field-unit">(만원)</span></label><input id="renewMgmt" type="number" inputmode="decimal" step="0.01" min="0" placeholder="비우면 0"></div>
+<div><label for="renewExistingInterest">기존 대출 월 이자 <span class="field-unit">(만원)</span></label><input id="renewExistingInterest" type="number" inputmode="decimal" step="0.01" min="0" placeholder="비우면 0"></div></div></details></div>      <div class="card">
         <b>현재 조건 vs 재계약</b>
         <div class="kpis" style="margin-top:12px">
           <div class="kpi"><div class="name">보증금 추가 부담</div><div id="r-deposit" class="val">-</div></div>
@@ -440,7 +408,7 @@ details.fold-s[open]>summary{margin-bottom:10px}
         <div id="renewPlan" class="status idle" style="margin-top:12px">조건을 입력하면 현재 조건과 재계약의 실질 부담을 비교합니다.</div>
       </div>
 
-      <div class="card" id="moveCompareCard">
+      <div class="card" id="moveCompareCard" style="display:none">
         <b>재계약 vs 새 전세</b>
         <div id="moveCompareStatus" class="status idle">새 전세 단지를 선택하고 전세 자금조건을 입력하면 비교표가 완성됩니다.</div>
         <div id="moveCompareWrap" class="hide">
@@ -460,8 +428,9 @@ details.fold-s[open]>summary{margin-bottom:10px}
         </div>
         <button id="compareMoveBtn" type="button" class="ghost" style="width:100%;margin-top:10px">새 전세 조건 확인하기</button>
       </div>
-    </div><details class="card fold" id="housingCompareCard"><summary>원하는 조건만 비교하기</summary><div class="mini">비교할 항목만 선택하세요. 한 가지만 선택해도 볼 수 있고, 선택하지 않은 항목은 입력하지 않아도 됩니다.</div><div class="compare-options"><label><input type="checkbox" id="compareJeonse" checked> 전세</label><label><input type="checkbox" id="compareRent" checked> 월세</label><label><input type="checkbox" id="compareRenew"> 재계약</label></div><div id="housingCompareHint" class="mini"></div><div class="tablewrap"><table class="comparetable" aria-label="전세 월세 재계약 비교"><thead id="housingCompareHead"></thead><tbody id="housingCompare"></tbody></table></div><div class="comparehint">월 주거비 = 월세 + 대출 이자 + 입력한 관리비. 2년 비용은 월 주거비 × 24 + 이사·중개비입니다. 재계약 대출금은 추가 보증금에 필요한 대출이며, 기존 대출의 월 이자는 별도 입력합니다. 원금 상환·보증금 기회비용은 제외합니다. 전세 이사비는 재계약 화면의 이사·중개비를 사용합니다. 관리비·기존 이자를 입력하지 않으면 0으로 계산합니다.</div></details>
-  </div>
+</div>
+<div class="card hide" id="housingCompareCard"><b>선택한 조건 비교</b><div class="mini">비교할 항목만 선택하세요. 한 가지만 선택해도 볼 수 있고, 선택하지 않은 항목은 입력하지 않아도 됩니다.</div><div class="compare-options"><label><input type="checkbox" id="compareJeonse" checked> 전세</label><label><input type="checkbox" id="compareRent" checked> 월세</label><label><input type="checkbox" id="compareRenew"> 재계약</label></div><div id="housingCompareHint" class="mini"></div><div class="tablewrap"><table class="comparetable" aria-label="전세 월세 재계약 비교"><thead id="housingCompareHead"></thead><tbody id="housingCompare"></tbody></table></div><div class="comparehint">월 주거비 = 월세 + 대출 이자 + 입력한 관리비. 2년 비용은 월 주거비 × 24 + 이사·중개비입니다. 재계약 대출금은 추가 보증금에 필요한 대출이며, 기존 대출의 월 이자는 별도 입력합니다. 원금 상환·보증금 기회비용은 제외합니다.  관리비·기존 이자를 입력하지 않으면 0으로 계산합니다.</div></div>
+</div>
 </div>
 
 <nav class="bottom">
@@ -738,11 +707,13 @@ function setJeonseMode(mode){
   $('jRenew').classList.toggle('hide',mode!=='renew');
   $('jRent').classList.toggle('hide',mode!=='rent');
   $('jModeRent').className=mode==='rent'?'':'ghost';
+  $('housingCompareCard').classList.toggle('hide',mode!=='compare');
+  $('jModeCompare').className=mode==='compare'?'':'ghost';
   $('jModeMove').className=mode==='move'?'':'ghost';
   $('jModeRenew').className=mode==='renew'?'':'ghost';
   $('jModeHelp').textContent=mode==='move'
     ?'첫 전세 또는 새 전세로 이동할 때 필요한 자금과 월 이자를 계산합니다.'
-    :mode==='rent'?'새 월세의 보증금·대출·월세·관리비와 2년 비용을 계산합니다.':'현재 집 재계약 조건이 지금보다 얼마나 달라지는지 비교합니다.';
+    :mode==='rent'?'새 월세의 보증금·대출·월세·관리비와 2년 비용을 계산합니다.':mode==='compare'?'전세·월세·재계약 화면에서 입력한 조건 중 원하는 것만 비교하세요.':'현재 조건과 제안 조건을 입력하면 변화가 보입니다.';
 }
 function updateJSelectedUI(){
   const box=$('jSelectedComplex');
@@ -781,7 +752,7 @@ function clearJSelected(){
   calcJeonse();calcHousingCompare();
 }
 function calcJeonse(){
-  const cash=num('cashJ'), depositRaw=num('deposit'), deposit=isNaN(depositRaw)?0:depositRaw, limit=num('loanLimit'), rateJ=num('rateJ');
+  const cash=num('cashJ'), depositRaw=num('deposit'), deposit=isNaN(depositRaw)?0:depositRaw, limit=Number.isNaN(num('loanLimit'))?0:num('loanLimit'), rateJ=Number.isNaN(num('rateJ'))&&limit===0?0:num('rateJ');
   const vals=[cash,limit,rateJ];
   const actualInput=num('actualJeonse');
   const ready=vals.every(v=>Number.isFinite(v)&&v>=0)&&deposit>=0&&(isNaN(actualInput)||actualInput>0);
@@ -995,14 +966,17 @@ function calcHousingCompare(){
   $('rentStatus').textContent=rent?(rent.short>0?'추가 자금 '+man(rent.short)+'이 필요합니다.':'입력한 현금과 대출금으로 보증금 및 이사비를 충당할 수 있습니다.'):'추가 현금·보증금·월세를 입력하세요. 금액은 0 이상, 대출금은 보증금 이하로 입력하세요.';
   $('rentStatus').className='status '+(rent?(rent.short>0?'warn':'good'):'idle');
   const jp=Number.isNaN(v('actualJeonse'))?JSELECTED?.jeonse:v('actualJeonse');
-  if(jp>0&&required(['cashJ','loanLimit','rateJ'])&&optional(['deposit','jeonseMgmt','moveCost'])){
-    const loan=Math.min(v('loanLimit'),Math.max(0,jp-z('deposit')-v('cashJ')));
-    jeonse=housingCost(jp,z('deposit'),v('cashJ'),loan,v('rateJ'),0,z('jeonseMgmt'),z('moveCost'));
+  if(jp>0&&required(['cashJ'])&&optional(['loanLimit','rateJ','deposit','jeonseMgmt','moveCost'])&&(z('loanLimit')===0||Number.isFinite(v('rateJ')))){
+    const loan=Math.min(z('loanLimit'),Math.max(0,jp-z('deposit')-v('cashJ')));
+    jeonse=housingCost(jp,z('deposit'),v('cashJ'),loan,z('rateJ'),0,z('jeonseMgmt'),z('moveCost'));
   }
   if(required(['curDeposit','renewDeposit','renew'])&&optional(['renewCash','renewRate','renewMgmt','renewExistingInterest'])){
     const extra=Math.max(0,v('renewDeposit')-v('curDeposit')),own=Math.min(extra,z('renewCash')),loan=extra-own;
     renewal=housingCost(v('renewDeposit'),v('curDeposit'),z('renewCash'),loan,z('renewRate'),v('renew')+z('renewExistingInterest'),z('renewMgmt'),0);
   }
+  ['jeonseQuickOwn','jeonseQuickShort','jeonseQuickMonth','jeonseQuickTwo'].forEach((id,i)=>setKpi(id,jeonse?man([jeonse.own,jeonse.short,jeonse.monthly,jeonse.two][i]):'-'));
+  $('jeonseQuickStatus').textContent=jeonse?(jeonse.short>0?'자금이 '+man(jeonse.short)+' 부족합니다.':'입력한 자금으로 보증금과 이사비를 충당할 수 있습니다.'):'현금과 새 전세금을 입력하세요. 대출을 사용하면 한도와 금리도 입력하세요.';
+  $('jeonseQuickStatus').className='status '+(jeonse?(jeonse.short>0?'warn':'good'):'idle');
   const rows=[['보증금','deposit'],['대출금','loan'],['추가 필요 현금','own'],['자금 부족액','short'],['월 주거비','monthly'],['2년 예상 비용','two'],['이사·중개비','cost']];
   const choices=[['compareJeonse','새 전세',jeonse],['compareRent','새 월세',rent],['compareRenew','재계약',renewal]].filter(([id])=>$(id).checked);
   const head=$('housingCompareHead');head.textContent='';
@@ -1236,6 +1210,7 @@ $('selectForJeonseBtn').addEventListener('click',selectCurrentForJeonse);
 $('jChooseComplexBtn').addEventListener('click',()=>showTab('search'));
 $('jClearSelectedBtn').addEventListener('click',clearJSelected);
 ['compareJeonse','compareRent','compareRenew'].forEach(id=>$(id).addEventListener('change',calcHousingCompare));
+$('jModeCompare').addEventListener('click',()=>setJeonseMode('compare'));
 $('jModeRent').addEventListener('click',()=>setJeonseMode('rent'));
 $('jModeMove').addEventListener('click',()=>setJeonseMode('move'));
 $('jModeRenew').addEventListener('click',()=>setJeonseMode('renew'));
