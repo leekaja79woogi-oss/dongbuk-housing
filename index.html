@@ -721,13 +721,11 @@ showTab('search');
 try { localStorage.setItem('dbh:tab','search'); } catch(e) {}
 
 // 실거래 조회 (서버 /api/realestate 경유, 키는 서버에만 있음)
-try{TOKEN=localStorage.getItem('dbh:token')||''}catch(e){}
 const med=a=>{if(!a.length)return NaN;const s=[...a].sort((x,y)=>x-y),m=s.length>>1;return s.length%2?s[m]:(s[m-1]+s[m])/2};
 const setVal=(id,v)=>{$(id).value=v;$(id).dispatchEvent(new Event('input',{bubbles:true}))};
 function say(t,c){const s=$('status');s.textContent=t;s.className='status '+(c||'')}
-async function api(qs,retry){
-  const r=await fetch('/api/realestate?'+qs,{headers:{'x-app-token':TOKEN}});
-  if(r.status===401&&!retry){const t=prompt('접근 토큰을 입력하세요');if(t){TOKEN=t;try{localStorage.setItem('dbh:token',t)}catch(e){}return api(qs,true)}}
+async function api(qs){
+  const r=await fetch('/api/realestate?'+qs,{credentials:'same-origin'});
   const d=await r.json().catch(()=>({error:'응답을 읽지 못했습니다.'}));
   if(!r.ok)throw new Error(d.error||'조회 실패');
   return d;
