@@ -59,6 +59,61 @@ th{background:#f1f5f9;color:#475569}
 .recgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
 .reccell{background:#f8fafc;border-radius:12px;padding:10px}.reccell .n{font-size:11px;color:var(--muted)}.reccell .v{font-size:15px;font-weight:800;margin-top:3px}
 .recitem button{width:100%;margin-top:10px}
+
+/* ===== v7 redesign ===== */
+:root{--bg:#f3f5fa;--accent:#2f5bff;--accent2:#12b3a8;--ink:#0f172a;--muted:#64748b}
+body{background:var(--bg);color:var(--ink);font-size:15px;-webkit-font-smoothing:antialiased}
+.app{padding-bottom:104px}
+.top{position:sticky;top:0;z-index:15}
+body[data-tab="home"] .top{position:relative;padding:calc(46px + env(safe-area-inset-top)) 24px 40px;border-radius:0 0 34px 34px}
+body[data-tab="home"] .title{font-size:32px;letter-spacing:-1px}
+body[data-tab="home"] .sub{font-size:14px;margin-top:8px}
+body[data-tab="home"] .sky{width:230px;opacity:.16}
+body:not([data-tab="home"]) .top{padding:calc(12px + env(safe-area-inset-top)) 20px 13px;border-radius:0 0 20px 20px}
+body:not([data-tab="home"]) .title{font-size:17px}
+body:not([data-tab="home"]) .sub,body:not([data-tab="home"]) .sky{display:none}
+.section{padding:16px 16px 0}
+.card{box-shadow:0 2px 14px rgba(15,23,42,.05);border-radius:22px;padding:18px;margin-bottom:14px}
+.card>b:first-child{font-size:16px;margin-bottom:4px}
+label{font-size:13px;color:var(--muted);margin:12px 0 6px;font-weight:500}
+input,select{border-radius:14px;border-color:#e2e8f0;background:#f8fafc;padding:13px 14px}
+input:focus,select:focus{background:#fff}
+button{background:var(--accent);box-shadow:none;border-radius:14px;padding:14px;min-height:48px}
+button.ghost{background:#eaf0ff;color:var(--accent);box-shadow:none}
+.card>button,.grid2>button{margin-top:10px}
+.mini{font-size:13px;line-height:1.55}
+.kpis{gap:10px;margin-top:12px}
+.kpi{background:#fff;border:0;box-shadow:none;border-radius:16px;padding:14px}
+.card .kpi{background:#f3f6fb}
+.kpi .name{font-size:13px}.kpi .val{font-size:24px;letter-spacing:-.6px;font-variant-numeric:tabular-nums;margin-top:6px}
+.status{border-radius:14px;font-size:14px}
+.chips{gap:8px}.chip{min-height:44px;padding:0 17px;border-radius:999px;background:#eef2f9;color:#475569}.chip.on{background:var(--ink);color:#fff}
+details>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-weight:800;font-size:16px;min-height:28px}
+details>summary::-webkit-details-marker{display:none}
+details>summary::after{content:"";width:9px;height:9px;border-right:2.5px solid #94a3b8;border-bottom:2.5px solid #94a3b8;transform:rotate(45deg);transition:transform .2s;margin-right:4px}
+details[open]>summary::after{transform:rotate(-135deg)}
+details.fold[open]>summary{margin-bottom:12px}
+details.fold-s{margin-top:14px;border-top:1px solid #eef1f6;padding-top:12px}
+details.fold-s>summary{font-size:14px;font-weight:600;color:var(--muted)}
+details.fold-s[open]>summary{margin-bottom:10px}
+.menu{display:grid;gap:12px;margin-top:-4px}
+.mcard{display:flex;align-items:center;gap:16px;width:100%;text-align:left;background:#fff;color:var(--ink);padding:20px;border-radius:24px;box-shadow:0 4px 20px rgba(15,23,42,.07);min-height:92px;margin:0!important}
+.mcard:active{transform:scale(.985)}
+.mi{width:52px;height:52px;border-radius:17px;background:linear-gradient(135deg,#e8eeff,#dff7f4);display:grid;place-items:center;flex:0 0 auto}
+.mi svg{width:26px;height:26px;fill:none;stroke:var(--accent);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.mt{flex:1;display:flex;flex-direction:column;gap:4px}.mt b{font-size:18px;letter-spacing:-.4px}.mt i{font-style:normal;font-size:13.5px;color:var(--muted);font-weight:500}
+.go{font-size:26px;color:#b6c0d1}
+.credit{text-align:center;margin:44px 0 8px;color:var(--muted)}
+.mono{width:44px;height:44px;margin:0 auto 10px;border-radius:15px;background:linear-gradient(135deg,var(--ink),#1e3a8a);color:#fff;display:grid;place-items:center;font-weight:800;font-size:19px}
+.cn{font-size:14px}.cn b{color:var(--ink);font-size:15px}.cs{font-size:12px;margin-top:6px}
+.bottom{grid-template-columns:repeat(4,1fr);padding:6px 8px calc(8px + env(safe-area-inset-bottom))}
+.bottom button{display:flex;flex-direction:column;align-items:center;gap:3px;min-height:56px;padding:6px 2px;font-size:11.5px;font-weight:600;color:#94a3b8;background:transparent;margin:0!important;border-radius:16px}
+.bottom button svg{width:23px;height:23px;fill:none;stroke:#94a3b8;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.bottom .active{color:var(--accent);background:#eef3ff}.bottom .active svg{stroke:var(--accent)}
+
+@media(max-width:360px){.grid2{grid-template-columns:1fr}.kpis{grid-template-columns:1fr 1fr}.mcard{padding:17px}.mt b{font-size:17px}}
+@media(max-width:330px){.kpis{grid-template-columns:1fr}}
+.card:has(.status.bad),.card:has(.status.warn){scroll-margin-top:82px}
 </style>
 </head>
 <body>
@@ -78,15 +133,26 @@ th{background:#f1f5f9;color:#475569}
   <input id="recent" type="hidden">
   <input id="jeonse" type="hidden">
 
-  <div class="section" id="tab-search">
+  <div class="section" id="tab-home">
+  <div class="menu">
+    <button type="button" class="mcard" data-go="search"><span class="mi"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span><span class="mt"><b>단지 검색</b><i>단지명으로 최근 실거래 확인</i></span><span class="go">›</span></button>
+    <button type="button" class="mcard" data-go="buy"><span class="mi"><svg viewBox="0 0 24 24"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/></svg></span><span class="mt"><b>매수 분석</b><i>내 자금으로 가능한지 판정</i></span><span class="go">›</span></button>
+    <button type="button" class="mcard" data-go="jeonse"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M8 15h3"/></svg></span><span class="mt"><b>전세 · 재계약</b><i>이동과 재계약 비교</i></span><span class="go">›</span></button>
+  </div>
+  <div class="credit">
+    <div class="mono">W</div>
+    <div class="cn">Made by <b>Woogi</b></div>
+    <div class="cs">국토교통부 실거래가 공개자료 기반 · 참고용</div>
+  </div>
+</div>
+
+<div class="section hide" id="tab-search">
     <div class="card"><b>단지 빠른 조회</b>
       <label>지역</label><div id="chips" class="chips"></div>
       <label for="subregion">세부지역</label>
       <select id="subregion"><option value="">전체</option></select>
       <label for="complex">단지명</label>
       <input id="complex" autocomplete="off" placeholder="단지명 입력">
-      <div class="mini" style="margin-top:7px">지역을 선택하면 검색 범위가 줄어 더 빠릅니다. 세부지역은 선택사항입니다.</div>
-      <div class="mini" style="margin-top:3px">처음에는 최근 3개월만 빠르게 조회하고, 필요할 때 12개월 상세내역을 추가로 불러옵니다.</div>
       <button id="searchBtn" type="button" style="width:100%;margin-top:10px">빠른 조회</button>
       <div id="status" class="status idle">조회 전 · 결과가 이 영역에 표시됩니다.</div><div id="cands"></div>
       <div id="result" class="hide"><label for="areaSelect">전용면적</label><select id="areaSelect"></select>
@@ -97,20 +163,19 @@ th{background:#f1f5f9;color:#475569}
           <div class="kpi"><div class="name">매매 / 전세 / 월세</div><div id="sCnt" class="val">-</div></div>
         </div>
         <div id="note" class="mini" style="margin-top:8px"></div>
-        <label>거래 표시</label>
+        <details class="fold-s"><summary>거래내역 보기</summary><label>거래 표시</label>
         <div id="txFilter" class="chips">
           <button type="button" class="chip on" data-kind="all">전체</button>
           <button type="button" class="chip" data-kind="매매">매매</button>
           <button type="button" class="chip" data-kind="전세">전세</button>
           <button type="button" class="chip" data-kind="월세">월세</button>
         </div>
-        <div class="tablewrap"><table><thead><tr><th>구분</th><th>계약일</th><th>전용㎡</th><th>가격</th><th>층</th></tr></thead><tbody id="txBody"></tbody></table></div>
+        <div class="tablewrap"><table><thead><tr><th>구분</th><th>계약일</th><th>전용㎡</th><th>가격</th><th>층</th></tr></thead><tbody id="txBody"></tbody></table></div></details>
         <div class="grid2" style="margin-top:12px">
           <button id="selectForBuyBtn" type="button">매수분석에 선택</button>
           <button id="selectForJeonseBtn" type="button">전세분석에 선택</button>
         </div>
-        <button id="detailBtn" type="button" class="ghost" style="width:100%;margin-top:8px">최근 12개월 상세조회</button><div class="mini" style="margin-top:8px">빠른 조회는 최근 3개월 기준입니다. 상세조회 시 12개월 거래내역으로 확장됩니다.</div>
-      </div></div>
+        <button id="detailBtn" type="button" class="ghost" style="width:100%;margin-top:8px">최근 12개월 상세조회</button></div></div>
   </div>
 
   <!-- 매수 -->
@@ -122,8 +187,7 @@ th{background:#f1f5f9;color:#475569}
         <button id="chooseComplexBtn" type="button" class="ghost">단지검색에서 선택</button>
         <button id="clearSelectedBtn" type="button" class="ghost">선택 해제</button>
       </div>
-      <div class="mini" style="margin-top:8px">특정 단지를 선택하면 최근 매매·전세 실거래를 자동으로 연결해 분석합니다.</div>
-    </div>
+      </div>
 
     <div class="card hide" id="selectedSummaryCard">
       <b>선택단지 한눈에 보기</b>
@@ -146,8 +210,12 @@ th{background:#f1f5f9;color:#475569}
         <div><label for="years">상환기간(년)</label><input id="years" type="number" inputmode="numeric" step="1" min="1" placeholder="예: 30"></div>
       </div>
     </div>
-
-    <div class="card">
+<div class="card result">
+      <b>매수 판정</b>
+      <div id="buyDecision" style="margin-top:8px"></div>
+      <details class="fold-s"><summary>계산 가정 보기</summary><div class="mini">※ 대출은 LTV만 반영한 간이 계산입니다. 취득·중개비는 일반 1주택 매수 기준 예상치이며 주택 수·감면·면적·실제 중개보수에 따라 달라질 수 있습니다.</div></details>
+    </div>
+<details class="card fold" id="detailCard"><summary>상세 지표 보기</summary><div class="card">
       <b>내 자금으로 가능한지</b>
       <div class="kpis" style="margin-top:12px">
         <div class="kpi"><div class="name">내가 사고 싶은 가격</div><div id="a-target" class="val">-</div></div>
@@ -158,8 +226,16 @@ th{background:#f1f5f9;color:#475569}
       <div id="affordNote" class="status idle">가용 현금·LTV를 넣으면 자동으로 계산합니다.</div>
     </div>
 
-    <div class="card" id="recommendCard">
-      <b>추천 단지 찾기</b>
+    <div class="kpis">
+      <div class="kpi"><div class="name">선택단지 실거래 대비</div><div id="k-disc" class="val">-</div></div>
+      <div class="kpi"><div class="name">선택단지 최근 전세가율</div><div id="k-jratio" class="val">-</div></div>
+      <div class="kpi"><div class="name">예상 대출금</div><div id="k-loan" class="val">-</div></div>
+      <div class="kpi"><div class="name">예상 취득·중개비</div><div id="k-cost" class="val">-</div></div>
+      <div class="kpi"><div class="name">내가 준비할 현금</div><div id="k-need" class="val">-</div></div>
+      <div class="kpi"><div class="name">예상 월 원리금</div><div id="k-pay" class="val">-</div></div>
+    </div></details>
+
+    <details class="card fold" id="recommendCard"><summary>추천 단지 찾기</summary>
       <div class="grid2">
         <div><label for="recScope">추천지역</label><select id="recScope"></select></div>
         <div><label for="recArea">희망 전용면적</label><select id="recArea">
@@ -168,30 +244,16 @@ th{background:#f1f5f9;color:#475569}
           <option value="84,101">84~101㎡</option>
         </select></div>
       </div>
-      <div class="mini" style="margin-top:8px">내 자금범위 또는 목표가격대 기준으로 최근 실거래 단지를 찾습니다.</div>
       <div class="grid2" style="margin-top:10px">
         <button id="recommendBtn" type="button">내 자금으로 살 수 있는 단지</button>
         <button id="targetRecommendBtn" type="button" class="ghost">내가 원하는 가격대 단지</button>
       </div>
       <div id="recStatus" class="status idle">먼저 목표 매수가와 자금조건을 입력하세요.</div>
       <div id="recResults"></div>
-    </div>
+    </details>
 
-    <div class="kpis">
-      <div class="kpi"><div class="name">선택단지 실거래 대비</div><div id="k-disc" class="val">-</div></div>
-      <div class="kpi"><div class="name">선택단지 최근 전세가율</div><div id="k-jratio" class="val">-</div></div>
-      <div class="kpi"><div class="name">예상 대출금</div><div id="k-loan" class="val">-</div></div>
-      <div class="kpi"><div class="name">예상 취득·중개비</div><div id="k-cost" class="val">-</div></div>
-      <div class="kpi"><div class="name">내가 준비할 현금</div><div id="k-need" class="val">-</div></div>
-      <div class="kpi"><div class="name">예상 월 원리금</div><div id="k-pay" class="val">-</div></div>
-    </div>
 
-    <div class="card result" style="margin-top:12px">
-      <b>매수 판정</b>
-      <div id="buyDecision" style="margin-top:8px"></div>
-      <hr>
-      <div class="mini">※ 대출은 LTV만 반영한 간이 계산입니다. 취득·중개비는 일반 1주택 매수 기준 예상치이며 주택 수·감면·면적·실제 중개보수에 따라 달라질 수 있습니다.</div>
-    </div>
+    
   </div>
 
   <!-- 전세 -->
@@ -202,7 +264,7 @@ th{background:#f1f5f9;color:#475569}
         <button id="jModeMove" type="button">새 전세 찾기</button>
         <button id="jModeRenew" type="button" class="ghost">현재 집 재계약</button>
       </div>
-      <div id="jModeHelp" class="mini" style="margin-top:8px">새 전세로 이동할 때 필요한 자금과 월 이자를 계산합니다.</div>
+      <div id="jModeHelp" class="mini" style="margin-top:8px">처음 전세를 구하거나 새 전세로 이동할 때 필요한 자금과 월 이자를 계산합니다.</div>
     </div>
 
     <div id="jMove">
@@ -210,7 +272,7 @@ th{background:#f1f5f9;color:#475569}
         <b>전세 자금 조건</b>
         <div class="grid2">
           <div><label for="cashJ">추가로 쓸 수 있는 현금(억원)</label><input id="cashJ" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 1.00"></div>
-          <div><label for="deposit">기존 보증금(억원) <span class="opt">· 없으면 0</span></label><input id="deposit" type="number" inputmode="decimal" step="0.01" min="0" placeholder="첫 전세는 0 · 예: 0.60"></div>
+          <div><label for="deposit">기존 보증금 회수액(억원) <span class="opt">· 없으면 0</span></label><input id="deposit" type="number" inputmode="decimal" step="0.01" min="0" value="0" placeholder="예: 0.60"></div>
           <div><label for="loanLimit">전세대출 가능 한도(억원)</label><input id="loanLimit" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 3.00"></div>
           <div><label for="rateJ">전세대출 금리(%)</label><input id="rateJ" type="number" inputmode="decimal" step="0.1" min="0" placeholder="예: 5.2"></div>
         </div>
@@ -224,11 +286,10 @@ th{background:#f1f5f9;color:#475569}
           <div class="kpi"><div class="name">추가 현금</div><div id="j-cash" class="val">-</div></div>
           <div class="kpi"><div class="name">가능한 최대 전세금</div><div id="j-max" class="val">-</div></div>
         </div>
-        <div id="jRangeNote" class="status idle">기존 보증금이 없으면 0을 입력하세요. 추가 현금·전세대출 한도와 합쳐 가능한 전세 범위를 계산합니다.</div>
+        <div id="jRangeNote" class="status idle">추가 현금·전세대출 한도를 넣으면 자동 계산됩니다. 처음 전세라면 기존 보증금은 0입니다.</div>
       </div>
 
-      <div class="card" id="jRecommendCard">
-        <b>내 자금으로 가능한 전세단지</b>
+      <details class="card fold" id="jRecommendCard"><summary>내 자금으로 가능한 전세단지</summary>
         <div class="grid2">
           <div><label for="jRecScope">추천지역</label><select id="jRecScope"></select></div>
           <div><label for="jRecArea">희망 전용면적</label><select id="jRecArea">
@@ -238,19 +299,17 @@ th{background:#f1f5f9;color:#475569}
           </select></div>
         </div>
         <button id="jRecommendBtn" type="button" style="width:100%;margin-top:10px">가능한 전세단지 찾기</button>
-        <div id="jRecStatus" class="status idle">자금조건을 입력하면 최근 신규 전세 실거래 기준으로 추천합니다.</div>
+        <div id="jRecStatus" class="status idle">지역을 선택하고 자금조건을 입력하면 최근 신규 전세 실거래 기준으로 추천합니다.</div>
         <div id="jRecResults"></div>
-      </div>
-
-      <div class="card">
+      </details>
+<div class="card">
         <b>분석할 전세 단지</b>
         <div id="jSelectedComplex" class="status idle">선택된 단지가 없습니다.</div>
         <div class="grid2" style="margin-top:10px">
           <button id="jChooseComplexBtn" type="button" class="ghost">단지검색에서 선택</button>
           <button id="jClearSelectedBtn" type="button" class="ghost">선택 해제</button>
         </div>
-        <div class="mini" style="margin-top:8px">단지를 선택하면 같은 면적의 최근 신규 전세 실거래를 자동으로 적용합니다.</div>
-      </div>
+        </div>
 
       <div class="card hide" id="jSummaryCard">
         <b>선택단지 전세 분석</b>
@@ -273,7 +332,7 @@ th{background:#f1f5f9;color:#475569}
       <div class="card">
         <b>현재 집과 재계약 조건</b>
         <div class="grid2">
-          <div><label for="curDeposit">기존 보증금(억원)</label><input id="curDeposit" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 0.60"></div>
+          <div><label for="curDeposit">현재 보증금(억원)</label><input id="curDeposit" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 0.60"></div>
           <div><label for="curRent">현재 월세(만원)</label><input id="curRent" type="number" inputmode="decimal" min="0" placeholder="예: 145"></div>
           <div><label for="renewDeposit">집주인 제안 보증금(억원)</label><input id="renewDeposit" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 0.60"></div>
           <div><label for="renew">집주인 제안 월세(만원)</label><input id="renew" type="number" inputmode="decimal" min="0" placeholder="예: 155"></div>
@@ -297,9 +356,10 @@ th{background:#f1f5f9;color:#475569}
 </div>
 
 <nav class="bottom">
-  <button type="button" id="nav-search" class="active" data-tab="search">단지검색</button>
-  <button type="button" id="nav-buy" data-tab="buy">매수 분석</button>
-  <button type="button" id="nav-jeonse" data-tab="jeonse">전세 · 재계약</button>
+  <button type="button" id="nav-home" class="active" data-tab="home"><svg viewBox="0 0 24 24"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/></svg><span>홈</span></button>
+  <button type="button" id="nav-search" data-tab="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>검색</span></button>
+  <button type="button" id="nav-buy" data-tab="buy"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg><span>매수</span></button>
+  <button type="button" id="nav-jeonse" data-tab="jeonse"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg><span>전세</span></button>
 </nav>
 
 <script>
@@ -532,7 +592,7 @@ function setJeonseMode(mode){
   $('jModeMove').className=mode==='move'?'':'ghost';
   $('jModeRenew').className=mode==='renew'?'':'ghost';
   $('jModeHelp').textContent=mode==='move'
-    ?'새 전세로 이동할 때 필요한 자금과 월 이자를 계산합니다.'
+    ?'처음 전세를 구하거나 처음 전세를 구하거나 새 전세로 이동할 때 필요한 자금과 월 이자를 계산합니다.'
     :'현재 집 재계약 조건이 지금보다 얼마나 달라지는지 비교합니다.';
 }
 function updateJSelectedUI(){
@@ -580,19 +640,18 @@ function calcJeonse(){
     setKpi('j-loan',eok(limit));
     setKpi('j-cash',eok(cash));
     setKpi('j-max',eok(maxJ),'good');
-    $('jRangeNote').textContent=eok(deposit)+' 보증금 + '+eok(cash)+' 추가 현금 + '+eok(limit)+' 전세대출 = 최대 '+eok(maxJ)+'까지 검토 가능합니다. 예상 대출금리 '+rateJ.toFixed(2).replace(/\\.?0+$/,'')+'%를 이후 월 이자 계산에 사용합니다.';
+    $('jRangeNote').textContent=eok(deposit)+' 보증금 + '+eok(cash)+' 추가 현금 + '+eok(limit)+' 전세대출 = 최대 '+eok(maxJ)+'까지 검토 가능합니다.';
     $('jRangeNote').className='status good';
   }else{
-    if(!isNaN(cash)&&cash>=0)setKpi('j-cash',eok(cash)); else setKpi('j-cash','-');
     setKpi('j-base',eok(deposit));
+    if(!isNaN(cash)&&cash>=0)setKpi('j-cash',eok(cash)); else setKpi('j-cash','-');
     if(!isNaN(limit)&&limit>=0)setKpi('j-loan',eok(limit)); else setKpi('j-loan','-');
     setKpi('j-max','-');
     const missing=[];
-    if(isNaN(deposit)||deposit<0)missing.push('기존 보증금(첫 전세는 0)');
     if(isNaN(cash)||cash<0)missing.push('추가 현금');
     if(isNaN(limit)||limit<0)missing.push('전세대출 한도');
     if(isNaN(rateJ)||rateJ<0)missing.push('대출 금리');
-    $('jRangeNote').textContent=missing.length?'계산하려면 '+missing.join(' · ')+'을(를) 입력하세요. 첫 전세이거나 돌려받을 보증금이 없으면 0을 입력하면 됩니다.':'기존 보증금·추가 현금·전세대출 한도를 넣으면 자동 계산됩니다.';
+    $('jRangeNote').textContent=missing.length?'계산하려면 '+missing.join(' · ')+'을(를) 입력하세요. 처음 전세라면 기존 보증금은 0으로 계산됩니다.':'추가 현금·전세대출 한도를 넣으면 자동 계산됩니다.';
     $('jRangeNote').className='status warn';
   }
 
@@ -623,7 +682,7 @@ function calcJeonse(){
     const L=[];
     L.push(['',{b:JSELECTED.complexName},' · '+JSELECTED.area+'㎡형 · 최근 신규 전세 '+JSELECTED.jeonseCount+'건']);
     L.push(['','최근 대표 전세금은 ',{b:eok(j)},'입니다.']);
-    L.push(['','기존 보증금 '+eok(deposit)+'을 돌려받고 전세대출 '+eok(loan)+'을 쓰면 추가로 준비할 자기자금은 ',{b:eok(self)},'입니다.']);
+    L.push(['','현재 보증금 '+eok(deposit)+'을 돌려받고 전세대출 '+eok(loan)+'을 쓰면 추가로 준비할 자기자금은 ',{b:eok(self)},'입니다.']);
     if(short>0)L.push(['bad','현재 추가 현금보다 ',{b:eok(short)},' 부족합니다.']);
     else L.push(['good','현재 입력한 자금으로 전세금 마련이 가능합니다.']);
     L.push(['','예상 전세대출 월 이자는 약 ',{b:Math.round(interest).toLocaleString('ko-KR')+'만원'},'입니다.']);
@@ -687,11 +746,16 @@ function calcAll(){ calcBuy(); calcJeonse(); }
 
 // 탭 전환
 function showTab(t){
-  ['search','buy','jeonse'].forEach(k => {
+  ['home','search','buy','jeonse'].forEach(k => {
     $('tab-' + k).classList.toggle('hide', k !== t);
     $('nav-' + k).classList.toggle('active', k === t);
   });
-  window.scrollTo({top: 0});
+  const titles={home:['실거래 집찾기','실거래 기반 매수 · 전세 · 재계약 비교'],search:['단지 검색','최근 실거래와 전월세 흐름 확인'],buy:['매수 분석','내 자금 · 실거래 · 대출 조건을 한 번에 비교'],jeonse:['전세 · 재계약','새 전세 이동과 현재 집 재계약 비교']};
+  const tt=titles[t]||titles.home;
+  document.querySelector('.title').textContent=tt[0];
+  document.querySelector('.sub').textContent=tt[1];
+  document.body.dataset.tab=t;
+  window.scrollTo({top:0,behavior:'auto'});
   try { localStorage.setItem('dbh:tab', t); } catch(e) {}
 }
 document.querySelectorAll('.bottom button').forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
@@ -717,8 +781,8 @@ clearSelected();
 clearJSelected();
 setJeonseMode('move');
 calcAll();
-showTab('search');
-try { localStorage.setItem('dbh:tab','search'); } catch(e) {}
+showTab('home');
+document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => showTab(b.dataset.go)));
 
 // 실거래 조회 (서버 /api/realestate 경유, 키는 서버에만 있음)
 const med=a=>{if(!a.length)return NaN;const s=[...a].sort((x,y)=>x-y),m=s.length>>1;return s.length%2?s[m]:(s[m-1]+s[m])/2};
@@ -934,181 +998,3 @@ $('areaSelect').addEventListener('change',applyArea);
 $('txFilter').addEventListener('click',e=>{
   const b=e.target.closest('button[data-kind]');if(!b)return;
   TX_KIND=b.dataset.kind;
-  document.querySelectorAll('#txFilter .chip').forEach(x=>x.classList.toggle('on',x===b));
-  applyArea();
-});
-$('complex').addEventListener('keydown',e=>{if(e.key==='Enter')search()});
-
-// 매수 추천
-const REC_SCOPES=[['','전체'],['41310','구리'],['41360','남양주'],['41150','의정부'],['11260','중랑'],['11350','노원'],['11320','도봉'],['11305','강북'],['11215','광진'],['11230','동대문'],['11200','성동'],['11290','성북'],['11740','강동']];
-REC_SCOPES.forEach(([c,n])=>{const o=document.createElement('option');o.value=c;o.textContent=n;$('recScope').appendChild(o)});
-$('recScope').value='';
-$('recArea').value='74,85';
-try{
-  const saved=JSON.parse(localStorage.getItem('dbh:v4')||'{}');
-  saved.recScope='';
-  saved.recArea='74,85';
-  localStorage.setItem('dbh:v4',JSON.stringify(saved));
-}catch(e){}
-
-function recSay(t,c){const e=$('recStatus');e.textContent=t;e.className='status '+(c||'')}
-function renderRecommendations(list){
-  const box=$('recResults');box.textContent='';
-  if(!list.length){
-    const d=document.createElement('div');d.className='status warn';d.textContent='현재 조건으로 추천할 수 있는 최근 거래 단지가 없습니다. 지역을 넓히거나 자금조건을 조정해보세요.';box.appendChild(d);return;
-  }
-  list.forEach((r,i)=>{
-    const d=document.createElement('div');d.className='recitem';
-    const t=document.createElement('div');t.className='rtitle';t.textContent=(i+1)+'. '+r.name;d.appendChild(t);
-    const m=document.createElement('div');m.className='rmeta';m.textContent=r.regionName+(r.dong?' · '+r.dong:'')+' · '+r.area+'㎡형 · 최근 3개월 '+r.count+'건';d.appendChild(m);
-    const g=document.createElement('div');g.className='recgrid';
-    [['최근 대표가격',eok(r.price)],['가장 최근 거래',eok(r.lastPrice)],['예상 대출금',eok(r.loan)],['예상 취득·중개비',eok(r.costs||0)],['내가 준비할 현금',eok(r.need)],['내 자금과 차이',r.shortfall>0?'부족 '+eok(r.shortfall):'여유 '+eok(r.headroom)]].forEach(([n,v])=>{
-      const c=document.createElement('div');c.className='reccell';
-      const nn=document.createElement('div');nn.className='n';nn.textContent=n;
-      const vv=document.createElement('div');vv.className='v';vv.textContent=v;
-      c.append(nn,vv);g.appendChild(c);
-    });
-    d.appendChild(g);
-    const a=document.createElement('button');a.type='button';a.textContent='이 단지 선택';a.style.marginTop='10px';
-    a.onclick=()=>selectRecommendation(r,a);
-    d.appendChild(a);
-    const b=document.createElement('button');b.type='button';b.className='ghost';b.textContent='실거래 자세히 보기';b.style.marginTop='8px';
-    b.onclick=()=>{$('complex').value=r.name;showTab('search');search(r.region,r.name,r.dong)};
-    d.appendChild(b);box.appendChild(d);
-  });
-}
-async function selectRecommendation(r,btn){
-  const oldText=btn.textContent;
-  btn.disabled=true;btn.textContent='단지 선택 중…';
-  recSay(r.name+' 실거래를 불러와 분석에 연결하고 있습니다.','load');
-  try{
-    const p=new URLSearchParams({complex:r.name,months:3,region:r.region,apt:r.name,dong:r.dong||''});
-    const d=await api(p.toString());
-    const uniqRent=new Map();
-    (d.rents||[]).forEach(x=>{const k=[x.name,x.date,x.area,x.deposit,x.monthly,x.floor,x.renewal].join('|');if(!uniqRent.has(k))uniqRent.set(k,x)});
-    d.rents=[...uniqRent.values()];
-    DATA=d;
-    $('complex').value=r.name;
-    const areas=[...new Set([...d.trades,...d.rents].map(x=>Math.floor(x.area)).filter(Boolean))].sort((a,b)=>a-b);
-    $('areaSelect').textContent='';
-    areas.forEach(x=>{const o=document.createElement('option');o.value=x;o.textContent=x+'㎡형 · 약 '+(x/3.3058).toFixed(1)+'평';$('areaSelect').appendChild(o)});
-    const hit=areas.find(x=>x===r.area);
-    if(hit!==undefined)$('areaSelect').value=hit;
-    else if(areas.length)$('areaSelect').value=areas[0];
-    $('result').classList.remove('hide');
-    selectCurrentForBuy();
-    recSay(r.name+'을(를) 매수분석 단지로 선택했습니다.','good');
-  }catch(e){
-    recSay(e.message,'bad');
-  }finally{
-    btn.disabled=false;btn.textContent=oldText;
-  }
-}
-
-async function recommend(strategy='budget'){
-  const cash=num('cash'),ltv=num('ltv'),target=num('price');
-  if(!(cash>0)||!(ltv>=0&&ltv<=100)){
-    recSay('가용 현금과 LTV를 먼저 입력하세요.','warn');return;
-  }
-  if(strategy==='target'&&!(target>0)){
-    recSay('목표가격대 검색은 목표 매수가를 먼저 입력하세요.','warn');return;
-  }
-  const [amin,amax]=$('recArea').value.split(',').map(Number);
-  const p=new URLSearchParams({mode:'recommend',strategy,cash,ltv,areaMin:amin,areaMax:amax});
-  if(target>0)p.set('target',target);
-  if($('recScope').value)p.set('scope',$('recScope').value);
-  const b=strategy==='target'?$('targetRecommendBtn'):$('recommendBtn');
-  const normal=strategy==='target'?'목표가격대 단지':'자금범위 내 단지';
-  b.disabled=true;b.textContent='추천 검색 중…';recSay('최근 3개월 실거래를 비교하고 있습니다…','load');$('recResults').textContent='';
-  try{
-    const d=await api(p.toString());
-    recSay((strategy==='target'?'목표 매수가 전후':'자금범위 내')+' 최근 3개월 실거래 추천 '+d.recommendations.length+'개'+(d.partialErrors?' · 일부 지역 조회 실패 '+d.partialErrors+'건':''),d.partialErrors?'warn':'');
-    renderRecommendations(d.recommendations);
-  }catch(e){recSay(e.message,'bad')}
-  finally{b.disabled=false;b.textContent=normal}
-}
-$('recommendBtn').addEventListener('click',()=>recommend('budget'));
-$('targetRecommendBtn').addEventListener('click',()=>recommend('target'));
-$('recScope').addEventListener('change',()=>{});
-$('recArea').addEventListener('change',()=>{});
-
-// 전세 추천
-REC_SCOPES.forEach(([c,n])=>{const o=document.createElement('option');o.value=c;o.textContent=n;$('jRecScope').appendChild(o)});
-$('jRecScope').value='';
-$('jRecArea').value='74,85';
-
-function jRecSay(t,c){const e=$('jRecStatus');e.textContent=t;e.className='status '+(c||'')}
-function renderJRecommendations(list){
-  const box=$('jRecResults');box.textContent='';
-  if(!list.length){
-    const d=document.createElement('div');d.className='status warn';d.textContent='현재 자금조건으로 추천할 최근 전세단지가 없습니다. 지역을 넓히거나 자금조건을 조정해보세요.';box.appendChild(d);return;
-  }
-  list.forEach((r,i)=>{
-    const d=document.createElement('div');d.className='recitem';
-    const t=document.createElement('div');t.className='rtitle';t.textContent=(i+1)+'. '+r.name;d.appendChild(t);
-    const m=document.createElement('div');m.className='rmeta';m.textContent=r.regionName+(r.dong?' · '+r.dong:'')+' · '+r.area+'㎡형 · 최근 신규 전세 '+r.count+'건';d.appendChild(m);
-    const g=document.createElement('div');g.className='recgrid';
-    [['최근 대표 전세',eok(r.price)],['가장 최근 전세',eok(r.latest)],['예상 전세대출',eok(r.loan)],['추가 자기자금',eok(r.own)]].forEach(([n,v])=>{
-      const c=document.createElement('div');c.className='reccell';
-      const nn=document.createElement('div');nn.className='n';nn.textContent=n;
-      const vv=document.createElement('div');vv.className='v';vv.textContent=v;
-      c.append(nn,vv);g.appendChild(c);
-    });
-    d.appendChild(g);
-    const a=document.createElement('button');a.type='button';a.textContent='이 단지 전세분석';
-    a.onclick=()=>selectJRecommendation(r,a);
-    d.appendChild(a);box.appendChild(d);
-  });
-}
-async function jRecommend(){
-  const cash=num('cashJ'),deposit=num('deposit'),limit=num('loanLimit');
-  if([cash,deposit,limit].some(v=>isNaN(v)||v<0)){jRecSay('보증금·추가 현금·전세대출 한도를 먼저 입력하세요.','warn');return}
-  const [amin,amax]=$('jRecArea').value.split(',').map(Number);
-  const p=new URLSearchParams({mode:'jeonseRecommend',cash,deposit,loanLimit:limit,areaMin:amin,areaMax:amax});
-  if($('jRecScope').value)p.set('scope',$('jRecScope').value);
-  const b=$('jRecommendBtn');b.disabled=true;b.textContent='추천 검색 중…';jRecSay('최근 신규 전세 실거래를 비교하고 있습니다…','load');$('jRecResults').textContent='';
-  try{
-    const d=await api(p.toString());
-    jRecSay('현재 자금으로 가능한 최근 전세 추천 '+d.recommendations.length+'개'+(d.partialErrors?' · 일부 지역 조회 실패 '+d.partialErrors+'건':''),d.partialErrors?'warn':'');
-    renderJRecommendations(d.recommendations);
-  }catch(e){jRecSay(e.message,'bad')}
-  finally{b.disabled=false;b.textContent='가능한 전세단지 찾기'}
-}
-async function selectJRecommendation(r,btn){
-  const old=btn.textContent;btn.disabled=true;btn.textContent='불러오는 중…';
-  try{
-    const p=new URLSearchParams({complex:r.name,months:3,region:r.region,apt:r.name,dong:r.dong||''});
-    const d=await api(p.toString());
-    const uniqRent=new Map();
-    (d.rents||[]).forEach(x=>{const k=[x.name,x.date,x.area,x.deposit,x.monthly,x.floor,x.renewal].join('|');if(!uniqRent.has(k))uniqRent.set(k,x)});
-    d.rents=[...uniqRent.values()];DATA=d;$('complex').value=r.name;
-    const areas=[...new Set([...d.trades,...d.rents].map(x=>Math.floor(x.area)).filter(Boolean))].sort((a,b)=>a-b);
-    $('areaSelect').textContent='';
-    areas.forEach(x=>{const o=document.createElement('option');o.value=x;o.textContent=x+'㎡형 · 약 '+(x/3.3058).toFixed(1)+'평';$('areaSelect').appendChild(o)});
-    if(areas.includes(r.area))$('areaSelect').value=r.area;
-    $('result').classList.remove('hide');
-    selectCurrentForJeonse();
-    $('jRecResults').textContent='';
-    jRecSay(r.name+'을(를) 전세분석 단지로 선택했습니다.','good');
-  }catch(e){jRecSay(e.message,'bad')}
-  finally{btn.disabled=false;btn.textContent=old}
-}
-$('jRecommendBtn').addEventListener('click',jRecommend);
-
-// PWA: http(s)에서만 서비스워커 등록
-if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
-  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
-}
-let deferredPrompt = null;
-window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; $('installBox').style.display = 'block'; });
-$('installBtn').addEventListener('click', async () => {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt(); await deferredPrompt.userChoice;
-  deferredPrompt = null; $('installBox').style.display = 'none';
-});
-const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-const standalone = window.navigator.standalone || matchMedia('(display-mode: standalone)').matches;
-if (isIOS && !standalone) $('iosHint').style.display = 'block';
-</script>
-</body>
-</html>
