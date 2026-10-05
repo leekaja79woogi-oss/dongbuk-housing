@@ -227,6 +227,21 @@ th{background:#f1f5f9;color:#475569}
         <div id="jRangeNote" class="status idle">보증금·추가 현금·전세대출 한도를 넣으면 자동 계산됩니다.</div>
       </div>
 
+      <div class="card" id="jRecommendCard">
+        <b>내 자금으로 가능한 전세단지</b>
+        <div class="grid2">
+          <div><label for="jRecScope">추천지역</label><select id="jRecScope"></select></div>
+          <div><label for="jRecArea">희망 전용면적</label><select id="jRecArea">
+            <option value="74,85">74~85㎡</option>
+            <option value="59,74">59~74㎡</option>
+            <option value="84,101">84~101㎡</option>
+          </select></div>
+        </div>
+        <button id="jRecommendBtn" type="button" style="width:100%;margin-top:10px">가능한 전세단지 찾기</button>
+        <div id="jRecStatus" class="status idle">자금조건을 입력하면 최근 신규 전세 실거래 기준으로 추천합니다.</div>
+        <div id="jRecResults"></div>
+      </div>
+
       <div class="card">
         <b>분석할 전세 단지</b>
         <div id="jSelectedComplex" class="status idle">선택된 단지가 없습니다.</div>
@@ -616,7 +631,7 @@ function calcJeonse(){
     const plan=$('jPlan');
     if(short>0){
       const affordable=deposit+cash+limit;
-      plan.textContent='이 단지가 불가능하다는 뜻은 아닙니다. 현재 조건에서는 약 '+eok(affordable)+' 이하 전세가 현실적인 범위입니다. 이 단지를 유지하려면 현금 '+eok(short)+'을 더 준비하거나 전세대출 가능 한도를 다시 확인해야 합니다.';
+      plan.textContent='이 단지가 불가능하다는 뜻은 아닙니다. 현재 조건에서는 약 '+eok(affordable)+' 이하 전세가 현실적인 범위입니다. 이 단지를 유지하려면 현금 '+eok(short)+'을 더 준비하거나 전세대출 가능 한도를 다시 확인해야 합니다. 아래 추천에서 현재 자금으로 가능한 단지를 바로 찾아볼 수 있습니다.';
       plan.className='status warn';
     }else{
       plan.textContent='자금 범위 안입니다. 다음 단계는 보증보험 가입 가능 여부, 등기부 선순위 권리, 실제 매물 전세가를 확인하는 것입니다.';
@@ -1008,6 +1023,69 @@ $('recommendBtn').addEventListener('click',()=>recommend('budget'));
 $('targetRecommendBtn').addEventListener('click',()=>recommend('target'));
 $('recScope').addEventListener('change',()=>{});
 $('recArea').addEventListener('change',()=>{});
+
+// 전세 추천
+REC_SCOPES.forEach(([c,n])=>{const o=document.createElement('option');o.value=c;o.textContent=n;$('jRecScope').appendChild(o)});
+$('jRecScope').value='';
+$('jRecArea').value='74,85';
+
+function jRecSay(t,c){const e=$('jRecStatus');e.textContent=t;e.className='status '+(c||'')}
+function renderJRecommendations(list){
+  const box=$('jRecResults');box.textContent='';
+  if(!list.length){
+    const d=document.createElement('div');d.className='status warn';d.textContent='현재 자금조건으로 추천할 최근 전세단지가 없습니다. 지역을 넓히거나 자금조건을 조정해보세요.';box.appendChild(d);return;
+  }
+  list.forEach((r,i)=>{
+    const d=document.createElement('div');d.className='recitem';
+    const t=document.createElement('div');t.className='rtitle';t.textContent=(i+1)+'. '+r.name;d.appendChild(t);
+    const m=document.createElement('div');m.className='rmeta';m.textContent=r.regionName+(r.dong?' · '+r.dong:'')+' · '+r.area+'㎡형 · 최근 신규 전세 '+r.count+'건';d.appendChild(m);
+    const g=document.createElement('div');g.className='recgrid';
+    [['최근 대표 전세',eok(r.price)],['가장 최근 전세',eok(r.latest)],['예상 전세대출',eok(r.loan)],['추가 자기자금',eok(r.own)]].forEach(([n,v])=>{
+      const c=document.createElement('div');c.className='reccell';
+      const nn=document.createElement('div');nn.className='n';nn.textContent=n;
+      const vv=document.createElement('div');vv.className='v';vv.textContent=v;
+      c.append(nn,vv);g.appendChild(c);
+    });
+    d.appendChild(g);
+    const a=document.createElement('button');a.type='button';a.textContent='이 단지 전세분석';
+    a.onclick=()=>selectJRecommendation(r,a);
+    d.appendChild(a);box.appendChild(d);
+  });
+}
+async function jRecommend(){
+  const cash=num('cashJ'),deposit=num('deposit'),limit=num('loanLimit');
+  if([cash,deposit,limit].some(v=>isNaN(v)||v<0)){jRecSay('보증금·추가 현금·전세대출 한도를 먼저 입력하세요.','warn');return}
+  const [amin,amax]=$('jRecArea').value.split(',').map(Number);
+  const p=new URLSearchParams({mode:'jeonseRecommend',cash,deposit,loanLimit:limit,areaMin:amin,areaMax:amax});
+  if($('jRecScope').value)p.set('scope',$('jRecScope').value);
+  const b=$('jRecommendBtn');b.disabled=true;b.textContent='추천 검색 중…';jRecSay('최근 신규 전세 실거래를 비교하고 있습니다…','load');$('jRecResults').textContent='';
+  try{
+    const d=await api(p.toString());
+    jRecSay('현재 자금으로 가능한 최근 전세 추천 '+d.recommendations.length+'개'+(d.partialErrors?' · 일부 지역 조회 실패 '+d.partialErrors+'건':''),d.partialErrors?'warn':'');
+    renderJRecommendations(d.recommendations);
+  }catch(e){jRecSay(e.message,'bad')}
+  finally{b.disabled=false;b.textContent='가능한 전세단지 찾기'}
+}
+async function selectJRecommendation(r,btn){
+  const old=btn.textContent;btn.disabled=true;btn.textContent='불러오는 중…';
+  try{
+    const p=new URLSearchParams({complex:r.name,months:3,region:r.region,apt:r.name});
+    const d=await api(p.toString());
+    const uniqRent=new Map();
+    (d.rents||[]).forEach(x=>{const k=[x.name,x.date,x.area,x.deposit,x.monthly,x.floor,x.renewal].join('|');if(!uniqRent.has(k))uniqRent.set(k,x)});
+    d.rents=[...uniqRent.values()];DATA=d;$('complex').value=r.name;
+    const areas=[...new Set([...d.trades,...d.rents].map(x=>Math.floor(x.area)).filter(Boolean))].sort((a,b)=>a-b);
+    $('areaSelect').textContent='';
+    areas.forEach(x=>{const o=document.createElement('option');o.value=x;o.textContent=x+'㎡형 · 약 '+(x/3.3058).toFixed(1)+'평';$('areaSelect').appendChild(o)});
+    if(areas.includes(r.area))$('areaSelect').value=r.area;
+    $('result').classList.remove('hide');
+    selectCurrentForJeonse();
+    $('jRecResults').textContent='';
+    jRecSay(r.name+'을(를) 전세분석 단지로 선택했습니다.','good');
+  }catch(e){jRecSay(e.message,'bad')}
+  finally{btn.disabled=false;btn.textContent=old}
+}
+$('jRecommendBtn').addEventListener('click',jRecommend);
 
 // PWA: http(s)에서만 서비스워커 등록
 if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
