@@ -510,49 +510,154 @@ function calcBuy(){
   render('buyDecision', L);
 }
 
-function calcJeonse(){
-  const newJ = num('newJ'), budget = num('budget'), deposit = num('deposit'), limit = num('loanLimit'),
-        rateJ = num('rateJ'), cash = num('cashJ'), rent = num('rentJ'), recent = num('recent'), renew = num('renew');
-  const kp = ['j-need','j-loan','j-self','j-int','j-ratio'];
-  const bad = [];
-  if (!(newJ > 0)) bad.push('신규 전세금');
-  if (!(budget >= 0)) bad.push('전세 예산 상한');
-  if (!(deposit >= 0)) bad.push('보증금 회수액');
-  if (!(limit >= 0)) bad.push('전세대출 한도');
-  if (!(rateJ >= 0)) bad.push('전세대출 금리');
-  if (!(cash >= 0)) bad.push('가용 현금');
-  if (!(rent >= 0)) bad.push('현재 월 주거비');
-  if (isNaN(newJ) && isNaN(deposit)) { clearKpis(kp); return render('jDecision', [['mini','값을 입력하면 결과가 여기에 표시됩니다.']]); }
-  if (bad.length) return invalid('jDecision', kp, bad);
-
-  const need = Math.max(0, newJ * 10000 - deposit);     // 만원
-  const loan = Math.min(limit * 10000, need);
-  const self = need - loan;
-  const short = self - cash * 10000;
-  const interest = loan * rateJ / 100 / 12;
-  const ratio = recent > 0 ? newJ / recent * 100 : NaN;
-
-  setKpi('j-need', man(need));
-  setKpi('j-loan', man(loan));
-  setKpi('j-self', man(self), short > 0 ? 'bad' : 'good');
-  setKpi('j-int', man(interest));
-  setKpi('j-ratio', isNaN(ratio) ? '-' : ratio.toFixed(1) + '%', ratio >= 80 ? 'bad' : ratio >= 70 ? 'warn' : '');
-
-  const L = [];
-  if (budget > 0 && newJ > budget) L.push(['bad', '신규 전세금 ', {b: eok(newJ)}, '은 예산 상한 ' + eok(budget) + '을 ', {b: eok(newJ - budget)}, ' 넘습니다.']);
-  else if (budget > 0) L.push(['good', '신규 전세금이 예산 상한 이내입니다.']);
-  L.push(['', '보증금 ' + man(deposit) + '원을 돌려받아도 추가로 ', {b: man(need) + '원'}, '이 필요합니다. 전세대출 ' + man(loan) + '원을 쓰면 자기자금은 ', {b: man(self) + '원'}, '입니다.']);
-  if (short > 0) L.push(['bad', '가용 현금보다 ', {b: man(short) + '원'}, ' 부족합니다. 전세금 협상, 대출 한도 상향, 추가 자금 마련 중 하나가 필요합니다.']);
-  else L.push(['good', '가용 현금으로 자기자금을 충당할 수 있습니다.']);
-  const d = interest - rent;
-  L.push(['', '전세대출 월 이자는 약 ', {b: Math.round(interest).toLocaleString('ko-KR') + '만원'}, '으로, 현재 월 주거비 대비 ', {b: sign(d), c: d > 0 ? 'bad' : 'good'}, ' 수준입니다.']);
-  if (renew > 0){
-    const d2 = interest - renew;
-    L.push(['', '재계약 월세 ' + Math.round(renew).toLocaleString('ko-KR') + '만원과 비교하면 이자 쪽이 ', {b: sign(d2), c: d2 > 0 ? 'bad' : 'good'}, '입니다. 자기자금 ' + man(self) + '원의 기회비용은 별도로 따져보세요.']);
+function setJeonseMode(mode){
+  JMODE=mode;
+  $('jMove').classList.toggle('hide',mode!=='move');
+  $('jRenew').classList.toggle('hide',mode!=='renew');
+  $('jModeMove').className=mode==='move'?'':'ghost';
+  $('jModeRenew').className=mode==='renew'?'':'ghost';
+  $('jModeHelp').textContent=mode==='move'
+    ?'새 전세로 이동할 때 필요한 자금과 월 이자를 계산합니다.'
+    :'현재 집 재계약 조건이 지금보다 얼마나 달라지는지 비교합니다.';
+}
+function updateJSelectedUI(){
+  const box=$('jSelectedComplex');
+  if(!JSELECTED){
+    box.textContent='선택된 단지가 없습니다.';
+    box.className='status idle';
+    $('jSummaryCard').classList.add('hide');
+    return;
   }
-  if (ratio >= 80) L.push(['bad', '전세가율 ', {b: ratio.toFixed(1) + '%'}, '로 높습니다. 보증금 반환 안전성(보증보험 가입 가능 여부 등)을 확인하세요.']);
-  else if (ratio >= 70) L.push(['warn', '전세가율 ', {b: ratio.toFixed(1) + '%'}, '. 보증보험 가입 가능 여부를 미리 확인해두세요.']);
-  render('jDecision', L);
+  box.textContent=JSELECTED.complexName+' · '+JSELECTED.regionName+' · '+JSELECTED.area+'㎡형';
+  box.className='status good';
+}
+function selectCurrentForJeonse(){
+  if(!DATA)return;
+  const a=+$('areaSelect').value,ok=x=>Math.floor(x.area)===a,by=(x,y)=>y.date.localeCompare(x.date);
+  const tr=DATA.trades.filter(ok).sort(by).filter(x=>!x.direct);
+  const je=DATA.rents.filter(x=>ok(x)&&x.monthly===0&&x.deposit>0&&!x.renewal).sort(by);
+  const t=med(tr.slice(0,3).map(x=>x.price))/10000;
+  const j=med(je.slice(0,3).map(x=>x.deposit))/10000;
+  if(isNaN(j)){say('선택한 면적의 최근 신규 전세 실거래가 없어 전세분석에 연결할 수 없습니다.','warn');return;}
+  JSELECTED={
+    complexName:DATA.complexName,regionCode:DATA.regionCode,regionName:DATA.regionName,area:a,
+    sale:isNaN(t)?NaN:t,jeonse:j,tradeCount:tr.length,jeonseCount:je.length,
+    latestJeonse:je[0]?.deposit/10000||NaN,latestJeonseDate:je[0]?.date||''
+  };
+  updateJSelectedUI();
+  calcJeonse();
+  setJeonseMode('move');
+  showTab('jeonse');
+  requestAnimationFrame(()=>$('jSummaryCard').scrollIntoView({behavior:'smooth',block:'start'}));
+}
+function clearJSelected(){
+  JSELECTED=null;
+  updateJSelectedUI();
+  calcJeonse();
+}
+function calcJeonse(){
+  const cash=num('cashJ'), deposit=num('deposit'), limit=num('loanLimit'), rateJ=num('rateJ');
+  const vals=[cash,deposit,limit,rateJ];
+  const ready=vals.every(v=>!isNaN(v)&&v>=0);
+  if(ready){
+    const maxJ=deposit+cash+limit;
+    setKpi('j-base',eok(deposit));
+    setKpi('j-loan',eok(limit));
+    setKpi('j-cash',eok(cash));
+    setKpi('j-max',eok(maxJ),'good');
+    $('jRangeNote').textContent=eok(deposit)+' 보증금 + '+eok(cash)+' 추가 현금 + '+eok(limit)+' 전세대출 = 최대 '+eok(maxJ)+'까지 검토 가능합니다.';
+    $('jRangeNote').className='status good';
+  }else{
+    ['j-base','j-loan','j-cash','j-max'].forEach(id=>setKpi(id,'-'));
+    $('jRangeNote').textContent='보증금·추가 현금·전세대출 한도를 넣으면 자동 계산됩니다.';
+    $('jRangeNote').className='status idle';
+  }
+
+  if(JSELECTED&&ready){
+    const j=JSELECTED.jeonse;
+    const gap=Math.max(0,j-deposit);
+    const loan=Math.min(limit,gap);
+    const self=Math.max(0,gap-loan);
+    const short=Math.max(0,self-cash);
+    const interest=loan*10000*rateJ/100/12;
+    const ratio=(JSELECTED.sale>0)?j/JSELECTED.sale*100:NaN;
+    setKpi('j-price',eok(j));
+    setKpi('j-use-loan',eok(loan));
+    setKpi('j-short',short>0?eok(short):'0억',short>0?'bad':'good');
+    setKpi('j-int',Math.round(interest).toLocaleString('ko-KR')+'만');
+    setKpi('j-ratio',isNaN(ratio)?'-':ratio.toFixed(1)+'%',ratio>=80?'bad':ratio>=70?'warn':'');
+    setKpi('j-count',JSELECTED.jeonseCount+'건');
+
+    let score=0;
+    if(short<=0)score+=2;else score-=2;
+    if(JSELECTED.jeonseCount>=3)score+=1;else score-=1;
+    if(!isNaN(ratio)){if(ratio<70)score+=1;else if(ratio>=80)score-=1;}
+    let verdict='조건을 조금 더 확인해보면 됩니다',cls='warn';
+    if(score>=3){verdict='현재 조건에서 검토할 만한 전세 후보';cls='good'}
+    else if(score<=0){verdict='현재 조건에서는 자금·안전성 점검이 필요합니다';cls='bad'}
+    $('jVerdict').textContent=verdict;$('jVerdict').className=cls;
+
+    const L=[];
+    L.push(['',{b:JSELECTED.complexName},' · '+JSELECTED.area+'㎡형 · 최근 신규 전세 '+JSELECTED.jeonseCount+'건']);
+    L.push(['','최근 대표 전세금은 ',{b:eok(j)},'입니다.']);
+    L.push(['','현재 보증금 '+eok(deposit)+'을 돌려받고 전세대출 '+eok(loan)+'을 쓰면 추가로 준비할 자기자금은 ',{b:eok(self)},'입니다.']);
+    if(short>0)L.push(['bad','현재 추가 현금보다 ',{b:eok(short)},' 부족합니다.']);
+    else L.push(['good','현재 입력한 자금으로 전세금 마련이 가능합니다.']);
+    L.push(['','예상 전세대출 월 이자는 약 ',{b:Math.round(interest).toLocaleString('ko-KR')+'만원'},'입니다.']);
+    if(JSELECTED.jeonseCount<3)L.push(['warn','최근 신규 전세 거래가 '+JSELECTED.jeonseCount+'건이라 시세 표본이 적습니다.']);
+    else L.push(['good','최근 신규 전세 거래가 '+JSELECTED.jeonseCount+'건 있어 가격 확인이 비교적 충분합니다.']);
+    if(!isNaN(ratio)){
+      if(ratio>=80)L.push(['bad','전세가율 '+ratio.toFixed(1)+'%로 높습니다. 보증보험 가입 가능 여부와 선순위 권리관계를 반드시 확인하세요.']);
+      else if(ratio>=70)L.push(['warn','전세가율 '+ratio.toFixed(1)+'%입니다. 계약 전 보증보험 가능 여부를 확인하세요.']);
+      else L.push(['good','전세가율 '+ratio.toFixed(1)+'%로 매매가 대비 보증금 비율은 비교적 낮은 편입니다.']);
+    }else L.push(['warn','같은 면적 매매 실거래 표본이 없어 전세가율 평가는 제외했습니다.']);
+    render('jDecision',L);
+
+    const plan=$('jPlan');
+    if(short>0){
+      const affordable=deposit+cash+limit;
+      plan.textContent='이 단지가 불가능하다는 뜻은 아닙니다. 현재 조건에서는 약 '+eok(affordable)+' 이하 전세가 현실적인 범위입니다. 이 단지를 유지하려면 현금 '+eok(short)+'을 더 준비하거나 전세대출 가능 한도를 다시 확인해야 합니다.';
+      plan.className='status warn';
+    }else{
+      plan.textContent='자금 범위 안입니다. 다음 단계는 보증보험 가입 가능 여부, 등기부 선순위 권리, 실제 매물 전세가를 확인하는 것입니다.';
+      plan.className='status good';
+    }
+    $('jSummaryCard').classList.remove('hide');
+  }else{
+    $('jSummaryCard').classList.add('hide');
+  }
+
+  // 재계약 비교
+  const curD=num('curDeposit'),curR=num('curRent'),newD=num('renewDeposit'),newR=num('renew');
+  const renewReady=[curD,curR,newD,newR].every(v=>!isNaN(v)&&v>=0);
+  if(renewReady){
+    const depDiff=newD-curD, rentDiff=newR-curR, y=rentDiff*12, y2=rentDiff*24;
+    setKpi('r-deposit',(depDiff>=0?'+':'')+eok(depDiff));
+    setKpi('r-rent',(rentDiff>=0?'+':'')+Math.round(rentDiff).toLocaleString('ko-KR')+'만',rentDiff>0?'bad':'good');
+    setKpi('r-year',(y>=0?'+':'')+Math.round(y).toLocaleString('ko-KR')+'만');
+    setKpi('r-2year',(y2>=0?'+':'')+Math.round(y2).toLocaleString('ko-KR')+'만');
+    const R=[];
+    if(depDiff>0)R.push(['warn','보증금이 ',{b:eok(depDiff)},' 늘어납니다.']);
+    else if(depDiff<0)R.push(['good','보증금이 ',{b:eok(Math.abs(depDiff))},' 줄어듭니다.']);
+    else R.push(['','보증금은 현재와 같습니다.']);
+    if(rentDiff>0)R.push(['bad','월세가 매달 ',{b:Math.round(rentDiff).toLocaleString('ko-KR')+'만원'},' 올라 2년이면 총 '+Math.round(y2).toLocaleString('ko-KR')+'만원이 추가됩니다.']);
+    else if(rentDiff<0)R.push(['good','월세가 매달 ',{b:Math.abs(Math.round(rentDiff)).toLocaleString('ko-KR')+'만원'},' 줄어듭니다.']);
+    else R.push(['good','월세는 현재와 같습니다.']);
+    if(JSELECTED&&ready){
+      const gap=Math.max(0,JSELECTED.jeonse-deposit),loan=Math.min(limit,gap),interest=loan*10000*rateJ/100/12;
+      if(newR>interest)R.push(['','선택한 새 전세의 예상 대출이자는 월 약 ',{b:Math.round(interest).toLocaleString('ko-KR')+'만원'},'으로 재계약 월세보다 낮습니다. 다만 추가 자기자금과 이사비용은 별도입니다.']);
+      else R.push(['','선택한 새 전세의 예상 대출이자는 월 약 ',{b:Math.round(interest).toLocaleString('ko-KR')+'만원'},'으로 재계약 월세와 비교해 큰 우위가 없을 수 있습니다.']);
+    }
+    render('renewDecision',R);
+    const rp=$('renewPlan');
+    if(rentDiff<=0&&depDiff<=0){rp.textContent='재계약 조건이 현재보다 나빠지지 않습니다. 이사비용과 새 전세 자금 부담까지 고려하면 재계약 우선 검토가 합리적입니다.';rp.className='status good';}
+    else if(rentDiff>0||depDiff>0){rp.textContent='재계약 비용이 증가합니다. 새 전세 후보를 선택해 월 이자와 추가 자기자금을 함께 비교해보는 것이 좋습니다.';rp.className='status warn';}
+  }else{
+    ['r-deposit','r-rent','r-year','r-2year'].forEach(id=>setKpi(id,'-'));
+    $('renewDecision').textContent='';
+    $('renewPlan').textContent='조건을 입력하면 재계약 유지와 새 전세 이동 중 무엇을 더 검토할지 안내합니다.';
+    $('renewPlan').className='status idle';
+  }
 }
 
 function calcAll(){ calcBuy(); calcJeonse(); }
@@ -569,25 +674,23 @@ function showTab(t){
 document.querySelectorAll('.bottom button').forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
 
 // 입력값 저장·복원 (실패해도 앱은 동작)
-const FIELDS = ['complex','recent','cash','cashJ','rentJ','price','jeonse','ltv','rate','years','newJ','budget','deposit','loanLimit','rateJ','renew','recScope','recArea'];
+const FIELDS = ['complex','recent','cash','price','jeonse','ltv','rate','years','recScope','recArea','cashJ','deposit','loanLimit','rateJ','curDeposit','curRent','renewDeposit','renew'];
 try {
   const saved = JSON.parse(localStorage.getItem('dbh:v4') || '{}');
-  const noRestore = new Set(['complex','recent','cash','price','jeonse','ltv','rate','years']);
-  FIELDS.forEach(id => { if (id in saved && !noRestore.has(id)) $(id).value = saved[id]; });
-  $('complex').value = '';
-  ['recent','jeonse','cash','price','ltv','rate','years'].forEach(id=>$(id).value='');
+  const noRestore = new Set(FIELDS);
+  FIELDS.forEach(id => { if (id in saved && !noRestore.has(id) && $(id)) $(id).value = saved[id]; });
+  ['complex','recent','cash','price','jeonse','ltv','rate','years','cashJ','deposit','loanLimit','rateJ','curDeposit','curRent','renewDeposit','renew'].forEach(id=>{if($(id))$(id).value='';});
 } catch(e) {
-  $('complex').value = '';
-  ['recent','cash','price','jeonse','ltv','rate','years'].forEach(id=>$(id).value='');
+  ['complex','recent','cash','price','jeonse','ltv','rate','years','cashJ','deposit','loanLimit','rateJ','curDeposit','curRent','renewDeposit','renew'].forEach(id=>{if($(id))$(id).value='';});
 }
 document.addEventListener('input', e => {
   if (!e.target.matches('input')) return;
-  if(e.target.id==='cash' && $('cashJ').value!==e.target.value)$('cashJ').value=e.target.value;
-  if(e.target.id==='cashJ' && $('cash').value!==e.target.value)$('cash').value=e.target.value;
-  try { localStorage.setItem('dbh:v4', JSON.stringify(Object.fromEntries(FIELDS.map(id => [id, $(id).value])))); } catch(err) {}
+  try { localStorage.setItem('dbh:v4', JSON.stringify(Object.fromEntries(FIELDS.filter(id=>$(id)).map(id => [id, $(id).value])))); } catch(err) {}
   calcAll();
 });
 clearSelected();
+clearJSelected();
+setJeonseMode('move');
 calcAll();
 showTab('search');
 try { localStorage.setItem('dbh:tab','search'); } catch(e) {}
@@ -738,6 +841,14 @@ function clearSelected(){
 $('chooseComplexBtn').addEventListener('click',()=>showTab('search'));
 $('clearSelectedBtn').addEventListener('click',clearSelected);
 $('selectForBuyBtn').addEventListener('click',selectCurrentForBuy);
+$('selectForJeonseBtn').addEventListener('click',selectCurrentForJeonse);
+$('jChooseComplexBtn').addEventListener('click',()=>showTab('search'));
+$('jClearSelectedBtn').addEventListener('click',clearJSelected);
+$('jModeMove').addEventListener('click',()=>setJeonseMode('move'));
+$('jModeRenew').addEventListener('click',()=>setJeonseMode('renew'));
+$('compareRenewBtn').addEventListener('click',()=>setJeonseMode('renew'));
+$('compareMoveBtn').addEventListener('click',()=>setJeonseMode('move'));
+
 $('planBudgetBtn').addEventListener('click',()=>{
   $('recScope').value=SELECTED?.regionCode||'';
   recommend('budget');
