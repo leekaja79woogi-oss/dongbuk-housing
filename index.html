@@ -297,10 +297,15 @@ details.fold-s[open]>summary{margin-bottom:10px}
         </select></div>
       </div>
       <div class="grid2" style="margin-top:10px">
-        <button id="recommendBtn" type="button" class="recActionBtn"><span>내 자금으로</span><span>살 수 있는 단지</span></button>
-        <button id="targetRecommendBtn" type="button" class="ghost recActionBtn"><span>내가 원하는 가격대</span><span>단지</span></button>
+        <button id="recommendBtn" type="button" class="recActionBtn"><span>자금에 맞는</span><span>단지 찾기</span></button>
+        <button id="targetRecommendBtn" type="button" class="ghost recActionBtn"><span>희망 매수가로</span><span>찾기</span></button>
       </div>
-      <div id="recStatus" class="status idle">먼저 목표 매수가와 자금조건을 입력하세요.</div>
+      <div class="grid2" style="margin-top:10px">
+        <div><label for="recLoan">대출 가능 금액(억원)</label><input id="recLoan" type="number" min="0" step="0.01" inputmode="decimal" placeholder="대출 없이 찾으려면 0"></div>
+        <div><label for="recTarget">희망 매수가(억원)</label><input id="recTarget" type="number" min="0" step="0.01" inputmode="decimal" placeholder="예: 5.00"></div>
+      </div>
+      <p class="muted">자금 기준은 위의 가용 현금과 직접 입력한 대출 가능 금액을 사용합니다. 희망가 기준은 최근 실거래가가 희망가 ±10%인 단지를 찾습니다. 입력한 대출금은 승인 여부를 확인한 금액으로 입력하세요.</p>
+      <div id="recStatus" class="status idle">지역과 면적을 선택하고 자금 또는 희망 매수가로 찾아보세요.</div>
       <div id="recResults"></div>
     </details>
 
@@ -973,7 +978,7 @@ function showTab(t){
 document.querySelectorAll('.bottom button').forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
 
 // 입력값 저장·복원 (실패해도 앱은 동작)
-const FIELDS = ['complex','recent','cash','price','jeonse','ltv','rate','years','recScope','recArea','cashJ','deposit','loanLimit','rateJ','curDeposit','curRent','renewDeposit','renew','renewRate','moveCost','renewCash','actualJeonse'];
+const FIELDS = ['complex','recent','cash','price','jeonse','ltv','rate','years','recScope','recArea','recLoan','recTarget','cashJ','deposit','loanLimit','rateJ','curDeposit','curRent','renewDeposit','renew','renewRate','moveCost','renewCash','actualJeonse'];
 try {
   const saved = JSON.parse(localStorage.getItem('dbh:v4') || '{}');
   FIELDS.forEach(id=>{if(id in saved&&$(id))$(id).value=saved[id];});
@@ -1151,6 +1156,7 @@ $('planBudgetBtn').addEventListener('click',()=>{
 });
 $('planTargetBtn').addEventListener('click',()=>{
   $('recScope').value=SELECTED?.regionCode||'';
+  if(!$('recTarget').value)$('recTarget').value=$('price').value;
   recommend('target');
   requestAnimationFrame(()=>$('recommendCard').scrollIntoView({behavior:'smooth',block:'start'}));
 });
@@ -1229,7 +1235,7 @@ function renderRecommendations(list){
     const t=document.createElement('div');t.className='rtitle';t.textContent=(i+1)+'. '+r.name;d.appendChild(t);
     const m=document.createElement('div');m.className='rmeta';m.textContent=r.regionName+(r.dong?' · '+r.dong:'')+' · '+r.area+'㎡형 · 최근 3개월 '+r.count+'건';d.appendChild(m);
     const g=document.createElement('div');g.className='recgrid';
-    [['최근 대표가격',eok(r.price)],['가장 최근 거래',eok(r.lastPrice)],['예상 대출금',eok(r.loan)],['예상 취득·중개비',eok(r.costs||0)],['내가 준비할 현금',eok(r.need)],['내 자금과 차이',r.shortfall>0?'부족 '+eok(r.shortfall):'여유 '+eok(r.headroom)]].forEach(([n,v])=>{
+    [['최근 대표가격',eok(r.price)],['가장 최근 거래',eok(r.lastPrice)],['입력 대출금 적용',eok(r.loan)],['예상 취득·중개비',eok(r.costs||0)],['내가 준비할 현금',eok(r.need)],['내 자금과 차이',r.shortfall>0?'부족 '+eok(r.shortfall):'여유 '+eok(r.headroom)]].forEach(([n,v])=>{
       const c=document.createElement('div');c.className='reccell';
       const nn=document.createElement('div');nn.className='n';nn.textContent=n;
       const vv=document.createElement('div');vv.className='v';vv.textContent=v;
@@ -1271,16 +1277,16 @@ async function selectRecommendation(r,btn){
 }
 
 async function recommend(strategy='budget'){
-  const cash=num('cash'),ltv=num('ltv'),target=num('price');
-  if(!(cash>0)||!(ltv>=0&&ltv<=100)){
-    recSay('가용 현금과 LTV를 먼저 입력하세요.','warn');return;
+  const cash=Math.max(0,num('cash')||0),loanAmount=Math.max(0,num('recLoan')||0),target=num('recTarget');
+  if(strategy==='budget'&&(!(num('cash')>=0)||$('recLoan').value.trim()===''||!(num('recLoan')>=0)||cash+loanAmount<=0)){
+    recSay('가용 현금과 대출 가능 금액을 입력하세요. 대출 없이 찾으려면 0을 입력하세요.','warn');return;
   }
   if(strategy==='target'&&!(target>0)){
-    recSay('목표가격대 검색은 목표 매수가를 먼저 입력하세요.','warn');return;
+    recSay('희망 매수가를 입력하세요.','warn');return;
   }
   if(!$('recScope').value){recSay('추천지역을 먼저 선택하세요. 지역을 선택하면 공공데이터 호출량을 크게 줄일 수 있습니다.','warn');return;}
   const [amin,amax]=$('recArea').value.split(',').map(Number);
-  const p=new URLSearchParams({mode:'recommend',strategy,cash,ltv,areaMin:amin,areaMax:amax});
+  const p=new URLSearchParams({mode:'recommend',strategy,cash,loanAmount,areaMin:amin,areaMax:amax});
   if(target>0)p.set('target',target);
   if($('recScope').value)p.set('scope',$('recScope').value);
   const b=strategy==='target'?$('targetRecommendBtn'):$('recommendBtn');
@@ -1288,10 +1294,10 @@ async function recommend(strategy='budget'){
   b.disabled=true;b.textContent='추천 검색 중…';recSay('최근 3개월 실거래를 비교하고 있습니다…','load');$('recResults').textContent='';
   try{
     const d=await api(p.toString());
-    recSay((strategy==='target'?'목표 매수가 전후':'자금범위 내')+' 최근 3개월 실거래 추천 '+d.recommendations.length+'개'+(d.partialErrors?' · 일부 지역 조회 실패 '+d.partialErrors+'건':''),d.partialErrors?'warn':'');
+    recSay((strategy==='target'?'희망 매수가 ±10%':'자금범위 내')+' 최근 3개월 실거래 추천 '+d.recommendations.length+'개'+(d.partialErrors?' · 일부 지역 조회 실패 '+d.partialErrors+'건':''),d.partialErrors?'warn':'');
     renderRecommendations(d.recommendations);
   }catch(e){recSay(e.message,'bad')}
-  finally{b.disabled=false;b.innerHTML=strategy==='target'?'<span>내가 원하는 가격대</span><span>단지</span>':'<span>내 자금으로</span><span>살 수 있는 단지</span>'}
+  finally{b.disabled=false;b.innerHTML=strategy==='target'?'<span>희망 매수가로</span><span>찾기</span>':'<span>자금에 맞는</span><span>단지 찾기</span>'}
 }
 $('recommendBtn').addEventListener('click',()=>recommend('budget'));
 $('targetRecommendBtn').addEventListener('click',()=>recommend('target'));
