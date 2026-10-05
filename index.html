@@ -189,7 +189,7 @@ details.fold-s[open]>summary{margin-bottom:10px}
   <div class="menu">
     <button type="button" class="mcard" data-go="search"><span class="mi"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span><span class="mt"><b>단지 검색</b><i>단지명으로 최근 실거래 확인</i></span><span class="go">›</span></button>
     <button type="button" class="mcard" data-go="buy"><span class="mi"><svg viewBox="0 0 24 24"><path d="M5 21V4h10v17"/><path d="M15 9h4v12"/><path d="M8 8h4M8 12h4M8 16h4"/><path d="M3 21h18"/></svg></span><span class="mt"><b>매수 분석</b><i>내 자금과 예상 월 상환액 확인</i></span><span class="go">›</span></button>
-    <button type="button" class="mcard" data-go="jeonse"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M8 15h3"/></svg></span><span class="mt"><b>전세 · 재계약</b><i>이동과 재계약 비교</i></span><span class="go">›</span></button>
+    <button type="button" class="mcard" data-go="jeonse"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M8 15h3"/></svg></span><span class="mt"><b>전월세 · 재계약</b><i>전세·월세·재계약 비교</i></span><span class="go">›</span></button>
   </div>
   <div class="credit">
     <div class="mono">W</div>
@@ -323,6 +323,7 @@ details.fold-s[open]>summary{margin-bottom:10px}
       <b>무엇을 비교할까요?</b>
       <div class="grid2" style="margin-top:10px">
         <button id="jModeMove" type="button">새 전세 찾기</button>
+        <button id="jModeRent" type="button" class="ghost">새 월세 찾기</button>
         <button id="jModeRenew" type="button" class="ghost">현재 집 재계약</button>
       </div>
       <div id="jModeHelp" class="mini" style="margin-top:8px">첫 전세 또는 새 전세로 이동할 때 필요한 자금과 월 이자를 계산합니다.</div>
@@ -389,6 +390,15 @@ details.fold-s[open]>summary{margin-bottom:10px}
       </div>
     </div>
 
+<div id="jRent" class="hide"><div class="card"><b>새 월세 조건</b><div class="mini">회수할 보증금은 기존 대출을 상환한 뒤 실제 돌려받는 금액입니다. 월세 대출금은 확인한 금액을 직접 입력하세요. 대출이 없으면 0입니다.</div><div class="grid2"><div><label for="rentCash">월세에 쓸 추가 현금(억원)</label><input id="rentCash" type="number" inputmode="decimal" step="0.01" min="0"></div>
+<div><label for="rentRecovered">실제 회수할 보증금(억원)</label><input id="rentRecovered" type="number" inputmode="decimal" step="0.01" min="0" value="0"></div>
+<div><label for="rentDeposit">새 월세 보증금(억원)</label><input id="rentDeposit" type="number" inputmode="decimal" step="0.01" min="0"></div>
+<div><label for="rentMonthly">새 월세(만원)</label><input id="rentMonthly" type="number" inputmode="decimal" step="0.01" min="0"></div>
+<div><label for="rentLoan">보증금에 사용할 대출금(억원)</label><input id="rentLoan" type="number" inputmode="decimal" step="0.01" min="0" value="0"></div>
+<div><label for="rentRate">보증금 대출 금리(%)</label><input id="rentRate" type="number" inputmode="decimal" step="0.01" min="0" value="0"></div>
+<div><label for="rentMgmt">새 월세 관리비(만원)</label><input id="rentMgmt" type="number" inputmode="decimal" step="0.01" min="0" value="0"></div>
+<div><label for="rentMoveCost">월세 이사·중개비(만원)</label><input id="rentMoveCost" type="number" inputmode="decimal" step="0.01" min="0" value="0"></div>
+</div><div id="rentStatus" class="status idle"></div><div class="kpis"><div class="kpi"><div class="name">추가로 준비할 현금</div><div class="val" id="rentOwn">-</div></div><div class="kpi"><div class="name">자금 부족액</div><div class="val" id="rentShort">-</div></div><div class="kpi"><div class="name">월 주거비</div><div class="val" id="rentMonth">-</div></div><div class="kpi"><div class="name">2년 예상 비용</div><div class="val" id="rentTwo">-</div></div></div></div></div>
     <div id="jRenew" class="hide">
       <div class="card">
         <b>현재 집과 재계약 조건</b>
@@ -448,7 +458,9 @@ details.fold-s[open]>summary{margin-bottom:10px}
         </div>
         <button id="compareMoveBtn" type="button" class="ghost" style="width:100%;margin-top:10px">새 전세 조건 확인하기</button>
       </div>
-    </div>
+    </div><div class="card"><b>전세 · 월세 · 재계약 비교</b><div class="mini">각 선택의 조건을 입력하면 비교됩니다. 금액 단위는 만원이며, 보증금은 회수 가능한 자금으로 비용에서 제외합니다.</div><div class="grid2"><div><label for="jeonseMgmt">새 전세 관리비(만원)</label><input id="jeonseMgmt" type="number" inputmode="decimal" step="0.01" min="0" value="0"></div>
+<div><label for="renewMgmt">재계약 관리비(만원)</label><input id="renewMgmt" type="number" inputmode="decimal" step="0.01" min="0" value="0"></div>
+<div><label for="renewExistingInterest">재계약 기존 대출 월 이자(만원)</label><input id="renewExistingInterest" type="number" inputmode="decimal" step="0.01" min="0" value="0"></div></div><div class="tablewrap"><table class="comparetable" aria-label="전세 월세 재계약 비교"><thead><tr><th>비교항목</th><th>새 전세</th><th>새 월세</th><th>재계약</th></tr></thead><tbody id="housingCompare"></tbody></table></div><div class="comparehint">월 주거비 = 월세 + 대출 이자 + 입력한 관리비. 2년 비용은 월 주거비 × 24 + 이사·중개비입니다. 재계약 대출금은 추가 보증금에 필요한 대출이며, 기존 대출의 월 이자는 별도 입력합니다. 원금 상환·보증금 기회비용은 제외합니다. 전세 이사비는 재계약 화면의 이사·중개비를 사용합니다. 관리비·기존 이자를 입력하지 않으면 0으로 계산합니다.</div></div>
   </div>
 </div>
 
@@ -456,7 +468,7 @@ details.fold-s[open]>summary{margin-bottom:10px}
   <button type="button" id="nav-home" class="active" data-tab="home"><svg viewBox="0 0 24 24"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/></svg><span>홈</span></button>
   <button type="button" id="nav-search" data-tab="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>검색</span></button>
   <button type="button" id="nav-buy" data-tab="buy"><svg viewBox="0 0 24 24"><path d="M5 21V4h10v17"/><path d="M15 9h4v12"/><path d="M8 8h4M8 12h4M8 16h4"/><path d="M3 21h18"/></svg><span>매수</span></button>
-  <button type="button" id="nav-jeonse" data-tab="jeonse"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg><span>전세</span></button>
+  <button type="button" id="nav-jeonse" data-tab="jeonse"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg><span>전월세</span></button>
 </nav>
 
 <script>
@@ -724,11 +736,13 @@ function setJeonseMode(mode){
   JMODE=mode;
   $('jMove').classList.toggle('hide',mode!=='move');
   $('jRenew').classList.toggle('hide',mode!=='renew');
+  $('jRent').classList.toggle('hide',mode!=='rent');
+  $('jModeRent').className=mode==='rent'?'':'ghost';
   $('jModeMove').className=mode==='move'?'':'ghost';
   $('jModeRenew').className=mode==='renew'?'':'ghost';
   $('jModeHelp').textContent=mode==='move'
     ?'첫 전세 또는 새 전세로 이동할 때 필요한 자금과 월 이자를 계산합니다.'
-    :'현재 집 재계약 조건이 지금보다 얼마나 달라지는지 비교합니다.';
+    :mode==='rent'?'새 월세의 보증금·대출·월세·관리비와 2년 비용을 계산합니다.':'현재 집 재계약 조건이 지금보다 얼마나 달라지는지 비교합니다.';
 }
 function updateJSelectedUI(){
   const box=$('jSelectedComplex');
@@ -756,7 +770,7 @@ function selectCurrentForJeonse(){
     latestJeonse:je[0]?.deposit/10000||NaN,latestJeonseDate:je[0]?.date||''
   };
   updateJSelectedUI();saveConditions();
-  calcJeonse();
+  calcJeonse();calcHousingCompare();
   setJeonseMode('move');
   showTab('jeonse');
   requestAnimationFrame(()=>$('jSummaryCard').scrollIntoView({behavior:'smooth',block:'start'}));
@@ -764,7 +778,7 @@ function selectCurrentForJeonse(){
 function clearJSelected(){
   JSELECTED=null;$('actualJeonse').value='';
   updateJSelectedUI();saveConditions();
-  calcJeonse();
+  calcJeonse();calcHousingCompare();
 }
 function calcJeonse(){
   const cash=num('cashJ'), depositRaw=num('deposit'), deposit=isNaN(depositRaw)?0:depositRaw, limit=num('loanLimit'), rateJ=num('rateJ');
@@ -963,7 +977,43 @@ function calcJeonse(){
   }
 }
 
-function calcAll(){ calcBuy(); calcJeonse(); }
+function housingCost(deposit,recovered,cash,loan,rate,rent,mgmt,cost){
+  const own=Math.max(0,deposit-recovered-loan)*10000+cost;
+  const monthly=rent+loan*10000*rate/100/12+mgmt;
+  return {deposit:deposit*10000,loan:loan*10000,own,short:Math.max(0,own-cash*10000),monthly,two:monthly*24+cost,cost};
+}
+function calcHousingCompare(){
+  const v=id=>num(id),z=id=>{const x=v(id);return Number.isNaN(x)?0:x;};
+  const optional=ids=>ids.every(id=>Number.isFinite(z(id))&&z(id)>=0);
+  const required=ids=>ids.every(id=>Number.isFinite(v(id))&&v(id)>=0);
+  let rent=null,jeonse=null,renewal=null;
+  const ro=['rentRecovered','rentLoan','rentRate','rentMgmt','rentMoveCost'];
+  if(required(['rentCash','rentDeposit','rentMonthly'])&&optional(ro)&&z('rentLoan')<=v('rentDeposit')){
+    rent=housingCost(v('rentDeposit'),z('rentRecovered'),v('rentCash'),z('rentLoan'),z('rentRate'),v('rentMonthly'),z('rentMgmt'),z('rentMoveCost'));
+  }
+  ['rentOwn','rentShort','rentMonth','rentTwo'].forEach((id,i)=>setKpi(id,rent?man([rent.own,rent.short,rent.monthly,rent.two][i]):'-'));
+  $('rentStatus').textContent=rent?(rent.short>0?'추가 자금 '+man(rent.short)+'이 필요합니다.':'입력한 현금과 대출금으로 보증금 및 이사비를 충당할 수 있습니다.'):'추가 현금·보증금·월세를 입력하세요. 금액은 0 이상, 대출금은 보증금 이하로 입력하세요.';
+  $('rentStatus').className='status '+(rent?(rent.short>0?'warn':'good'):'idle');
+  const jp=Number.isNaN(v('actualJeonse'))?JSELECTED?.jeonse:v('actualJeonse');
+  if(jp>0&&required(['cashJ','loanLimit','rateJ'])&&optional(['deposit','jeonseMgmt','moveCost'])){
+    const loan=Math.min(v('loanLimit'),Math.max(0,jp-z('deposit')-v('cashJ')));
+    jeonse=housingCost(jp,z('deposit'),v('cashJ'),loan,v('rateJ'),0,z('jeonseMgmt'),z('moveCost'));
+  }
+  if(required(['curDeposit','renewDeposit','renew'])&&optional(['renewCash','renewRate','renewMgmt','renewExistingInterest'])){
+    const extra=Math.max(0,v('renewDeposit')-v('curDeposit')),own=Math.min(extra,z('renewCash')),loan=extra-own;
+    renewal=housingCost(v('renewDeposit'),v('curDeposit'),z('renewCash'),loan,z('renewRate'),v('renew')+z('renewExistingInterest'),z('renewMgmt'),0);
+  }
+  const rows=[['보증금','deposit'],['대출금','loan'],['추가 필요 현금','own'],['자금 부족액','short'],['월 주거비','monthly'],['2년 예상 비용','two'],['이사·중개비','cost']];
+  const box=$('housingCompare');box.textContent='';
+  for(const [label,key] of rows){
+    const tr=document.createElement('tr');
+    for(const text of [label,...[jeonse,rent,renewal].map(x=>x?man(x[key]):'입력 필요')]){
+      const td=document.createElement('td');td.textContent=text;tr.appendChild(td);
+    }
+    box.appendChild(tr);
+  }
+}
+function calcAll(){ calcBuy(); calcJeonse(); calcHousingCompare(); }
 
 // 탭 전환
 function showTab(t){
@@ -971,7 +1021,7 @@ function showTab(t){
     $('tab-' + k).classList.toggle('hide', k !== t);
     $('nav-' + k).classList.toggle('active', k === t);
   });
-  const titles={home:['집의 기준','실거래로 비교하는 매수 · 전세 · 재계약'],search:['단지 검색','최근 실거래와 전월세 흐름 확인'],buy:['매수 분석','내 자금 · 실거래 · 대출 조건을 한 번에 비교'],jeonse:['전세 · 재계약','새 전세 이동과 현재 집 재계약 비교']};
+  const titles={home:['집의 기준','실거래로 비교하는 매수 · 전세 · 재계약'],search:['단지 검색','최근 실거래와 전월세 흐름 확인'],buy:['매수 분석','내 자금 · 실거래 · 대출 조건을 한 번에 비교'],jeonse:['전월세 · 재계약','전세·월세 이동과 현재 집 재계약 비교']};
   const tt=titles[t]||titles.home;
   document.querySelector('.title').textContent=tt[0];
   document.querySelector('.sub').textContent=tt[1];
@@ -982,7 +1032,7 @@ function showTab(t){
 document.querySelectorAll('.bottom button').forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
 
 // 입력값 저장·복원 (실패해도 앱은 동작)
-const FIELDS = ['complex','recent','cash','price','jeonse','ltv','rate','years','recScope','recArea','recLoan','recTarget','cashJ','deposit','loanLimit','rateJ','curDeposit','curRent','renewDeposit','renew','renewRate','moveCost','renewCash','actualJeonse'];
+const FIELDS = ['rentCash','rentRecovered','rentDeposit','rentMonthly','rentLoan','rentRate','rentMgmt','rentMoveCost','jeonseMgmt','renewMgmt','renewExistingInterest','complex','recent','cash','price','jeonse','ltv','rate','years','recScope','recArea','recLoan','recTarget','cashJ','deposit','loanLimit','rateJ','curDeposit','curRent','renewDeposit','renew','renewRate','moveCost','renewCash','actualJeonse'];
 try {
   const saved = JSON.parse(localStorage.getItem('dbh:v4') || '{}');
   FIELDS.forEach(id=>{if(id in saved&&$(id))$(id).value=saved[id];});
@@ -1006,7 +1056,7 @@ document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', 
 const TAB_RESET_FIELDS={
   search:['complex'],
   buy:['cash','price','ltv','rate','years','recScope','recArea','recLoan','recTarget'],
-  jeonse:['cashJ','deposit','loanLimit','rateJ','curDeposit','curRent','renewDeposit','renew','renewRate','moveCost','renewCash','actualJeonse','jRecScope','jRecArea']
+  jeonse:['rentCash','rentRecovered','rentDeposit','rentMonthly','rentLoan','rentRate','rentMgmt','rentMoveCost','jeonseMgmt','renewMgmt','renewExistingInterest','cashJ','deposit','loanLimit','rateJ','curDeposit','curRent','renewDeposit','renew','renewRate','moveCost','renewCash','actualJeonse','jRecScope','jRecArea']
 };
 function resetTabInputs(tab){
   const names={search:'검색',buy:'매수',jeonse:'전세 · 재계약'};
@@ -1177,6 +1227,7 @@ $('selectForBuyBtn').addEventListener('click',selectCurrentForBuy);
 $('selectForJeonseBtn').addEventListener('click',selectCurrentForJeonse);
 $('jChooseComplexBtn').addEventListener('click',()=>showTab('search'));
 $('jClearSelectedBtn').addEventListener('click',clearJSelected);
+$('jModeRent').addEventListener('click',()=>setJeonseMode('rent'));
 $('jModeMove').addEventListener('click',()=>setJeonseMode('move'));
 $('jModeRenew').addEventListener('click',()=>setJeonseMode('renew'));
 $('compareRenewBtn').addEventListener('click',()=>{setJeonseMode('renew');requestAnimationFrame(()=>$('jRenew').scrollIntoView({behavior:'smooth',block:'start'}));});
