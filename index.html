@@ -210,7 +210,7 @@ th{background:#f1f5f9;color:#475569}
         <b>전세 자금 조건</b>
         <div class="grid2">
           <div><label for="cashJ">추가로 쓸 수 있는 현금(억원)</label><input id="cashJ" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 1.00"></div>
-          <div><label for="deposit">현재 집에서 돌려받을 보증금(억원)</label><input id="deposit" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 0.60"></div>
+          <div><label for="deposit">현재 집에서 돌려받을 보증금(억원)</label><input id="deposit" type="number" inputmode="decimal" step="0.01" min="0" placeholder="없으면 0 · 예: 0.60"></div>
           <div><label for="loanLimit">전세대출 가능 한도(억원)</label><input id="loanLimit" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 3.00"></div>
           <div><label for="rateJ">전세대출 금리(%)</label><input id="rateJ" type="number" inputmode="decimal" step="0.1" min="0" placeholder="예: 5.2"></div>
         </div>
@@ -580,12 +580,20 @@ function calcJeonse(){
     setKpi('j-loan',eok(limit));
     setKpi('j-cash',eok(cash));
     setKpi('j-max',eok(maxJ),'good');
-    $('jRangeNote').textContent=eok(deposit)+' 보증금 + '+eok(cash)+' 추가 현금 + '+eok(limit)+' 전세대출 = 최대 '+eok(maxJ)+'까지 검토 가능합니다.';
+    $('jRangeNote').textContent=eok(deposit)+' 보증금 + '+eok(cash)+' 추가 현금 + '+eok(limit)+' 전세대출 = 최대 '+eok(maxJ)+'까지 검토 가능합니다. 예상 대출금리 '+rateJ.toFixed(2).replace(/\\.?0+$/,'')+'%를 이후 월 이자 계산에 사용합니다.';
     $('jRangeNote').className='status good';
   }else{
-    ['j-base','j-loan','j-cash','j-max'].forEach(id=>setKpi(id,'-'));
-    $('jRangeNote').textContent='보증금·추가 현금·전세대출 한도를 넣으면 자동 계산됩니다.';
-    $('jRangeNote').className='status idle';
+    if(!isNaN(cash)&&cash>=0)setKpi('j-cash',eok(cash)); else setKpi('j-cash','-');
+    if(!isNaN(deposit)&&deposit>=0)setKpi('j-base',eok(deposit)); else setKpi('j-base','-');
+    if(!isNaN(limit)&&limit>=0)setKpi('j-loan',eok(limit)); else setKpi('j-loan','-');
+    setKpi('j-max','-');
+    const missing=[];
+    if(isNaN(deposit)||deposit<0)missing.push('현재 보증금');
+    if(isNaN(cash)||cash<0)missing.push('추가 현금');
+    if(isNaN(limit)||limit<0)missing.push('전세대출 한도');
+    if(isNaN(rateJ)||rateJ<0)missing.push('대출 금리');
+    $('jRangeNote').textContent=missing.length?'계산하려면 '+missing.join(' · ')+'을(를) 입력하세요. 보증금이 없으면 0을 입력하면 됩니다.':'보증금·추가 현금·전세대출 한도를 넣으면 자동 계산됩니다.';
+    $('jRangeNote').className='status warn';
   }
 
   if(JSELECTED&&ready){
