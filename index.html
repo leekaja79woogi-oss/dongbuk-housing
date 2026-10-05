@@ -112,7 +112,7 @@ th{background:#f1f5f9;color:#475569}
 
   <!-- 매수 -->
   <div class="section hide" id="tab-buy">
-    <div class="card">
+    <div class="card" id="selectedCard">
       <b>분석할 단지</b>
       <div id="selectedComplex" class="status idle">선택된 단지가 없습니다.</div>
       <div class="grid2" style="margin-top:10px">
@@ -120,6 +120,12 @@ th{background:#f1f5f9;color:#475569}
         <button id="clearSelectedBtn" type="button" class="ghost">선택 해제</button>
       </div>
       <div class="mini" style="margin-top:8px">특정 단지를 선택하면 최근 매매·전세 실거래를 자동으로 연결해 분석합니다.</div>
+    </div>
+
+    <div class="card hide" id="selectedSummaryCard">
+      <b>선택단지 한눈에 보기</b>
+      <div id="selectedVerdict" style="font-size:21px;font-weight:800;margin-top:12px"></div>
+      <div id="selectedSummary" class="result" style="margin-top:8px"></div>
     </div>
 
     <div class="card">
@@ -143,7 +149,7 @@ th{background:#f1f5f9;color:#475569}
       <div id="affordNote" class="status idle">가용 현금·LTV를 넣으면 취득세와 중개보수를 자동 추정해 계산합니다.</div>
     </div>
 
-    <div class="card">
+    <div class="card" id="recommendCard">
       <b>추천 단지 찾기</b>
       <div class="grid2">
         <div><label for="recScope">추천지역</label><select id="recScope"></select></div>
@@ -275,6 +281,60 @@ function maxAffordablePrice(cash,ltv,area){
   return lo;
 }
 
+function renderSelectedSummary(price,cash,ltv){
+  const card=$('selectedSummaryCard');
+  if(!SELECTED){card.classList.add('hide');return;}
+  card.classList.remove('hide');
+  const t=SELECTED.recent, latest=SELECTED.latestPrice, j=SELECTED.jeonse;
+  const disc=price>0?(t-price)/t*100:NaN;
+  const latestGap=latest>0?(latest-t)/t*100:NaN;
+  const jr=j>0?j/t*100:NaN;
+  const cost=price>0?estimatedBuyCosts(price,SELECTED.area).total:NaN;
+  const need=price>0?price-price*ltv/100+cost:NaN;
+  const short=price>0&&cash>=0?need-cash:NaN;
+
+  let score=0;
+  if(!isNaN(disc)){ if(disc>=5)score+=2; else if(disc>=0)score+=1; else score-=1; }
+  if(SELECTED.tradeCount>=5)score+=1; else if(SELECTED.tradeCount<=1)score-=1;
+  if(!isNaN(jr)){ if(jr<70)score+=1; else if(jr>=80)score-=1; }
+  if(!isNaN(short)){ if(short<=0)score+=2; else score-=2; }
+
+  let verdict='추가 검토가 필요한 단지';
+  let cls='warn';
+  if(score>=4){verdict='조건이 잘 맞는 매수 후보';cls='good'}
+  else if(score<=0){verdict='현재 조건에서는 신중한 접근 필요';cls='bad'}
+  $('selectedVerdict').textContent=verdict;
+  $('selectedVerdict').className=cls;
+
+  const lines=[];
+  lines.push(['', {b:SELECTED.complexName}, ' · '+SELECTED.area+'㎡형 · 최근 3개월 매매 '+SELECTED.tradeCount+'건']);
+  if(price>0){
+    if(disc>=5) lines.push(['good','목표가 '+eok(price)+'는 최근 대표 실거래 '+eok(t)+'보다 ',{b:disc.toFixed(1)+'% 낮아'},' 가격 메리트가 있습니다.']);
+    else if(disc>=0) lines.push(['warn','목표가 '+eok(price)+'는 최근 대표 실거래보다 ',{b:disc.toFixed(1)+'% 낮아'},' 협상 여지는 있지만 할인폭은 크지 않습니다.']);
+    else lines.push(['bad','목표가 '+eok(price)+'는 최근 대표 실거래보다 ',{b:Math.abs(disc).toFixed(1)+'% 높습니다.'}]);
+  }
+  if(SELECTED.tradeCount>=5) lines.push(['good','최근 3개월 '+SELECTED.tradeCount+'건 거래되어 같은 면적의 거래 확인이 비교적 충분합니다.']);
+  else if(SELECTED.tradeCount>=2) lines.push(['warn','최근 3개월 '+SELECTED.tradeCount+'건 거래로 표본은 보통 수준입니다.']);
+  else lines.push(['bad','최근 3개월 거래가 '+SELECTED.tradeCount+'건뿐이라 가격 판단 표본이 적습니다.']);
+
+  if(!isNaN(latestGap)){
+    if(latestGap>3) lines.push(['warn','가장 최근 거래 '+eok(latest)+'는 대표가격보다 '+latestGap.toFixed(1)+'% 높아 최근 가격이 위쪽에서 체결됐습니다.']);
+    else if(latestGap<-3) lines.push(['good','가장 최근 거래 '+eok(latest)+'는 대표가격보다 '+Math.abs(latestGap).toFixed(1)+'% 낮아 최근 낮은 가격 거래가 확인됩니다.']);
+    else lines.push(['','가장 최근 거래 '+eok(latest)+'는 대표가격과 비슷한 수준입니다.']);
+  }
+  if(!isNaN(jr)){
+    if(jr>=80) lines.push(['bad','최근 전세가율은 '+jr.toFixed(1)+'%로 높습니다. 전세가격 변동과 보증금 안전성을 함께 봐야 합니다.']);
+    else if(jr>=70) lines.push(['warn','최근 전세가율은 '+jr.toFixed(1)+'%로 중간 수준입니다.']);
+    else lines.push(['good','최근 전세가율은 '+jr.toFixed(1)+'%로 매매가와 전세가 사이 여유가 비교적 있습니다.']);
+  }else lines.push(['warn','같은 면적의 최근 신규 전세 표본이 없어 전세가율 평가는 제외했습니다.']);
+
+  if(!isNaN(short)){
+    if(short<=0) lines.push(['good','현재 입력한 현금과 LTV 기준으로 자금 범위 안입니다.']);
+    else lines.push(['bad','현재 자금 기준으로 약 ',{b:eok(short)},'의 현금이 추가로 필요합니다.']);
+  }
+  render('selectedSummary',lines);
+}
+
 function calcBuy(){
   const price = num('price'), recent = num('recent'), jeonse = num('jeonse'),
         cash = num('cash'), rate = num('rate'), ltv = num('ltv'),
@@ -282,6 +342,7 @@ function calcBuy(){
   const areaForCost=currentAreaForCost();
   const kp = ['k-disc','k-jratio','k-loan','k-cost','k-need','k-pay'];
   const hasComplex = !!(SELECTED && SELECTED.complexName && recent>0);
+  renderSelectedSummary(price,cash,ltv);
 
   // 자금 가능성은 단지 선택 없이도 계산
   const affordReady = price>0 && cash>=0 && ltv>=0 && ltv<=100;
@@ -347,7 +408,7 @@ function calcBuy(){
 
   if(hasComplex){
     const discount=(recent-price)/recent*100;
-    L.push(['', {b: SELECTED.complexName}, ' 선택단지 기준 최근 대표 실거래는 ', {b:eok(recent)}, '입니다.']);
+    L.push(['', {b: SELECTED.complexName}, '의 가격·거래량·전세가율·자금조건을 함께 본 상세 결과입니다.']);
     if(discount>=5)L.push(['good','목표 매수가는 선택단지 최근 대표 실거래보다 ',{b:discount.toFixed(1)+'%'},' 낮습니다.']);
     else if(discount>=0)L.push(['warn','목표 매수가는 선택단지 최근 대표 실거래보다 ',{b:discount.toFixed(1)+'%'},' 낮습니다.']);
     else L.push(['bad','목표 매수가는 선택단지 최근 대표 실거래보다 ',{b:Math.abs(discount).toFixed(1)+'%'},' 높습니다.']);
@@ -563,18 +624,29 @@ function selectCurrentForBuy(){
   const t=med(tr.slice(0,3).map(x=>x.price))/10000;
   const j=med(je.slice(0,3).map(x=>x.deposit))/10000;
   if(isNaN(t)){say('선택한 면적의 매매 실거래가 없어 매수분석에 연결할 수 없습니다.','warn');return;}
-  SELECTED={complexName:DATA.complexName,regionCode:DATA.regionCode,regionName:DATA.regionName,area:a,recent:t,jeonse:isNaN(j)?NaN:j};
+  const latest=tr[0]?.price/10000||NaN;
+  SELECTED={
+    complexName:DATA.complexName,regionCode:DATA.regionCode,regionName:DATA.regionName,area:a,
+    recent:t,jeonse:isNaN(j)?NaN:j,tradeCount:tr.length,jeonseCount:je.length,
+    latestPrice:latest,latestDate:tr[0]?.date||''
+  };
   $('recent').value=t.toFixed(2);
   $('jeonse').value=isNaN(j)?'':j.toFixed(2);
   updateSelectedUI();
+  $('recResults').textContent='';
+  recSay('선택한 단지는 위의 분석영역에서 바로 확인할 수 있습니다.','idle');
   calcBuy();
   showTab('buy');
+  requestAnimationFrame(()=>$('selectedSummaryCard').scrollIntoView({behavior:'smooth',block:'start'}));
 }
 function clearSelected(){
   SELECTED=null;
   $('recent').value='';
   $('jeonse').value='';
   updateSelectedUI();
+  $('selectedSummaryCard').classList.add('hide');
+  $('selectedVerdict').textContent='';
+  $('selectedSummary').textContent='';
   calcBuy();
 }
 $('chooseComplexBtn').addEventListener('click',()=>showTab('search'));
