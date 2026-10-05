@@ -191,7 +191,7 @@ export default async function handler(req,res){
         const price=mid/10000;
         if(price<=maxBudget){
           const gap=Math.max(0,price-deposit);
-          const loan=Math.min(loanLimit,gap);
+          const loan=Math.min(loanLimit,Math.max(0,gap-cash));
           const own=Math.max(0,gap-loan);
           out.push({
             region:c,regionName:REGIONS[c],name,dong,area:+ag,
@@ -279,7 +279,7 @@ export default async function handler(req,res){
     const sameRent=x=>cp(x.name)===cp(apt)&&(!dong||!x.dong||cp(x.dong)===cp(dong));
     const byDate=(a,b)=>b.date.localeCompare(a.date);
     const trades=tr.flatMap(r=>parseTrade(r.v)).filter(sameTrade).sort(byDate);
-    const rents=rentErr?[]:rr.flatMap(r=>parseRent(r.v)).filter(sameRent).sort(byDate);
+    const rents=rr.filter(r=>!r.e).flatMap(r=>parseRent(r.v)).filter(sameRent).sort(byDate);
     return ok({complexName:apt,regionCode:code,regionName:REGIONS[code],dong,months,trades,rents,rentError:rentErr?rentErr.e.message+" — 전월세 API 활용신청/승인을 확인하세요.":""});
   }catch(e){noStore(res);return res.status(isAuthOrQuotaError(e)?502:500).json({error:e.message||"공공데이터 조회 중 오류가 발생했습니다."})}
 }
