@@ -166,6 +166,7 @@ details.fold-s[open]>summary{margin-bottom:10px}
 .naver-link{display:block;margin-top:8px;padding:12px 10px;border:1px solid #d7e5dc;border-radius:12px;background:#f2faf5;color:#087b3b;text-align:center;text-decoration:none;font-weight:700;font-size:14px;line-height:1.4}.naver-link:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 .tab-tools{display:flex;justify-content:flex-end;margin:0 2px 10px}.tab-tools button.tab-reset{width:auto;min-height:36px;padding:7px 12px;background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:9px;font-size:12px;font-weight:600}
 .compare-options{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0}.compare-options label{display:flex;align-items:center;gap:6px;margin:0;font-size:14px}.compare-options input{width:18px;height:18px;margin:0;accent-color:#3358ff}
+#tab-jeonse .card>.grid2>div>label,#tab-jeonse #jMove .card>.grid2>div>label,#tab-jeonse #jRenew .card>.grid2>div>label{display:block;min-height:38px;line-height:1.45;word-break:keep-all;overflow-wrap:normal;margin:10px 0 7px} .field-unit{display:inline-block;white-space:nowrap}#tab-jeonse .field-help{line-height:1.5;margin-top:6px}#jRenew .card>.grid2{row-gap:10px}
 </style>
 </head>
 <body>
@@ -259,11 +260,11 @@ details.fold-s[open]>summary{margin-bottom:10px}
     <div class="card">
       <b>매수 시나리오</b>
       <div class="grid2">
-        <div><label for="cash">가용 현금(억원)</label><input id="cash" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 1.00"></div>
-        <div><label for="price">목표 매수가(억원)</label><input id="price" type="number" inputmode="decimal" step="0.01" min="0" placeholder="내가 사고 싶은 가격"></div>
-        <div><label for="ltv">LTV(%)</label><input id="ltv" type="number" inputmode="decimal" step="1" min="0" max="100" placeholder="예: 40"></div>
-        <div><label for="rate">주담대 금리(%)</label><input id="rate" type="number" inputmode="decimal" step="0.1" min="0" placeholder="예: 4.5"></div>
-        <div><label for="years">상환기간(년)</label><input id="years" type="number" inputmode="numeric" step="1" min="1" placeholder="예: 30"></div>
+        <div><label for="cash">가용 현금 <span class="field-unit">(억원)</span></label><input id="cash" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 1.00"></div>
+        <div><label for="price">목표 매수가 <span class="field-unit">(억원)</span></label><input id="price" type="number" inputmode="decimal" step="0.01" min="0" placeholder="내가 사고 싶은 가격"></div>
+        <div><label for="ltv">LTV <span class="field-unit">(%)</span></label><input id="ltv" type="number" inputmode="decimal" step="1" min="0" max="100" placeholder="예: 40"></div>
+        <div><label for="rate">주담대 금리 <span class="field-unit">(%)</span></label><input id="rate" type="number" inputmode="decimal" step="0.1" min="0" placeholder="예: 4.5"></div>
+        <div><label for="years">상환기간 <span class="field-unit">(년)</span></label><input id="years" type="number" inputmode="numeric" step="1" min="1" placeholder="예: 30"></div>
       </div>
     </div>
 <div class="card result">
@@ -305,8 +306,8 @@ details.fold-s[open]>summary{margin-bottom:10px}
         <button id="targetRecommendBtn" type="button" class="ghost recActionBtn"><span>희망 매수가로</span><span>찾기</span></button>
       </div>
       <div class="grid2" style="margin-top:10px">
-        <div><label for="recLoan">대출 가능 금액(억원)</label><input id="recLoan" type="number" min="0" step="0.01" inputmode="decimal" placeholder="대출 없이 찾으려면 0"></div>
-        <div><label for="recTarget">희망 매수가(억원)</label><input id="recTarget" type="number" min="0" step="0.01" inputmode="decimal" placeholder="예: 5.00"></div>
+        <div><label for="recLoan">대출 가능 금액 <span class="field-unit">(억원)</span></label><input id="recLoan" type="number" min="0" step="0.01" inputmode="decimal" placeholder="대출 없이 찾으려면 0"></div>
+        <div><label for="recTarget">희망 매수가 <span class="field-unit">(억원)</span></label><input id="recTarget" type="number" min="0" step="0.01" inputmode="decimal" placeholder="예: 5.00"></div>
       </div>
       <p class="muted">자금 기준은 위의 가용 현금과 직접 입력한 대출 가능 금액을 사용합니다. 희망가 기준은 최근 실거래가가 희망가 ±10%인 단지를 찾습니다. 입력한 대출금은 승인 여부를 확인한 금액으로 입력하세요.</p>
       <div id="recStatus" class="status idle">지역과 면적을 선택하고 자금 또는 희망 매수가로 찾아보세요.</div>
@@ -334,15 +335,15 @@ details.fold-s[open]>summary{margin-bottom:10px}
       <div class="card">
         <b>전세 자금 조건</b><div class="mini">현금을 먼저 사용하고 부족분만 대출합니다. 기존 대출 상환 후 돌려받는 보증금과 이사비·생활비를 제외하고 쓸 수 있는 현금을 입력하세요.</div>
         <div class="grid2">
-          <div><label for="cashJ">추가 현금(억원)</label><input id="cashJ" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 1.00"></div>
-          <div><label for="deposit" class="deposit-label"><span>실제 회수할 보증금</span> <span class="deposit-unit">(억원)</span></label><input id="deposit" type="number" inputmode="decimal" step="0.01" min="0" value="0" placeholder="예: 0.60" aria-describedby="depositHelp"><div id="depositHelp" class="field-help">회수할 보증금이 없으면 0을 입력하세요.</div></div>
-          <div><label for="loanLimit">전세대출 한도(억원)</label><input id="loanLimit" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 3.00"></div>
-          <div><label for="rateJ">전세대출 금리(%)</label><input id="rateJ" type="number" inputmode="decimal" step="0.1" min="0" placeholder="예: 5.2"></div>
+          <div><label for="cashJ">추가 현금 <span class="field-unit">(억원)</span></label><input id="cashJ" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 1.00"></div>
+          <div><label for="deposit" class="deposit-label"><span>실제 회수할 보증금</span> <span class="deposit-unit"> <span class="field-unit">(억원)</span></span></label><input id="deposit" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 0.60" aria-describedby="depositHelp"><div id="depositHelp" class="field-help">회수할 보증금이 없으면 0을 입력하세요.</div></div>
+          <div><label for="loanLimit">전세대출 한도 <span class="field-unit">(억원)</span></label><input id="loanLimit" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 3.00"></div>
+          <div><label for="rateJ">전세대출 금리 <span class="field-unit">(%)</span></label><input id="rateJ" type="number" inputmode="decimal" step="0.1" min="0" placeholder="예: 5.2"></div>
         </div>
       </div>
 
       <div class="card">
-        <b>내가 가능한 전세 범위</b><div class="grid2"><div><label for="jeonseMgmt">새 전세 관리비(만원)</label><input id="jeonseMgmt" type="number" inputmode="decimal" step="0.01" min="0" value="0"></div></div>
+        <b>내가 가능한 전세 범위</b><div class="grid2"><div><label for="jeonseMgmt">새 전세 관리비 <span class="field-unit">(만원)</span></label><input id="jeonseMgmt" type="number" inputmode="decimal" step="0.01" min="0" placeholder="비우면 0"></div></div>
         <div class="kpis" style="margin-top:12px">
           <div class="kpi"><div class="name">기존 보증금</div><div id="j-base" class="val">-</div></div>
           <div class="kpi"><div class="name">전세대출</div><div id="j-loan" class="val">-</div></div>
@@ -366,7 +367,7 @@ details.fold-s[open]>summary{margin-bottom:10px}
         <div id="jRecResults"></div>
       </details>
 <div class="card">
-        <b>분석할 전세 단지</b><label for="actualJeonse">실제 매물 전세금(억원) · 비우면 실거래 대표값</label><input id="actualJeonse" type="number" min="0" step="0.01" inputmode="decimal" placeholder="예: 4.50">
+        <b>분석할 전세 단지</b><label for="actualJeonse">실제 매물 전세금 <span class="field-unit">(억원)</span> · 비우면 실거래 대표값</label><input id="actualJeonse" type="number" min="0" step="0.01" inputmode="decimal" placeholder="예: 4.50">
         <div id="jSelectedComplex" class="status idle">선택된 단지가 없습니다.</div>
         <div class="grid2" style="margin-top:10px">
           <button id="jChooseComplexBtn" type="button" class="ghost">단지검색에서 선택</button>
@@ -391,26 +392,26 @@ details.fold-s[open]>summary{margin-bottom:10px}
       </div>
     </div>
 
-<div id="jRent" class="hide"><div class="card"><b>새 월세 조건</b><div class="mini">회수할 보증금은 기존 대출을 상환한 뒤 실제 돌려받는 금액입니다. 월세 대출금은 확인한 금액을 직접 입력하세요. 대출이 없으면 0입니다.</div><div class="grid2"><div><label for="rentCash">월세에 쓸 추가 현금(억원)</label><input id="rentCash" type="number" inputmode="decimal" step="0.01" min="0"></div>
-<div><label for="rentRecovered">실제 회수할 보증금(억원)</label><input id="rentRecovered" type="number" inputmode="decimal" step="0.01" min="0" value="0"></div>
-<div><label for="rentDeposit">새 월세 보증금(억원)</label><input id="rentDeposit" type="number" inputmode="decimal" step="0.01" min="0"></div>
-<div><label for="rentMonthly">새 월세(만원)</label><input id="rentMonthly" type="number" inputmode="decimal" step="0.01" min="0"></div>
-<div><label for="rentLoan">보증금에 사용할 대출금(억원)</label><input id="rentLoan" type="number" inputmode="decimal" step="0.01" min="0" value="0"></div>
-<div><label for="rentRate">보증금 대출 금리(%)</label><input id="rentRate" type="number" inputmode="decimal" step="0.01" min="0" value="0"></div>
-<div><label for="rentMgmt">새 월세 관리비(만원)</label><input id="rentMgmt" type="number" inputmode="decimal" step="0.01" min="0" value="0"></div>
-<div><label for="rentMoveCost">월세 이사·중개비(만원)</label><input id="rentMoveCost" type="number" inputmode="decimal" step="0.01" min="0" value="0"></div>
+<div id="jRent" class="hide"><div class="card"><b>새 월세 조건</b><div class="mini">회수할 보증금은 기존 대출을 상환한 뒤 실제 돌려받는 금액입니다. 월세 대출금은 확인한 금액을 직접 입력하세요. 대출이 없으면 0입니다.</div><div class="grid2"><div><label for="rentCash">월세에 쓸 추가 현금 <span class="field-unit">(억원)</span></label><input id="rentCash" type="number" inputmode="decimal" step="0.01" min="0"></div>
+<div><label for="rentRecovered">실제 회수할 보증금 <span class="field-unit">(억원)</span></label><input id="rentRecovered" type="number" inputmode="decimal" step="0.01" min="0" placeholder="비우면 0"></div>
+<div><label for="rentDeposit">새 월세 보증금 <span class="field-unit">(억원)</span></label><input id="rentDeposit" type="number" inputmode="decimal" step="0.01" min="0"></div>
+<div><label for="rentMonthly">새 월세 <span class="field-unit">(만원)</span></label><input id="rentMonthly" type="number" inputmode="decimal" step="0.01" min="0"></div>
+<div><label for="rentLoan">보증금에 사용할 대출금 <span class="field-unit">(억원)</span></label><input id="rentLoan" type="number" inputmode="decimal" step="0.01" min="0" placeholder="비우면 0"></div>
+<div><label for="rentRate">보증금 대출 금리 <span class="field-unit">(%)</span></label><input id="rentRate" type="number" inputmode="decimal" step="0.01" min="0" placeholder="비우면 0"></div>
+<div><label for="rentMgmt">새 월세 관리비 <span class="field-unit">(만원)</span></label><input id="rentMgmt" type="number" inputmode="decimal" step="0.01" min="0" placeholder="비우면 0"></div>
+<div><label for="rentMoveCost">월세 이사·중개비 <span class="field-unit">(만원)</span></label><input id="rentMoveCost" type="number" inputmode="decimal" step="0.01" min="0" placeholder="비우면 0"></div>
 </div><div id="rentStatus" class="status idle"></div><div class="kpis"><div class="kpi"><div class="name">추가로 준비할 현금</div><div class="val" id="rentOwn">-</div></div><div class="kpi"><div class="name">자금 부족액</div><div class="val" id="rentShort">-</div></div><div class="kpi"><div class="name">월 주거비</div><div class="val" id="rentMonth">-</div></div><div class="kpi"><div class="name">2년 예상 비용</div><div class="val" id="rentTwo">-</div></div></div></div></div>
     <div id="jRenew" class="hide">
       <div class="card">
-        <b>현재 집과 재계약 조건</b><div class="grid2"><div><label for="renewMgmt">재계약 관리비(만원)</label><input id="renewMgmt" type="number" inputmode="decimal" step="0.01" min="0" value="0"></div><div><label for="renewExistingInterest">재계약 기존 대출 월 이자(만원)</label><input id="renewExistingInterest" type="number" inputmode="decimal" step="0.01" min="0" value="0"></div></div>
+        <b>현재 집과 재계약 조건</b><div class="grid2"><div><label for="renewMgmt">재계약 관리비 <span class="field-unit">(만원)</span></label><input id="renewMgmt" type="number" inputmode="decimal" step="0.01" min="0" placeholder="비우면 0"></div><div><label for="renewExistingInterest">기존 대출 월 이자 <span class="field-unit">(만원)</span></label><input id="renewExistingInterest" type="number" inputmode="decimal" step="0.01" min="0" placeholder="비우면 0"></div></div>
         <div class="grid2">
-          <div><label for="curDeposit">현재 보증금(억원)</label><input id="curDeposit" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 0.60"></div>
-          <div><label for="curRent">현재 월세(만원)</label><input id="curRent" type="number" inputmode="decimal" min="0" placeholder="예: 145"></div>
-          <div><label for="renewDeposit">집주인 제안 보증금(억원)</label><input id="renewDeposit" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 0.60"></div>
-          <div><label for="renew">집주인 제안 월세(만원)</label><input id="renew" type="number" inputmode="decimal" min="0" placeholder="예: 155"></div>
-          <div><label for="renewCash">재계약 추가 보증금에 쓸 현금(억원)</label><input id="renewCash" type="number" min="0" step="0.01" inputmode="decimal" value="0"></div>
-          <div><label for="renewRate">재계약 추가 대출 금리(%) <span class="opt">· 없으면 0</span></label><input id="renewRate" type="number" inputmode="decimal" step="0.1" min="0" placeholder="예: 5.2"></div>
-          <div><label for="moveCost">이사·중개비(만원) <span class="opt">· 선택</span></label><input id="moveCost" type="number" inputmode="decimal" step="10" min="0" value="0" placeholder="예: 300"></div>
+          <div><label for="curDeposit">현재 보증금 <span class="field-unit">(억원)</span></label><input id="curDeposit" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 0.60"></div>
+          <div><label for="curRent">현재 월세 <span class="field-unit">(만원)</span></label><input id="curRent" type="number" inputmode="decimal" min="0" placeholder="예: 145"></div>
+          <div><label for="renewDeposit">집주인 제안 보증금 <span class="field-unit">(억원)</span></label><input id="renewDeposit" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 0.60"></div>
+          <div><label for="renew">집주인 제안 월세 <span class="field-unit">(만원)</span></label><input id="renew" type="number" inputmode="decimal" min="0" placeholder="예: 155"></div>
+          <div><label for="renewCash">추가 보증금에 쓸 현금 <span class="field-unit">(억원)</span></label><input id="renewCash" type="number" min="0" step="0.01" inputmode="decimal" placeholder="비우면 0"><div class="field-help">없으면 비워두세요. 0으로 계산합니다.</div></div>
+          <div><label for="renewRate">추가 대출 금리 <span class="field-unit">(%)</span></label><input id="renewRate" type="number" inputmode="decimal" step="0.1" min="0" placeholder="예: 5.2"><div class="field-help">없으면 비워두세요. 0으로 계산합니다.</div></div>
+          <div><label for="moveCost">이사·중개비 <span class="field-unit">(만원)</span></label><input id="moveCost" type="number" inputmode="decimal" step="10" min="0" placeholder="예: 300"><div class="field-help">없으면 비워두세요. 0으로 계산합니다.</div></div>
         </div>
       </div>
 
@@ -1047,6 +1048,7 @@ function saveConditions(){
   try{localStorage.setItem('dbh:v4',JSON.stringify(Object.fromEntries(FIELDS.filter(id=>$(id)).map(id=>[id,$(id).value]))));
   localStorage.setItem('dbh:selected',JSON.stringify({SELECTED,JSELECTED}));}catch(e){}
 }
+document.addEventListener('focusin',e=>{if(e.target.matches('input[type="number"]'))e.target.select();});
 document.addEventListener('input', e => {
   if (!e.target.matches('input')) return;
   try { localStorage.setItem('dbh:v4', JSON.stringify(Object.fromEntries(FIELDS.filter(id=>$(id)).map(id => [id, $(id).value])))); } catch(err) {}
