@@ -70,6 +70,49 @@ export default async function handler(req,res){
   const months=Math.min(Math.max(+req.query.months||12,1),24);
   const ok=body=>{res.setHeader("Cache-Control","s-maxage=3600, stale-while-revalidate=21600");return res.status(200).json(body)};
   try{
+    if(String(req.query.mode||"")==="jeonseRecommend"){
+      const cash=Math.max(+req.query.cash||0,0);
+      const deposit=Math.max(+req.query.deposit||0,0);
+      const loanLimit=Math.max(+req.query.loanLimit||0,0);
+      const amin=Math.max(+req.query.areaMin||74,1);
+      const amax=Math.max(+req.query.areaMax||85,amin);
+      const scope=String(req.query.scope||"");
+      const regionCodes=REGIONS[scope]?[scope]:Object.keys(REGIONS);
+      const maxBudget=cash+deposit+loanLimit;
+      if(!(maxBudget>0))return res.status(400).json({error:"보증금·추가 현금·전세대출 한도를 입력하세요."});
+      const pm=monthsBack(3),tasks=[];
+      for(const c of regionCodes)for(const m of pm)tasks.push(()=>all(RENT,key,c,m).then(xs=>({c,xs})));
+      const rs=await pool(tasks),errs=rs.filter(r=>r.e),groups=new Map();
+      rs.forEach(r=>{
+        if(!r.v)return;
+        parseRent(r.v.xs).filter(x=>x.monthly===0&&x.deposit>0&&!x.renewal&&x.area>=amin&&x.area<=amax&&x.name).forEach(x=>{
+          const ag=Math.floor(x.area),k=r.v.c+"|"+x.name+"|"+(x.dong||"")+"|"+ag;
+          if(!groups.has(k))groups.set(k,[]);
+          groups.get(k).push(x);
+        });
+      });
+      const out=[];
+      for(const [k,xs] of groups){
+        xs.sort((a,b)=>b.date.localeCompare(a.date));
+        const [c,name,dong,ag]=k.split("|");
+        const ds=xs.slice(0,3).map(x=>x.deposit).sort((a,b)=>a-b);
+        const mid=ds.length%2?ds[ds.length>>1]:(ds[ds.length/2-1]+ds[ds.length/2])/2;
+        const price=mid/10000;
+        if(price<=maxBudget){
+          const gap=Math.max(0,price-deposit);
+          const loan=Math.min(loanLimit,gap);
+          const own=Math.max(0,gap-loan);
+          out.push({
+            region:c,regionName:REGIONS[c],name,dong,area:+ag,
+            price:+price.toFixed(2),latest:+(xs[0].deposit/10000).toFixed(2),
+            count:xs.length,loan:+loan.toFixed(2),own:+own.toFixed(2),
+            headroom:+Math.max(0,cash-own).toFixed(2),lastDate:xs[0].date
+          });
+        }
+      }
+      out.sort((a,b)=>b.count-a.count||b.lastDate.localeCompare(a.lastDate)||a.price-b.price);
+      return ok({mode:"jeonseRecommend",months:3,maxBudget:+maxBudget.toFixed(2),recommendations:out.slice(0,12),partialErrors:errs.length});
+    }
     if(String(req.query.mode||"")==="recommend"){
       const cash=Math.max(+req.query.cash||0,0);
       const ltv=Math.min(Math.max(+req.query.ltv||0,0),100);
