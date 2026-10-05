@@ -105,12 +105,23 @@ th{background:#f1f5f9;color:#475569}
           <button type="button" class="chip" data-kind="월세">월세</button>
         </div>
         <div class="tablewrap"><table><thead><tr><th>구분</th><th>계약일</th><th>전용㎡</th><th>가격</th><th>층</th></tr></thead><tbody id="txBody"></tbody></table></div>
-        <button id="detailBtn" type="button" class="ghost" style="width:100%;margin-top:12px">최근 12개월 상세조회</button><div class="mini" style="margin-top:8px">빠른 조회는 최근 3개월 기준입니다. 상세조회 시 12개월 거래내역으로 확장됩니다.</div>
+        <button id="selectForBuyBtn" type="button" style="width:100%;margin-top:12px">이 단지를 매수분석에 선택</button>
+        <button id="detailBtn" type="button" class="ghost" style="width:100%;margin-top:8px">최근 12개월 상세조회</button><div class="mini" style="margin-top:8px">빠른 조회는 최근 3개월 기준입니다. 상세조회 시 12개월 거래내역으로 확장됩니다.</div>
       </div></div>
   </div>
 
   <!-- 매수 -->
   <div class="section hide" id="tab-buy">
+    <div class="card">
+      <b>분석할 단지</b>
+      <div id="selectedComplex" class="status idle">선택된 단지가 없습니다.</div>
+      <div class="grid2" style="margin-top:10px">
+        <button id="chooseComplexBtn" type="button" class="ghost">단지검색에서 선택</button>
+        <button id="clearSelectedBtn" type="button" class="ghost">선택 해제</button>
+      </div>
+      <div class="mini" style="margin-top:8px">특정 단지를 선택하면 최근 매매·전세 실거래를 자동으로 연결해 분석합니다.</div>
+    </div>
+
     <div class="card">
       <b>매수 시나리오</b>
       <div class="grid2">
@@ -214,7 +225,7 @@ const eok = v => v.toFixed(2).replace(/\.?0+$/, '') + '억';
 const man = v => Math.abs(v) >= 10000 ? eok(v / 10000) : Math.round(v).toLocaleString('ko-KR') + '만';
 const sign = v => (v >= 0 ? '+' : '-') + Math.abs(Math.round(v)).toLocaleString('ko-KR') + '만원';
 
-let DATA=null, TOKEN='';
+let DATA=null, SELECTED=null, TOKEN='';
 function setKpi(id, text, cls){ const e = $(id); e.textContent = text; e.className = 'val ' + (cls || ''); }
 function clearKpis(ids){ ids.forEach(id => setKpi(id, '-')); }
 // 문자열은 텍스트로, {b:'..', c:'good'}는 굵은 글씨로 넣어 XSS를 피한다
@@ -239,7 +250,7 @@ function calcBuy(){
         cash = num('cash'), rate = num('rate'), ltv = num('ltv'),
         acq = num('acq'), years = num('years');
   const kp = ['k-disc','k-jratio','k-loan','k-need','k-pay'];
-  const hasComplex = !!(DATA && DATA.complexName && recent>0);
+  const hasComplex = !!(SELECTED && SELECTED.complexName && recent>0);
 
   // 자금 가능성은 단지 선택 없이도 계산
   const affordReady = price>0 && cash>=0 && ltv>=0 && ltv<=100 && acq>=0;
@@ -303,7 +314,7 @@ function calcBuy(){
 
   if(hasComplex){
     const discount=(recent-price)/recent*100;
-    L.push(['', {b: DATA.complexName}, ' 선택단지 기준 최근 대표 실거래는 ', {b:eok(recent)}, '입니다.']);
+    L.push(['', {b: SELECTED.complexName}, ' 선택단지 기준 최근 대표 실거래는 ', {b:eok(recent)}, '입니다.']);
     if(discount>=5)L.push(['good','목표 매수가는 선택단지 최근 대표 실거래보다 ',{b:discount.toFixed(1)+'%'},' 낮습니다.']);
     else if(discount>=0)L.push(['warn','목표 매수가는 선택단지 최근 대표 실거래보다 ',{b:discount.toFixed(1)+'%'},' 낮습니다.']);
     else L.push(['bad','목표 매수가는 선택단지 최근 대표 실거래보다 ',{b:Math.abs(discount).toFixed(1)+'%'},' 높습니다.']);
@@ -397,6 +408,7 @@ document.addEventListener('input', e => {
   try { localStorage.setItem('dbh:v4', JSON.stringify(Object.fromEntries(FIELDS.map(id => [id, $(id).value])))); } catch(err) {}
   calcAll();
 });
+clearSelected();
 calcAll();
 showTab('search');
 try { localStorage.setItem('dbh:tab','search'); } catch(e) {}
@@ -499,9 +511,44 @@ function applyArea(){
     });
   }
 
-  if(!isNaN(t))setVal('recent',t.toFixed(2));
-  if(!isNaN(j))setVal('jeonse',j.toFixed(2));
 }
+function updateSelectedUI(){
+  const box=$('selectedComplex');
+  if(!SELECTED){
+    box.textContent='선택된 단지가 없습니다.';
+    box.className='status idle';
+    return;
+  }
+  box.textContent=SELECTED.complexName+' · '+SELECTED.regionName+' · '+SELECTED.area+'㎡형';
+  box.className='status good';
+}
+function selectCurrentForBuy(){
+  if(!DATA)return;
+  const a=+$('areaSelect').value,ok=x=>Math.floor(x.area)===a,by=(x,y)=>y.date.localeCompare(x.date);
+  const tr=DATA.trades.filter(ok).sort(by).filter(x=>!x.direct);
+  const je=DATA.rents.filter(x=>ok(x)&&x.monthly===0&&x.deposit>0&&!x.renewal).sort(by);
+  const t=med(tr.slice(0,3).map(x=>x.price))/10000;
+  const j=med(je.slice(0,3).map(x=>x.deposit))/10000;
+  if(isNaN(t)){say('선택한 면적의 매매 실거래가 없어 매수분석에 연결할 수 없습니다.','warn');return;}
+  SELECTED={complexName:DATA.complexName,regionCode:DATA.regionCode,regionName:DATA.regionName,area:a,recent:t,jeonse:isNaN(j)?NaN:j};
+  $('recent').value=t.toFixed(2);
+  $('jeonse').value=isNaN(j)?'':j.toFixed(2);
+  updateSelectedUI();
+  calcBuy();
+  showTab('buy');
+}
+function clearSelected(){
+  SELECTED=null;
+  $('recent').value='';
+  $('jeonse').value='';
+  updateSelectedUI();
+  calcBuy();
+}
+$('chooseComplexBtn').addEventListener('click',()=>showTab('search'));
+$('clearSelectedBtn').addEventListener('click',clearSelected);
+$('selectForBuyBtn').addEventListener('click',selectCurrentForBuy);
+updateSelectedUI();
+
 // 지역 카테고리
 const SCOPES=[['','전체'],['41310','구리'],['41360','남양주'],['41150','의정부'],['11260','중랑'],['11350','노원'],['11320','도봉'],['11305','강북'],['11215','광진'],['11230','동대문'],['11200','성동'],['11290','성북'],['11740','강동']];
 const SUBREGIONS={
@@ -524,7 +571,7 @@ SCOPES.forEach(([c,n])=>{const b=document.createElement('button');b.type='button
   b.onclick=()=>{
   if(SCOPE===c)return;
   SCOPE=c;SUB='';TX_KIND='all';DATA=null;
-  $('complex').value='';$('recent').value='';$('jeonse').value='';
+  $('complex').value='';
   $('cands').textContent='';
   $('result').classList.add('hide');
   say('조회 전 · 결과가 이 영역에 표시됩니다.','idle');
@@ -586,7 +633,19 @@ function renderRecommendations(list){
     d.appendChild(g);
     const b=document.createElement('button');b.type='button';b.textContent='이 단지 실거래 보기';
     b.onclick=()=>{$('complex').value=r.name;showTab('search');search(r.region,r.name)};
-    d.appendChild(b);box.appendChild(d);
+    d.appendChild(b);
+    const a=document.createElement('button');a.type='button';a.className='ghost';a.textContent='이 단지를 분석에 선택';a.style.marginTop='8px';
+    a.onclick=async()=>{
+      $('complex').value=r.name;
+      showTab('search');
+      await search(r.region,r.name);
+      const opts=[...$('areaSelect').options];
+      const hit=opts.find(o=>+o.value===r.area);
+      if(hit)$('areaSelect').value=hit.value;
+      applyArea();
+      selectCurrentForBuy();
+    };
+    d.appendChild(a);box.appendChild(d);
   });
 }
 async function recommend(strategy='budget'){
