@@ -343,7 +343,7 @@ details.fold-s[open]>summary{margin-bottom:10px}
       </div>
 
       <div class="card">
-        <b>내가 가능한 전세 범위</b><div class="grid2"><div><label for="jeonseMgmt">새 전세 관리비 <span class="field-unit">(만원)</span></label><input id="jeonseMgmt" type="number" inputmode="decimal" step="0.01" min="0" placeholder="비우면 0"></div></div>
+        <b>내가 가능한 전세 범위</b>
         <div class="kpis" style="margin-top:12px">
           <div class="kpi"><div class="name">기존 보증금</div><div id="j-base" class="val">-</div></div>
           <div class="kpi"><div class="name">전세대출</div><div id="j-loan" class="val">-</div></div>
@@ -367,7 +367,7 @@ details.fold-s[open]>summary{margin-bottom:10px}
         <div id="jRecResults"></div>
       </details>
 <div class="card">
-        <b>분석할 전세 단지</b><label for="actualJeonse">실제 매물 전세금 <span class="field-unit">(억원)</span> · 비우면 실거래 대표값</label><input id="actualJeonse" type="number" min="0" step="0.01" inputmode="decimal" placeholder="예: 4.50">
+        <b>분석할 전세 단지</b><div class="grid2"><div><label for="jeonseMgmt">월 관리비 <span class="field-unit">(만원)</span> <span class="opt">· 선택</span></label><input id="jeonseMgmt" type="number" inputmode="decimal" step="0.01" min="0" placeholder="비우면 0"></div></div><div class="field-help">관리비는 월 주거비 비교에만 반영합니다. 최대 전세금 계산에는 포함하지 않습니다.</div><label for="actualJeonse">실제 매물 전세금 <span class="field-unit">(억원)</span> · 비우면 실거래 대표값</label><input id="actualJeonse" type="number" min="0" step="0.01" inputmode="decimal" placeholder="예: 4.50">
         <div id="jSelectedComplex" class="status idle">선택된 단지가 없습니다.</div>
         <div class="grid2" style="margin-top:10px">
           <button id="jChooseComplexBtn" type="button" class="ghost">단지검색에서 선택</button>
