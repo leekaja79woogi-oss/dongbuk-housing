@@ -46,6 +46,15 @@ hr{border:0;border-top:1px solid var(--line);margin:14px 0}
 }
 @media(min-width:700px){.kpis{grid-template-columns:repeat(3,1fr)}}
 .status{background:#f2f4f7;border-radius:12px;padding:11px 12px;font-size:13px;line-height:1.5;margin-top:10px}.status.idle{background:#fafafa;border:1px dashed #d7dce3;color:#64748b}.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:12px;margin-top:12px}table{border-collapse:collapse;width:100%;min-width:480px}th,td{padding:10px;border-bottom:1px solid #eee;font-size:13px;white-space:nowrap;text-align:left}th{background:#fafafa}
+.comparetable{width:100%;min-width:0;border-collapse:separate;border-spacing:0;overflow:hidden;border:1px solid #e7ebf1;border-radius:14px;margin-top:12px;background:#fff}
+.comparetable th,.comparetable td{padding:11px 10px;font-size:12.5px;white-space:normal;text-align:center;border-bottom:1px solid #eef1f5}
+.comparetable th:first-child,.comparetable td:first-child{text-align:left;color:var(--muted);font-weight:600;width:34%}
+.comparetable thead th{background:#f6f8fc;color:#475569;font-weight:800}
+.comparetable tr:last-child td{border-bottom:0}
+.comparetable .best{color:var(--good);font-weight:800}
+.comparetable .worse{color:var(--bad);font-weight:800}
+.comparehint{font-size:12px;color:var(--muted);line-height:1.5;margin-top:8px}
+
 
 :root{--accent:#1f6feb;--accent2:#12b3a8}
 .top{position:relative;background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 58%,#0e7490 100%);color:#fff;border-radius:0 0 28px 28px;padding:calc(26px + env(safe-area-inset-top)) 20px 26px;border:0;overflow:hidden;backdrop-filter:none}
@@ -355,20 +364,55 @@ details.fold-s[open]>summary{margin-bottom:10px}
           <div><label for="curRent">현재 월세(만원)</label><input id="curRent" type="number" inputmode="decimal" min="0" placeholder="예: 145"></div>
           <div><label for="renewDeposit">집주인 제안 보증금(억원)</label><input id="renewDeposit" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 0.60"></div>
           <div><label for="renew">집주인 제안 월세(만원)</label><input id="renew" type="number" inputmode="decimal" min="0" placeholder="예: 155"></div>
+          <div><label for="renewRate">추가 보증금 자금금리(%) <span class="opt">· 없으면 0</span></label><input id="renewRate" type="number" inputmode="decimal" step="0.1" min="0" placeholder="예: 5.2"></div>
+          <div><label for="moveCost">이사·중개비(만원) <span class="opt">· 선택</span></label><input id="moveCost" type="number" inputmode="decimal" step="10" min="0" value="0" placeholder="예: 300"></div>
         </div>
       </div>
 
       <div class="card">
-        <b>재계약 비교</b>
+        <b>현재 조건 vs 재계약</b>
         <div class="kpis" style="margin-top:12px">
           <div class="kpi"><div class="name">보증금 추가 부담</div><div id="r-deposit" class="val">-</div></div>
           <div class="kpi"><div class="name">월세 증감</div><div id="r-rent" class="val">-</div></div>
           <div class="kpi"><div class="name">연간 월세 차이</div><div id="r-year" class="val">-</div></div>
           <div class="kpi"><div class="name">2년 월세 차이</div><div id="r-2year" class="val">-</div></div>
         </div>
+        <div class="tablewrap" style="border:0;overflow:visible">
+          <table class="comparetable" aria-label="현재 조건과 재계약 비교">
+            <thead><tr><th>비교항목</th><th>현재</th><th>재계약</th></tr></thead>
+            <tbody>
+              <tr><td>보증금</td><td id="cmp-cur-dep">-</td><td id="cmp-ren-dep">-</td></tr>
+              <tr><td>월세</td><td id="cmp-cur-rent">-</td><td id="cmp-ren-rent">-</td></tr>
+              <tr><td>추가 보증금</td><td>-</td><td id="cmp-ren-extra">-</td></tr>
+              <tr><td>추가 보증금 월 금융비용</td><td>-</td><td id="cmp-ren-fin">-</td></tr>
+              <tr><td>월 실질 부담</td><td id="cmp-cur-month">-</td><td id="cmp-ren-month">-</td></tr>
+              <tr><td>2년 부담</td><td id="cmp-cur-2y">-</td><td id="cmp-ren-2y">-</td></tr>
+            </tbody>
+          </table>
+        </div>
         <div id="renewDecision" class="result" style="margin-top:10px"></div>
-        <div id="renewPlan" class="status idle" style="margin-top:12px">조건을 입력하면 재계약 유지와 새 전세 이동 중 무엇을 더 검토할지 안내합니다.</div>
-        <button id="compareMoveBtn" type="button" class="ghost" style="width:100%;margin-top:10px">새 전세 이동과 비교하기</button>
+        <div id="renewPlan" class="status idle" style="margin-top:12px">조건을 입력하면 현재 조건과 재계약의 실질 부담을 비교합니다.</div>
+      </div>
+
+      <div class="card" id="moveCompareCard">
+        <b>재계약 vs 새 전세</b>
+        <div id="moveCompareStatus" class="status idle">새 전세 단지를 선택하고 전세 자금조건을 입력하면 비교표가 완성됩니다.</div>
+        <div id="moveCompareWrap" class="hide">
+          <table class="comparetable" aria-label="재계약과 새 전세 비교">
+            <thead><tr><th>비교항목</th><th>재계약</th><th>새 전세</th></tr></thead>
+            <tbody>
+              <tr><td>보증금 / 전세금</td><td id="cmp2-ren-dep">-</td><td id="cmp2-move-dep">-</td></tr>
+              <tr><td>필요 대출</td><td id="cmp2-ren-loan">-</td><td id="cmp2-move-loan">-</td></tr>
+              <tr><td>추가 자기자금</td><td id="cmp2-ren-cash">-</td><td id="cmp2-move-cash">-</td></tr>
+              <tr><td>월 부담</td><td id="cmp2-ren-month">-</td><td id="cmp2-move-month">-</td></tr>
+              <tr><td>2년 부담</td><td id="cmp2-ren-2y">-</td><td id="cmp2-move-2y">-</td></tr>
+              <tr><td>이사·중개비</td><td>0만</td><td id="cmp2-move-cost">-</td></tr>
+            </tbody>
+          </table>
+          <div id="moveCompareDecision" class="status" style="margin-top:12px"></div>
+          <div class="comparehint">월 부담은 재계약의 월세+추가보증금 금융비용과 새 전세의 예상 대출이자를 같은 기준으로 비교합니다.</div>
+        </div>
+        <button id="compareMoveBtn" type="button" class="ghost" style="width:100%;margin-top:10px">새 전세 조건 확인하기</button>
       </div>
     </div>
   </div>
@@ -649,7 +693,7 @@ function setJeonseMode(mode){
   $('jModeMove').className=mode==='move'?'':'ghost';
   $('jModeRenew').className=mode==='renew'?'':'ghost';
   $('jModeHelp').textContent=mode==='move'
-    ?'처음 전세를 구하거나 처음 전세를 구하거나 새 전세로 이동할 때 필요한 자금과 월 이자를 계산합니다.'
+    ?'첫 전세 또는 새 전세로 이동할 때 필요한 자금과 월 이자를 계산합니다.'
     :'현재 집 재계약 조건이 지금보다 얼마나 달라지는지 비교합니다.';
 }
 function updateJSelectedUI(){
@@ -766,36 +810,112 @@ function calcJeonse(){
     $('jSummaryCard').classList.add('hide');
   }
 
-  // 재계약 비교
+  // 현재 조건 vs 재계약 비교
   const curD=num('curDeposit'),curR=num('curRent'),newD=num('renewDeposit'),newR=num('renew');
-  const renewReady=[curD,curR,newD,newR].every(v=>!isNaN(v)&&v>=0);
+  const renewRateRaw=num('renewRate'),renewRate=isNaN(renewRateRaw)?0:renewRateRaw;
+  const moveCostRaw=num('moveCost'),moveCost=isNaN(moveCostRaw)?0:moveCostRaw;
+  const renewReady=[curD,curR,newD,newR,renewRate].every(v=>!isNaN(v)&&v>=0);
   if(renewReady){
-    const depDiff=newD-curD, rentDiff=newR-curR, y=rentDiff*12, y2=rentDiff*24;
+    const depDiff=newD-curD;
+    const financedExtra=Math.max(0,depDiff);
+    const renewFinMonth=financedExtra*10000*renewRate/100/12;
+    const curMonthly=curR;
+    const renewMonthly=newR+renewFinMonth;
+    const cur2y=curMonthly*24;
+    const renew2y=renewMonthly*24;
+    const rentDiff=newR-curR, y=rentDiff*12, y2=rentDiff*24;
+
     setKpi('r-deposit',(depDiff>=0?'+':'')+eok(depDiff));
     setKpi('r-rent',(rentDiff>=0?'+':'')+Math.round(rentDiff).toLocaleString('ko-KR')+'만',rentDiff>0?'bad':'good');
     setKpi('r-year',(y>=0?'+':'')+Math.round(y).toLocaleString('ko-KR')+'만');
     setKpi('r-2year',(y2>=0?'+':'')+Math.round(y2).toLocaleString('ko-KR')+'만');
+
+    $('cmp-cur-dep').textContent=eok(curD);
+    $('cmp-ren-dep').textContent=eok(newD);
+    $('cmp-cur-rent').textContent=Math.round(curR).toLocaleString('ko-KR')+'만';
+    $('cmp-ren-rent').textContent=Math.round(newR).toLocaleString('ko-KR')+'만';
+    $('cmp-ren-extra').textContent=depDiff>0?eok(depDiff):'0억';
+    $('cmp-ren-fin').textContent=Math.round(renewFinMonth).toLocaleString('ko-KR')+'만';
+    $('cmp-cur-month').textContent=Math.round(curMonthly).toLocaleString('ko-KR')+'만';
+    $('cmp-ren-month').textContent=Math.round(renewMonthly).toLocaleString('ko-KR')+'만';
+    $('cmp-cur-2y').textContent=Math.round(cur2y).toLocaleString('ko-KR')+'만';
+    $('cmp-ren-2y').textContent=Math.round(renew2y).toLocaleString('ko-KR')+'만';
+
     const R=[];
-    if(depDiff>0)R.push(['warn','보증금이 ',{b:eok(depDiff)},' 늘어납니다.']);
+    if(depDiff>0)R.push(['warn','보증금이 ',{b:eok(depDiff)},' 늘고, 입력한 금리 기준 월 금융비용은 약 '+Math.round(renewFinMonth).toLocaleString('ko-KR')+'만원입니다.']);
     else if(depDiff<0)R.push(['good','보증금이 ',{b:eok(Math.abs(depDiff))},' 줄어듭니다.']);
     else R.push(['','보증금은 현재와 같습니다.']);
-    if(rentDiff>0)R.push(['bad','월세가 매달 ',{b:Math.round(rentDiff).toLocaleString('ko-KR')+'만원'},' 올라 2년이면 총 '+Math.round(y2).toLocaleString('ko-KR')+'만원이 추가됩니다.']);
-    else if(rentDiff<0)R.push(['good','월세가 매달 ',{b:Math.abs(Math.round(rentDiff)).toLocaleString('ko-KR')+'만원'},' 줄어듭니다.']);
-    else R.push(['good','월세는 현재와 같습니다.']);
-    if(JSELECTED&&ready){
-      const gap=Math.max(0,JSELECTED.jeonse-deposit),loan=Math.min(limit,gap),interest=loan*10000*rateJ/100/12;
-      if(newR>interest)R.push(['','선택한 새 전세의 예상 대출이자는 월 약 ',{b:Math.round(interest).toLocaleString('ko-KR')+'만원'},'으로 재계약 월세보다 낮습니다. 다만 추가 자기자금과 이사비용은 별도입니다.']);
-      else R.push(['','선택한 새 전세의 예상 대출이자는 월 약 ',{b:Math.round(interest).toLocaleString('ko-KR')+'만원'},'으로 재계약 월세와 비교해 큰 우위가 없을 수 있습니다.']);
-    }
+    const monthlyGap=renewMonthly-curMonthly;
+    if(monthlyGap>0)R.push(['bad','재계약 후 월 실질 부담이 현재보다 약 ',{b:Math.round(monthlyGap).toLocaleString('ko-KR')+'만원'},' 증가합니다.']);
+    else if(monthlyGap<0)R.push(['good','재계약 후 월 실질 부담이 현재보다 약 ',{b:Math.abs(Math.round(monthlyGap)).toLocaleString('ko-KR')+'만원'},' 줄어듭니다.']);
+    else R.push(['good','재계약 후 월 실질 부담은 현재와 거의 같습니다.']);
     render('renewDecision',R);
+
     const rp=$('renewPlan');
-    if(rentDiff<=0&&depDiff<=0){rp.textContent='재계약 조건이 현재보다 나빠지지 않습니다. 이사비용과 새 전세 자금 부담까지 고려하면 재계약 우선 검토가 합리적입니다.';rp.className='status good';}
-    else if(rentDiff>0||depDiff>0){rp.textContent='재계약 비용이 증가합니다. 새 전세 후보를 선택해 월 이자와 추가 자기자금을 함께 비교해보는 것이 좋습니다.';rp.className='status warn';}
+    const gap2y=renew2y-cur2y;
+    if(gap2y>0){
+      rp.textContent='재계약은 현재보다 2년 기준 약 '+Math.round(gap2y).toLocaleString('ko-KR')+'만원 부담이 늘어납니다. 새 전세 후보가 있다면 아래 비교표에서 함께 확인하세요.';
+      rp.className='status warn';
+    }else{
+      rp.textContent='재계약은 현재보다 2년 기준 약 '+Math.abs(Math.round(gap2y)).toLocaleString('ko-KR')+'만원 부담이 낮거나 비슷합니다. 이사비용까지 고려하면 유지 쪽이 유리할 수 있습니다.';
+      rp.className='status good';
+    }
+
+    // 재계약 vs 새 전세
+    const mcStatus=$('moveCompareStatus'),mcWrap=$('moveCompareWrap');
+    if(JSELECTED&&ready){
+      const gap=Math.max(0,JSELECTED.jeonse-deposit);
+      const moveLoan=Math.min(limit,gap);
+      const moveCash=Math.max(0,gap-moveLoan);
+      const moveInterest=moveLoan*10000*rateJ/100/12;
+      const move2y=moveInterest*24+moveCost;
+
+      $('cmp2-ren-dep').textContent=eok(newD);
+      $('cmp2-move-dep').textContent=eok(JSELECTED.jeonse);
+      $('cmp2-ren-loan').textContent=financedExtra>0?eok(financedExtra):'0억';
+      $('cmp2-move-loan').textContent=eok(moveLoan);
+      $('cmp2-ren-cash').textContent=depDiff>0?eok(depDiff):'0억';
+      $('cmp2-move-cash').textContent=eok(moveCash);
+      $('cmp2-ren-month').textContent=Math.round(renewMonthly).toLocaleString('ko-KR')+'만';
+      $('cmp2-move-month').textContent=Math.round(moveInterest).toLocaleString('ko-KR')+'만';
+      $('cmp2-ren-2y').textContent=Math.round(renew2y).toLocaleString('ko-KR')+'만';
+      $('cmp2-move-2y').textContent=Math.round(move2y).toLocaleString('ko-KR')+'만';
+      $('cmp2-move-cost').textContent=Math.round(moveCost).toLocaleString('ko-KR')+'만';
+
+      mcStatus.textContent=JSELECTED.complexName+' · '+JSELECTED.area+'㎡형과 재계약 조건을 비교합니다.';
+      mcStatus.className='status good';
+      mcWrap.classList.remove('hide');
+
+      const diff=move2y-renew2y;
+      const md=$('moveCompareDecision');
+      if(Math.abs(diff)<100){
+        md.textContent='2년 기준 비용 차이가 약 '+Math.abs(Math.round(diff)).toLocaleString('ko-KR')+'만원으로 크지 않습니다. 자금 여유, 이사 번거로움, 주거 선호를 함께 보는 편이 좋습니다.';
+        md.className='status idle';
+      }else if(diff<0){
+        md.textContent='새 전세가 2년 기준 약 '+Math.abs(Math.round(diff)).toLocaleString('ko-KR')+'만원 저렴합니다. 다만 추가 자기자금 '+eok(moveCash)+'과 보증금 안전성을 함께 확인하세요.';
+        md.className='status good';
+      }else{
+        md.textContent='재계약이 2년 기준 약 '+Math.round(diff).toLocaleString('ko-KR')+'만원 저렴합니다. 현재 집 만족도가 낮지 않다면 재계약 우선 검토가 합리적입니다.';
+        md.className='status good';
+      }
+    }else{
+      mcWrap.classList.add('hide');
+      if(!JSELECTED){
+        mcStatus.textContent='비교할 새 전세 단지를 먼저 선택하세요. 단지검색 또는 새 전세 찾기에서 선택할 수 있습니다.';
+      }else{
+        mcStatus.textContent='새 전세의 추가 현금·대출한도·금리를 입력하면 비교표가 완성됩니다.';
+      }
+      mcStatus.className='status idle';
+    }
   }else{
     ['r-deposit','r-rent','r-year','r-2year'].forEach(id=>setKpi(id,'-'));
+    ['cmp-cur-dep','cmp-ren-dep','cmp-cur-rent','cmp-ren-rent','cmp-ren-extra','cmp-ren-fin','cmp-cur-month','cmp-ren-month','cmp-cur-2y','cmp-ren-2y'].forEach(id=>{$(id).textContent='-'});
     $('renewDecision').textContent='';
-    $('renewPlan').textContent='조건을 입력하면 재계약 유지와 새 전세 이동 중 무엇을 더 검토할지 안내합니다.';
+    $('renewPlan').textContent='현재 보증금·월세와 집주인 제안조건을 입력하면 실제 비교표가 완성됩니다.';
     $('renewPlan').className='status idle';
+    $('moveCompareWrap').classList.add('hide');
+    $('moveCompareStatus').textContent='새 전세 단지를 선택하고 전세 자금조건을 입력하면 비교표가 완성됩니다.';
+    $('moveCompareStatus').className='status idle';
   }
 }
 
@@ -818,15 +938,15 @@ function showTab(t){
 document.querySelectorAll('.bottom button').forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
 
 // 입력값 저장·복원 (실패해도 앱은 동작)
-const FIELDS = ['complex','recent','cash','price','jeonse','ltv','rate','years','recScope','recArea','cashJ','deposit','loanLimit','rateJ','curDeposit','curRent','renewDeposit','renew'];
+const FIELDS = ['complex','recent','cash','price','jeonse','ltv','rate','years','recScope','recArea','cashJ','deposit','loanLimit','rateJ','curDeposit','curRent','renewDeposit','renew','renewRate','moveCost'];
 try {
   const saved = JSON.parse(localStorage.getItem('dbh:v4') || '{}');
   const noRestore = new Set(FIELDS);
   FIELDS.forEach(id => { if (id in saved && !noRestore.has(id) && $(id)) $(id).value = saved[id]; });
-  ['complex','recent','cash','price','jeonse','ltv','rate','years','cashJ','loanLimit','rateJ','curDeposit','curRent','renewDeposit','renew'].forEach(id=>{if($(id))$(id).value='';});
+  ['complex','recent','cash','price','jeonse','ltv','rate','years','cashJ','loanLimit','rateJ','curDeposit','curRent','renewDeposit','renew','renewRate','moveCost'].forEach(id=>{if($(id))$(id).value='';});
   if($('deposit'))$('deposit').value='0';
 } catch(e) {
-  ['complex','recent','cash','price','jeonse','ltv','rate','years','cashJ','loanLimit','rateJ','curDeposit','curRent','renewDeposit','renew'].forEach(id=>{if($(id))$(id).value='';});
+  ['complex','recent','cash','price','jeonse','ltv','rate','years','cashJ','loanLimit','rateJ','curDeposit','curRent','renewDeposit','renew','renewRate','moveCost'].forEach(id=>{if($(id))$(id).value='';});
   if($('deposit'))$('deposit').value='0';
 }
 document.addEventListener('input', e => {
@@ -990,8 +1110,8 @@ $('jChooseComplexBtn').addEventListener('click',()=>showTab('search'));
 $('jClearSelectedBtn').addEventListener('click',clearJSelected);
 $('jModeMove').addEventListener('click',()=>setJeonseMode('move'));
 $('jModeRenew').addEventListener('click',()=>setJeonseMode('renew'));
-$('compareRenewBtn').addEventListener('click',()=>setJeonseMode('renew'));
-$('compareMoveBtn').addEventListener('click',()=>setJeonseMode('move'));
+$('compareRenewBtn').addEventListener('click',()=>{setJeonseMode('renew');requestAnimationFrame(()=>$('jRenew').scrollIntoView({behavior:'smooth',block:'start'}));});
+$('compareMoveBtn').addEventListener('click',()=>{setJeonseMode('move');requestAnimationFrame(()=>$('jMove').scrollIntoView({behavior:'smooth',block:'start'}));});
 
 $('planBudgetBtn').addEventListener('click',()=>{
   $('recScope').value=SELECTED?.regionCode||'';
