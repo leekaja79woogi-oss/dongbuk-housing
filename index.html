@@ -76,6 +76,7 @@ th{background:#f1f5f9;color:#475569}
   <div id="iosHint" class="install">아이폰은 Safari 공유 버튼에서 "홈 화면에 추가"를 누르면 설치됩니다.</div>
 
   <input id="recent" type="hidden">
+  <input id="jeonse" type="hidden">
 
   <div class="section" id="tab-search">
     <div class="card"><b>단지 빠른 조회</b>
@@ -115,8 +116,6 @@ th{background:#f1f5f9;color:#475569}
       <div class="grid2">
         <div><label for="cash">가용 현금(억원)</label><input id="cash" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 1.00"></div>
         <div><label for="price">목표 매수가(억원)</label><input id="price" type="number" inputmode="decimal" step="0.01" min="0" placeholder="내가 사고 싶은 가격"></div>
-        <div><label for="ask">현재 매도 호가(억원) <span class="opt">· 선택</span></label><input id="ask" type="number" inputmode="decimal" step="0.01" min="0" placeholder="매물 확인 시 입력"></div>
-        <div><label for="jeonse">현재 전세 시세(억원)</label><input id="jeonse" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 5.50"></div>
         <div><label for="ltv">LTV(%)</label><input id="ltv" type="number" inputmode="decimal" step="1" min="0" max="100" placeholder="예: 40"></div>
         <div><label for="rate">주담대 금리(%)</label><input id="rate" type="number" inputmode="decimal" step="0.1" min="0" placeholder="예: 4.5"></div>
         <div><label for="years">상환기간(년)</label><input id="years" type="number" inputmode="numeric" step="1" min="1" placeholder="예: 30"></div>
@@ -155,8 +154,7 @@ th{background:#f1f5f9;color:#475569}
 
     <div class="kpis">
       <div class="kpi"><div class="name">선택단지 실거래 대비</div><div id="k-disc" class="val">-</div></div>
-      <div class="kpi"><div class="name">매도 호가 대비</div><div id="k-ask" class="val">-</div></div>
-      <div class="kpi"><div class="name">선택단지 전세가율</div><div id="k-jratio" class="val">-</div></div>
+      <div class="kpi"><div class="name">선택단지 최근 전세가율</div><div id="k-jratio" class="val">-</div></div>
       <div class="kpi"><div class="name">예상 대출금</div><div id="k-loan" class="val">-</div></div>
       <div class="kpi"><div class="name">내가 준비할 현금</div><div id="k-need" class="val">-</div></div>
       <div class="kpi"><div class="name">예상 월 원리금</div><div id="k-pay" class="val">-</div></div>
@@ -166,7 +164,7 @@ th{background:#f1f5f9;color:#475569}
       <b>매수 판정</b>
       <div id="buyDecision" style="margin-top:8px"></div>
       <hr>
-      <div class="mini">※ 대출은 LTV만 반영한 간이 계산입니다. 실제 한도는 DSR·지역 규제·대출 상한에 따라 달라지므로 은행 한도조회로 확인하세요.</div>
+      <div class="mini">※ 대출은 LTV만 반영한 간이 계산입니다. 단지를 선택하면 최근 매매·전세 실거래를 자동으로 반영합니다. 실제 대출 한도는 DSR·지역 규제·상품 조건에 따라 달라질 수 있습니다.</div>
     </div>
   </div>
 
@@ -237,10 +235,10 @@ function invalid(boxId, ids, names){
 }
 
 function calcBuy(){
-  const price = num('price'), recent = num('recent'), ask = num('ask'), jeonse = num('jeonse'),
+  const price = num('price'), recent = num('recent'), jeonse = num('jeonse'),
         cash = num('cash'), rate = num('rate'), ltv = num('ltv'),
         acq = num('acq'), years = num('years');
-  const kp = ['k-disc','k-ask','k-jratio','k-loan','k-need','k-pay'];
+  const kp = ['k-disc','k-jratio','k-loan','k-need','k-pay'];
   const hasComplex = !!(DATA && DATA.complexName && recent>0);
 
   // 자금 가능성은 단지 선택 없이도 계산
@@ -291,14 +289,12 @@ function calcBuy(){
   if(hasComplex){
     const discount = (recent - price) / recent * 100;
     setKpi('k-disc', discount.toFixed(1) + '%', discount >= 5 ? 'good' : discount >= 0 ? 'warn' : 'bad');
-    if (ask > 0){ const g = (ask - price) / ask * 100; setKpi('k-ask', g.toFixed(1) + '%', g >= 0 ? '' : 'bad'); }
-    else setKpi('k-ask', '-');
     if(jeonse>0){
       const jratio = jeonse / recent * 100;
       setKpi('k-jratio', jratio.toFixed(1) + '%', jratio>=80?'bad':jratio>=70?'warn':'');
     }else setKpi('k-jratio','-');
   }else{
-    setKpi('k-disc','-');setKpi('k-ask','-');setKpi('k-jratio','-');
+    setKpi('k-disc','-');setKpi('k-jratio','-');
   }
 
   const L = [];
@@ -311,16 +307,12 @@ function calcBuy(){
     if(discount>=5)L.push(['good','목표 매수가는 선택단지 최근 대표 실거래보다 ',{b:discount.toFixed(1)+'%'},' 낮습니다.']);
     else if(discount>=0)L.push(['warn','목표 매수가는 선택단지 최근 대표 실거래보다 ',{b:discount.toFixed(1)+'%'},' 낮습니다.']);
     else L.push(['bad','목표 매수가는 선택단지 최근 대표 실거래보다 ',{b:Math.abs(discount).toFixed(1)+'%'},' 높습니다.']);
-    if(ask>0){
-      const g=(ask-price)/ask*100;
-      L.push(['','확인한 매도 호가 ',{b:eok(ask)},' 대비 목표 매수가는 ',{b:Math.abs(g).toFixed(1)+'%'},g>=0?' 낮습니다.':' 높습니다.']);
-    }
     if(jeonse>0){
       const jr=jeonse/recent*100;
       L.push(['','선택단지 최근 대표 매매가 대비 전세가율은 ',{b:jr.toFixed(1)+'%'},'입니다.']);
     }
   }else{
-    L.push(['mini','단지를 선택하면 실거래가·전세가·매도 호가까지 비교해드립니다.']);
+    L.push(['mini','단지를 선택하면 최근 매매·전세 실거래를 자동으로 불러와 비교합니다.']);
   }
 
   L.push(['','예상 월 원리금은 약 ',{b:Math.round(pay).toLocaleString('ko-KR')+'만원'},'입니다. (첫 달 이자 약 '+Math.round(int1).toLocaleString('ko-KR')+'만원)']);
@@ -387,16 +379,16 @@ function showTab(t){
 document.querySelectorAll('.bottom button').forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
 
 // 입력값 저장·복원 (실패해도 앱은 동작)
-const FIELDS = ['complex','recent','cash','cashJ','rentJ','price','ask','jeonse','ltv','rate','years','acq','newJ','budget','deposit','loanLimit','rateJ','renew','recScope','recArea'];
+const FIELDS = ['complex','recent','cash','cashJ','rentJ','price','jeonse','ltv','rate','years','acq','newJ','budget','deposit','loanLimit','rateJ','renew','recScope','recArea'];
 try {
   const saved = JSON.parse(localStorage.getItem('dbh:v4') || '{}');
-  const noRestore = new Set(['complex','recent','cash','price','ask','jeonse','ltv','rate','years','acq']);
+  const noRestore = new Set(['complex','recent','cash','price','jeonse','ltv','rate','years','acq']);
   FIELDS.forEach(id => { if (id in saved && !noRestore.has(id)) $(id).value = saved[id]; });
   $('complex').value = '';
-  ['recent','cash','price','ask','jeonse','ltv','rate','years','acq'].forEach(id=>$(id).value='');
+  ['recent','jeonse','cash','price','ltv','rate','years','acq'].forEach(id=>$(id).value='');
 } catch(e) {
   $('complex').value = '';
-  ['recent','cash','price','ask','jeonse','ltv','rate','years','acq'].forEach(id=>$(id).value='');
+  ['recent','cash','price','jeonse','ltv','rate','years','acq'].forEach(id=>$(id).value='');
 }
 document.addEventListener('input', e => {
   if (!e.target.matches('input')) return;
