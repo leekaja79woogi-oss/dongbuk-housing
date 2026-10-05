@@ -20,6 +20,34 @@ const isAuthOrQuotaError=e=>{
 };
 const noStore=res=>res.setHeader("Cache-Control","private, no-store, max-age=0");
 
+const RATE_BUCKETS=new Map();
+const RATE_WINDOW=10*60*1000;
+const RATE_MAX=120;
+const clientIp=req=>String(req.headers["x-forwarded-for"]||req.headers["x-real-ip"]||"unknown").split(",")[0].trim();
+const sameOrigin=req=>{
+  const host=String(req.headers.host||"").toLowerCase();
+  const origin=String(req.headers.origin||"").toLowerCase();
+  const referer=String(req.headers.referer||"").toLowerCase();
+  if(!host)return false;
+  if(origin){
+    try{return new URL(origin).host.toLowerCase()===host}catch(e){return false}
+  }
+  if(referer){
+    try{return new URL(referer).host.toLowerCase()===host}catch(e){return false}
+  }
+  return false;
+};
+const withinRate=req=>{
+  const now=Date.now(),ip=clientIp(req),b=RATE_BUCKETS.get(ip);
+  if(!b||now-b.start>RATE_WINDOW){RATE_BUCKETS.set(ip,{start:now,count:1});return true}
+  b.count++;
+  if(RATE_BUCKETS.size>500){
+    for(const [k,v] of RATE_BUCKETS){if(now-v.start>RATE_WINDOW)RATE_BUCKETS.delete(k)}
+  }
+  return b.count<=RATE_MAX;
+};
+
+
 
 const monthsBack=n=>{const k=new Date(Date.now()+9*3600e3);return Array.from({length:n},(_,i)=>{const d=new Date(Date.UTC(k.getUTCFullYear(),k.getUTCMonth()-i,1));return `${d.getUTCFullYear()}${String(d.getUTCMonth()+1).padStart(2,"0")}`})};
 const dec=s=>String(s||"").replace(/<!\[CDATA\[|\]\]>/g,"").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&amp;/g,"&").trim();
@@ -119,8 +147,11 @@ const estimatedBuyCosts=(price,area)=>{
 };
 
 export default async function handler(req,res){
+  noStore(res);
+  if(!sameOrigin(req))return res.status(403).json({error:"앱 화면에서만 조회할 수 있습니다."});
+  if(!withinRate(req))return res.status(429).json({error:"조회 요청이 너무 많습니다. 잠시 후 다시 시도하세요."});
   const need=process.env.APP_TOKEN;
-  if(need&&req.headers["x-app-token"]!==need){noStore(res);return res.status(401).json({error:"접근 토큰이 필요합니다."});}
+  if(need&&req.headers["x-app-token"]!==need)return res.status(401).json({error:"접근 토큰이 필요합니다."});
   let key=process.env.DATA_GO_KR_SERVICE_KEY;
   if(!key)return res.status(500).json({error:"서버 환경변수 DATA_GO_KR_SERVICE_KEY가 설정되지 않았습니다."});
   try{if(key.includes("%"))key=decodeURIComponent(key)}catch(e){noStore(res);return res.status(500).json({error:"공공데이터 키 형식을 확인하세요."})}
