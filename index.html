@@ -163,6 +163,7 @@ details.fold-s[open]>summary{margin-bottom:10px}
 #jMove .card>.grid2 label.deposit-label{display:block;align-content:end;word-break:keep-all;line-height:1.4}
 .deposit-unit{white-space:nowrap}
 .field-help{font-size:11px;color:var(--muted);line-height:1.5;margin-top:6px;word-break:keep-all}
+.naver-link{display:block;margin-top:8px;padding:12px 10px;border:1px solid #d7e5dc;border-radius:12px;background:#f2faf5;color:#087b3b;text-align:center;text-decoration:none;font-weight:700;font-size:14px;line-height:1.4}.naver-link:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 </style>
 </head>
 <body>
@@ -1225,6 +1226,16 @@ try{const saved=JSON.parse(localStorage.getItem('dbh:v4')||'{}');$('recScope').v
 
 
 function recSay(t,c){const e=$('recStatus');e.textContent=t;e.className='status '+(c||'')}
+function appendNaverLink(card,r){
+  const query=[r.regionName,r.dong,r.name,'아파트'].filter(Boolean).join(' ');
+  const link=document.createElement('a');
+  link.className='naver-link';
+  link.href='https://search.naver.com/search.naver?query='+encodeURIComponent(query);
+  link.target='_blank';link.rel='noopener noreferrer';
+  link.textContent='네이버에서 단지 보기 ↗';
+  link.setAttribute('aria-label',r.name+' 네이버 검색 · 새 창');
+  card.appendChild(link);
+}
 function renderRecommendations(list){
   const box=$('recResults');box.textContent='';
   if(!list.length){
@@ -1247,7 +1258,7 @@ function renderRecommendations(list){
     d.appendChild(a);
     const b=document.createElement('button');b.type='button';b.className='ghost';b.textContent='실거래 자세히 보기';b.style.marginTop='8px';
     b.onclick=()=>{$('complex').value=r.name;showTab('search');search(r.region,r.name,r.dong)};
-    d.appendChild(b);box.appendChild(d);
+    d.appendChild(b);appendNaverLink(d,r);box.appendChild(d);
   });
 }
 async function selectRecommendation(r,btn){
@@ -1329,7 +1340,7 @@ function renderJRecommendations(list){
     d.appendChild(g);
     const a=document.createElement('button');a.type='button';a.textContent='이 단지 전세분석';
     a.onclick=()=>selectJRecommendation(r,a);
-    d.appendChild(a);box.appendChild(d);
+    d.appendChild(a);appendNaverLink(d,r);box.appendChild(d);
   });
 }
 async function jRecommend(){
