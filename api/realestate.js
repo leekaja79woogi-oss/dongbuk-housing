@@ -3,7 +3,17 @@ const TRADE=["https://apis.data.go.kr/1613000/RTMSDataSvcAptTrade/getRTMSDataSvc
 const RENT="https://apis.data.go.kr/1613000/RTMSDataSvcAptRent/getRTMSDataSvcAptRent";
 
 const MONTH_CACHE=new Map();
+const MONTH_INFLIGHT=new Map();
 const CACHE_TTL=60*60*1000;
+const CACHE_MAX=120;
+const cachePut=(key,data)=>{
+  MONTH_CACHE.delete(key);
+  MONTH_CACHE.set(key,{at:Date.now(),data});
+  while(MONTH_CACHE.size>CACHE_MAX){
+    const oldest=MONTH_CACHE.keys().next().value;
+    MONTH_CACHE.delete(oldest);
+  }
+};
 const isAuthOrQuotaError=e=>{
   const m=String(e?.message||"").toLowerCase();
   return [401,403,429].includes(e?.status)||/quota|rate.?limit|servicekey|auth|인증|트래픽|한도/.test(m);
@@ -66,15 +76,31 @@ async function tradeMonth(key,lawd,ym){
 }
 async function cachedMonth(type,key,lawd,ym){
   const ck=type+"|"+lawd+"|"+ym,hit=MONTH_CACHE.get(ck);
-  if(hit&&Date.now()-hit.at<CACHE_TTL)return hit.data;
-  const data=type==="trade"?await tradeMonth(key,lawd,ym):await all(RENT,key,lawd,ym);
-  MONTH_CACHE.set(ck,{at:Date.now(),data});
-  return data;
+  if(hit&&Date.now()-hit.at<CACHE_TTL){
+    MONTH_CACHE.delete(ck);MONTH_CACHE.set(ck,hit);
+    return hit.data;
+  }
+  if(hit)MONTH_CACHE.delete(ck);
+  if(MONTH_INFLIGHT.has(ck))return MONTH_INFLIGHT.get(ck);
+  const p=(async()=>{
+    const raw=type==="trade"?await tradeMonth(key,lawd,ym):await all(RENT,key,lawd,ym);
+    const data=type==="trade"?parseTrade(raw):parseRent(raw);
+    cachePut(ck,data);
+    return data;
+  })().finally(()=>MONTH_INFLIGHT.delete(ck));
+  MONTH_INFLIGHT.set(ck,p);
+  return p;
 }
 async function pool(tasks,n=8){const out=[];let i=0;await Promise.all(Array.from({length:n},async()=>{while(i<tasks.length){const k=i++;out[k]=await tasks[k]().then(v=>({v}),e=>({e}))}}));return out}
 
-const parseTrade=xs=>xs.filter(x=>tag(x,["cdealType"])!=="O").map(x=>({name:tag(x,["aptNm"]),dong:tag(x,["umdNm","sggNm"]),date:dateOf(x),area:+tag(x,["excluUseAr"]),price:num(tag(x,["dealAmount"])),floor:+tag(x,["floor"])||0,direct:tag(x,["dealingGbn"])==="직거래"}));
-const parseRent=xs=>xs.map(x=>({name:tag(x,["aptNm"]),dong:tag(x,["umdNm","sggNm"]),date:dateOf(x),area:+tag(x,["excluUseAr"]),deposit:num(tag(x,["deposit"])),monthly:num(tag(x,["monthlyRent"])),floor:+tag(x,["floor"])||0,renewal:tag(x,["contractType"])==="갱신"||tag(x,["useRRRight"])==="사용"}));
+const parseTrade=xs=>{
+  if(xs?.length&&typeof xs[0]==="object")return xs;
+  return xs.filter(x=>tag(x,["cdealType"])!=="O").map(x=>({name:tag(x,["aptNm"]),dong:tag(x,["umdNm","sggNm"]),date:dateOf(x),area:+tag(x,["excluUseAr"]),price:num(tag(x,["dealAmount"])),floor:+tag(x,["floor"])||0,direct:tag(x,["dealingGbn"])==="직거래"}));
+};
+const parseRent=xs=>{
+  if(xs?.length&&typeof xs[0]==="object")return xs;
+  return xs.map(x=>({name:tag(x,["aptNm"]),dong:tag(x,["umdNm","sggNm"]),date:dateOf(x),area:+tag(x,["excluUseAr"]),deposit:num(tag(x,["deposit"])),monthly:num(tag(x,["monthlyRent"])),floor:+tag(x,["floor"])||0,renewal:tag(x,["contractType"])==="갱신"||tag(x,["useRRRight"])==="사용"}));
+};
 
 const estimatedBuyCosts=(price,area)=>{
   let taxRate=price<=6?0.01:price<=9?((price*2/3)-3)/100:0.03;
@@ -94,13 +120,13 @@ const estimatedBuyCosts=(price,area)=>{
 
 export default async function handler(req,res){
   const need=process.env.APP_TOKEN;
-  if(need&&(req.headers["x-app-token"]||req.query.token)!==need)return res.status(401).json({error:"접근 토큰이 필요합니다."});
+  if(need&&req.headers["x-app-token"]!==need){noStore(res);return res.status(401).json({error:"접근 토큰이 필요합니다."});}
   let key=process.env.DATA_GO_KR_SERVICE_KEY;
   if(!key)return res.status(500).json({error:"서버 환경변수 DATA_GO_KR_SERVICE_KEY가 설정되지 않았습니다."});
   try{if(key.includes("%"))key=decodeURIComponent(key)}catch(e){noStore(res);return res.status(500).json({error:"공공데이터 키 형식을 확인하세요."})}
   const q=String(req.query.complex||"").trim();
   const months=Math.min(Math.max(+req.query.months||12,1),24);
-  const ok=body=>{res.setHeader("Cache-Control","private, max-age=300");res.setHeader("Vary","x-app-token");return res.status(200).json(body)};
+  const ok=(body,cacheable=true)=>{res.setHeader("Cache-Control",cacheable?"private, max-age=300":"private, no-store, max-age=0");res.setHeader("Vary","x-app-token");return res.status(200).json(body)};
   const fail=(status,message)=>{noStore(res);return res.status(status).json({error:message})};
   try{
     if(String(req.query.mode||"")==="jeonseRecommend"){
@@ -116,7 +142,7 @@ export default async function handler(req,res){
       const pm=monthsBack(3),tasks=[];
       for(const c of regionCodes)for(const m of pm)tasks.push(()=>cachedMonth("rent",key,c,m).then(xs=>({c,xs})));
       const rs=await pool(tasks),errs=rs.filter(r=>r.e),groups=new Map();
-      if(errs.length)return fail(502,"전세 실거래 조회 중 일부 지역/월 호출이 실패했습니다. 잠시 후 다시 시도하세요. ("+errs.length+"건 실패)");
+      if(errs.length===rs.length)return fail(502,"전세 실거래 조회가 모두 실패했습니다. 잠시 후 다시 시도하세요.");
       rs.forEach(r=>{
         if(!r.v)return;
         parseRent(r.v.xs).filter(x=>x.monthly===0&&x.deposit>0&&!x.renewal&&x.area>=amin&&x.area<=amax&&x.name).forEach(x=>{
@@ -145,7 +171,7 @@ export default async function handler(req,res){
         }
       }
       out.sort((a,b)=>b.count-a.count||b.lastDate.localeCompare(a.lastDate)||a.price-b.price);
-      return ok({mode:"jeonseRecommend",months:3,maxBudget:+maxBudget.toFixed(2),recommendations:out.slice(0,12),partialErrors:errs.length});
+      return ok({mode:"jeonseRecommend",months:3,maxBudget:+maxBudget.toFixed(2),recommendations:out.slice(0,12),partialErrors:errs.length},errs.length===0);
     }
     if(String(req.query.mode||"")==="recommend"){
       const cash=Math.max(+req.query.cash||0,0);
@@ -161,7 +187,7 @@ export default async function handler(req,res){
       const pm=monthsBack(3),tasks=[];
       for(const c of regionCodes)for(const m of pm)tasks.push(()=>cachedMonth("trade",key,c,m).then(xs=>({c,xs})));
       const rs=await pool(tasks),errs=rs.filter(r=>r.e),groups=new Map();
-      if(errs.length)return fail(502,"매매 실거래 조회 중 일부 지역/월 호출이 실패했습니다. 잠시 후 다시 시도하세요. ("+errs.length+"건 실패)");
+      if(errs.length===rs.length)return fail(502,"매매 실거래 조회가 모두 실패했습니다. 잠시 후 다시 시도하세요.");
       rs.forEach(r=>{
         if(!r.v)return;
         parseTrade(r.v.xs).filter(x=>!x.direct&&x.area>=amin&&x.area<=amax&&x.name).forEach(x=>{
@@ -195,7 +221,7 @@ export default async function handler(req,res){
       }
       if(strategy==="target"&&target>0)out.sort((a,b)=>Math.abs(a.price-target)-Math.abs(b.price-target)||b.count-a.count||b.lastDate.localeCompare(a.lastDate));
       else out.sort((a,b)=>b.count-a.count||b.lastDate.localeCompare(a.lastDate)||a.need-b.need);
-      return ok({mode:"recommend",months:3,criteria:{cash,ltv,areaMin:amin,areaMax:amax,scope,strategy,target},recommendations:out.slice(0,12),partialErrors:errs.length});
+      return ok({mode:"recommend",months:3,criteria:{cash,ltv,areaMin:amin,areaMax:amax,scope,strategy,target},recommendations:out.slice(0,12),partialErrors:errs.length},errs.length===0);
     }
     if(!q)return res.status(400).json({error:"단지명을 입력하세요."});
     let code=req.query.region,apt=req.query.apt,dong=String(req.query.dong||"").trim();
@@ -218,9 +244,11 @@ export default async function handler(req,res){
     const [tr,rr]=await Promise.all([pool(tt),pool(rt)]);
     if(tr.some(r=>r.e))throw tr.find(r=>r.e).e;
     const rentErr=rr.find(r=>r.e);
-    const same=x=>cp(x.name)===cp(apt)&&(!dong||cp(x.dong)===cp(dong)),byDate=(a,b)=>b.date.localeCompare(a.date);
-    const trades=tr.flatMap(r=>parseTrade(r.v)).filter(same).sort(byDate);
-    const rents=rentErr?[]:rr.flatMap(r=>parseRent(r.v)).filter(same).sort(byDate);
+    const sameTrade=x=>cp(x.name)===cp(apt)&&(!dong||cp(x.dong)===cp(dong));
+    const sameRent=x=>cp(x.name)===cp(apt)&&(!dong||!x.dong||cp(x.dong)===cp(dong));
+    const byDate=(a,b)=>b.date.localeCompare(a.date);
+    const trades=tr.flatMap(r=>parseTrade(r.v)).filter(sameTrade).sort(byDate);
+    const rents=rentErr?[]:rr.flatMap(r=>parseRent(r.v)).filter(sameRent).sort(byDate);
     return ok({complexName:apt,regionCode:code,regionName:REGIONS[code],dong,months,trades,rents,rentError:rentErr?rentErr.e.message+" — 전월세 API 활용신청/승인을 확인하세요.":""});
   }catch(e){noStore(res);return res.status(isAuthOrQuotaError(e)?502:500).json({error:e.message||"공공데이터 조회 중 오류가 발생했습니다."})}
 }
