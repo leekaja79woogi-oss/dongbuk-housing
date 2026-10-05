@@ -130,7 +130,6 @@ th{background:#f1f5f9;color:#475569}
         <div><label for="ltv">LTV(%)</label><input id="ltv" type="number" inputmode="decimal" step="1" min="0" max="100" placeholder="예: 40"></div>
         <div><label for="rate">주담대 금리(%)</label><input id="rate" type="number" inputmode="decimal" step="0.1" min="0" placeholder="예: 4.5"></div>
         <div><label for="years">상환기간(년)</label><input id="years" type="number" inputmode="numeric" step="1" min="1" placeholder="예: 30"></div>
-        <div><label for="acq">취득·중개 비용(%)</label><input id="acq" type="number" inputmode="decimal" step="0.1" min="0" placeholder="예: 3"></div>
       </div>
     </div>
 
@@ -141,7 +140,7 @@ th{background:#f1f5f9;color:#475569}
         <div class="kpi"><div class="name">현재 자금으로 살 수 있는 최대 집값</div><div id="a-max" class="val">-</div></div>
         <div class="kpi"><div class="name">추가로 필요한 현금</div><div id="a-short" class="val">-</div></div>
       </div>
-      <div id="affordNote" class="status idle">가용 현금·LTV·비용을 넣으면 자동으로 계산됩니다.</div>
+      <div id="affordNote" class="status idle">가용 현금·LTV를 넣으면 취득세와 중개보수를 자동 추정해 계산합니다.</div>
     </div>
 
     <div class="card">
@@ -167,6 +166,7 @@ th{background:#f1f5f9;color:#475569}
       <div class="kpi"><div class="name">선택단지 실거래 대비</div><div id="k-disc" class="val">-</div></div>
       <div class="kpi"><div class="name">선택단지 최근 전세가율</div><div id="k-jratio" class="val">-</div></div>
       <div class="kpi"><div class="name">예상 대출금</div><div id="k-loan" class="val">-</div></div>
+      <div class="kpi"><div class="name">예상 취득·중개비</div><div id="k-cost" class="val">-</div></div>
       <div class="kpi"><div class="name">내가 준비할 현금</div><div id="k-need" class="val">-</div></div>
       <div class="kpi"><div class="name">예상 월 원리금</div><div id="k-pay" class="val">-</div></div>
     </div>
@@ -175,7 +175,7 @@ th{background:#f1f5f9;color:#475569}
       <b>매수 판정</b>
       <div id="buyDecision" style="margin-top:8px"></div>
       <hr>
-      <div class="mini">※ 대출은 LTV만 반영한 간이 계산입니다. 단지를 선택하면 최근 매매·전세 실거래를 자동으로 반영합니다. 실제 대출 한도는 DSR·지역 규제·상품 조건에 따라 달라질 수 있습니다.</div>
+      <div class="mini">※ 대출은 LTV만 반영한 간이 계산입니다. 취득·중개비는 일반 1주택 매수 기준 예상치이며 주택 수·감면·면적·실제 중개보수에 따라 달라질 수 있습니다.</div>
     </div>
   </div>
 
@@ -245,19 +245,51 @@ function invalid(boxId, ids, names){
   render(boxId, [['bad', '다음 입력을 확인하세요: ' + names.join(', ')]]);
 }
 
+function estimatedBuyCosts(price, area){
+  let taxRate=price<=6?0.01:price<=9?((price*2/3)-3)/100:0.03;
+  taxRate=Math.max(0.01,Math.min(0.03,taxRate));
+  const acquisition=price*taxRate;
+  const education=acquisition*0.10;
+  const rural=(area>85)?price*0.002:0;
+  let broker=0;
+  if(price<0.5) broker=Math.min(price*0.006,0.0025);
+  else if(price<2) broker=Math.min(price*0.005,0.008);
+  else if(price<9) broker=price*0.004;
+  else if(price<12) broker=price*0.005;
+  else if(price<15) broker=price*0.006;
+  else broker=price*0.007;
+  return {total:acquisition+education+rural+broker};
+}
+function currentAreaForCost(){
+  if(SELECTED&&SELECTED.area)return SELECTED.area;
+  const v=$('recArea')?.value||'74,85', a=v.split(',').map(Number);
+  return a[1]>85?a[1]:85;
+}
+function maxAffordablePrice(cash,ltv,area){
+  let lo=0,hi=50;
+  for(let i=0;i<70;i++){
+    const mid=(lo+hi)/2;
+    const need=mid*(1-ltv/100)+estimatedBuyCosts(mid,area).total;
+    if(need<=cash)lo=mid;else hi=mid;
+  }
+  return lo;
+}
+
 function calcBuy(){
   const price = num('price'), recent = num('recent'), jeonse = num('jeonse'),
         cash = num('cash'), rate = num('rate'), ltv = num('ltv'),
-        acq = num('acq'), years = num('years');
-  const kp = ['k-disc','k-jratio','k-loan','k-need','k-pay'];
+        years = num('years');
+  const areaForCost=currentAreaForCost();
+  const kp = ['k-disc','k-jratio','k-loan','k-cost','k-need','k-pay'];
   const hasComplex = !!(SELECTED && SELECTED.complexName && recent>0);
 
   // 자금 가능성은 단지 선택 없이도 계산
-  const affordReady = price>0 && cash>=0 && ltv>=0 && ltv<=100 && acq>=0;
+  const affordReady = price>0 && cash>=0 && ltv>=0 && ltv<=100;
   if(affordReady){
-    const maxPrice = cash / Math.max(0.0001,(1-ltv/100)+(acq/100));
+    const maxPrice = maxAffordablePrice(cash,ltv,areaForCost);
     const loan0 = price*ltv/100;
-    const need0 = price-loan0+price*acq/100;
+    const cost0 = estimatedBuyCosts(price,areaForCost).total;
+    const need0 = price-loan0+cost0;
     const short0 = Math.max(0,need0-cash);
     setKpi('a-target',eok(price));
     setKpi('a-max',eok(maxPrice),maxPrice>=price?'good':'warn');
@@ -272,7 +304,7 @@ function calcBuy(){
     }
   }else{
     ['a-target','a-max','a-short'].forEach(id=>setKpi(id,'-'));
-    $('affordNote').textContent='가용 현금·LTV·비용을 넣으면 자동으로 계산됩니다.';
+    $('affordNote').textContent='가용 현금·LTV를 넣으면 취득세와 중개보수를 자동 추정해 계산합니다.';
     $('affordNote').className='status idle';
   }
 
@@ -282,17 +314,18 @@ function calcBuy(){
   if (!(rate >= 0)) bad.push('금리');
   if (!(ltv >= 0 && ltv <= 100)) bad.push('LTV(0~100)');
   if (!(years >= 1)) bad.push('상환기간');
-  if (!(acq >= 0)) bad.push('취득·중개 비용');
   if (isNaN(price) && isNaN(cash)) { clearKpis(kp); return render('buyDecision', [['mini','자금조건을 입력하면 매수 가능성을 계산합니다. 단지검색에서 특정 단지를 선택하면 실거래·전세가율까지 함께 분석합니다.']]); }
   if (bad.length) return invalid('buyDecision', kp, bad);
 
   const loan = price * ltv / 100;
-  const need = Math.max(0, price - loan + price * acq / 100);
+  const costs = estimatedBuyCosts(price,areaForCost);
+  const need = Math.max(0, price - loan + costs.total);
   const N = Math.round(years * 12), mr = rate / 100 / 12, loanM = loan * 10000;
   const pay = mr === 0 ? loanM / N : loanM * mr * Math.pow(1 + mr, N) / (Math.pow(1 + mr, N) - 1);
   const int1 = loanM * mr, prin1 = pay - int1;
 
   setKpi('k-loan', eok(loan));
+  setKpi('k-cost', eok(costs.total));
   setKpi('k-need', eok(need),need>cash?'bad':'good');
   setKpi('k-pay', man(pay));
 
@@ -390,16 +423,16 @@ function showTab(t){
 document.querySelectorAll('.bottom button').forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
 
 // 입력값 저장·복원 (실패해도 앱은 동작)
-const FIELDS = ['complex','recent','cash','cashJ','rentJ','price','jeonse','ltv','rate','years','acq','newJ','budget','deposit','loanLimit','rateJ','renew','recScope','recArea'];
+const FIELDS = ['complex','recent','cash','cashJ','rentJ','price','jeonse','ltv','rate','years','newJ','budget','deposit','loanLimit','rateJ','renew','recScope','recArea'];
 try {
   const saved = JSON.parse(localStorage.getItem('dbh:v4') || '{}');
-  const noRestore = new Set(['complex','recent','cash','price','jeonse','ltv','rate','years','acq']);
+  const noRestore = new Set(['complex','recent','cash','price','jeonse','ltv','rate','years']);
   FIELDS.forEach(id => { if (id in saved && !noRestore.has(id)) $(id).value = saved[id]; });
   $('complex').value = '';
-  ['recent','jeonse','cash','price','ltv','rate','years','acq'].forEach(id=>$(id).value='');
+  ['recent','jeonse','cash','price','ltv','rate','years'].forEach(id=>$(id).value='');
 } catch(e) {
   $('complex').value = '';
-  ['recent','cash','price','jeonse','ltv','rate','years','acq'].forEach(id=>$(id).value='');
+  ['recent','cash','price','jeonse','ltv','rate','years'].forEach(id=>$(id).value='');
 }
 document.addEventListener('input', e => {
   if (!e.target.matches('input')) return;
@@ -668,15 +701,15 @@ async function selectRecommendation(r,btn){
 }
 
 async function recommend(strategy='budget'){
-  const cash=num('cash'),ltv=num('ltv'),acq=num('acq'),target=num('price');
-  if(!(cash>0)||!(ltv>=0&&ltv<=100)||!(acq>=0)){
-    recSay('가용 현금, LTV, 취득·중개 비용을 먼저 입력하세요.','warn');return;
+  const cash=num('cash'),ltv=num('ltv'),target=num('price');
+  if(!(cash>0)||!(ltv>=0&&ltv<=100)){
+    recSay('가용 현금과 LTV를 먼저 입력하세요.','warn');return;
   }
   if(strategy==='target'&&!(target>0)){
     recSay('목표가격대 검색은 목표 매수가를 먼저 입력하세요.','warn');return;
   }
   const [amin,amax]=$('recArea').value.split(',').map(Number);
-  const p=new URLSearchParams({mode:'recommend',strategy,cash,ltv,acq,areaMin:amin,areaMax:amax});
+  const p=new URLSearchParams({mode:'recommend',strategy,cash,ltv,areaMin:amin,areaMax:amax});
   if(target>0)p.set('target',target);
   if($('recScope').value)p.set('scope',$('recScope').value);
   const b=strategy==='target'?$('targetRecommendBtn'):$('recommendBtn');
