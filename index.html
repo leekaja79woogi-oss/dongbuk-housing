@@ -125,17 +125,17 @@ th{background:#f1f5f9;color:#475569}
     </div>
 
     <div class="card">
-      <b>자금 가능성</b>
+      <b>내 자금으로 가능한지</b>
       <div class="kpis" style="margin-top:12px">
-        <div class="kpi"><div class="name">목표 매수가</div><div id="a-target" class="val">-</div></div>
-        <div class="kpi"><div class="name">현재 자금 기준 최대 매수가</div><div id="a-max" class="val">-</div></div>
-        <div class="kpi"><div class="name">목표가 매수 시 부족자금</div><div id="a-short" class="val">-</div></div>
+        <div class="kpi"><div class="name">내가 사고 싶은 가격</div><div id="a-target" class="val">-</div></div>
+        <div class="kpi"><div class="name">현재 자금으로 살 수 있는 최대 집값</div><div id="a-max" class="val">-</div></div>
+        <div class="kpi"><div class="name">추가로 필요한 현금</div><div id="a-short" class="val">-</div></div>
       </div>
-      <div id="affordNote" class="status idle">목표 매수가·가용 현금·LTV·취득비용을 입력하면 계산됩니다.</div>
+      <div id="affordNote" class="status idle">가용 현금·LTV·비용을 넣으면 자동으로 계산됩니다.</div>
     </div>
 
     <div class="card">
-      <b>내 자금으로 가능한 단지 찾기</b>
+      <b>추천 단지 찾기</b>
       <div class="grid2">
         <div><label for="recScope">추천지역</label><select id="recScope"></select></div>
         <div><label for="recArea">희망 전용면적</label><select id="recArea">
@@ -144,10 +144,10 @@ th{background:#f1f5f9;color:#475569}
           <option value="84,101">84~101㎡</option>
         </select></div>
       </div>
-      <div class="mini" style="margin-top:8px">위 시나리오의 가용 현금·LTV·취득비용을 기준으로 최근 3개월 실거래 단지를 추천합니다.</div>
+      <div class="mini" style="margin-top:8px">내 자금범위 또는 목표가격대 기준으로 최근 실거래 단지를 찾습니다.</div>
       <div class="grid2" style="margin-top:10px">
-        <button id="recommendBtn" type="button">자금범위 내 단지</button>
-        <button id="targetRecommendBtn" type="button" class="ghost">목표가격대 단지</button>
+        <button id="recommendBtn" type="button">내 자금으로 살 수 있는 단지</button>
+        <button id="targetRecommendBtn" type="button" class="ghost">내가 원하는 가격대 단지</button>
       </div>
       <div id="recStatus" class="status idle">먼저 목표 매수가와 자금조건을 입력하세요.</div>
       <div id="recResults"></div>
@@ -157,9 +157,9 @@ th{background:#f1f5f9;color:#475569}
       <div class="kpi"><div class="name">선택단지 실거래 대비</div><div id="k-disc" class="val">-</div></div>
       <div class="kpi"><div class="name">매도 호가 대비</div><div id="k-ask" class="val">-</div></div>
       <div class="kpi"><div class="name">선택단지 전세가율</div><div id="k-jratio" class="val">-</div></div>
-      <div class="kpi"><div class="name">예상 대출</div><div id="k-loan" class="val">-</div></div>
-      <div class="kpi"><div class="name">필요 현금</div><div id="k-need" class="val">-</div></div>
-      <div class="kpi"><div class="name">월 상환액(원리금)</div><div id="k-pay" class="val">-</div></div>
+      <div class="kpi"><div class="name">예상 대출금</div><div id="k-loan" class="val">-</div></div>
+      <div class="kpi"><div class="name">내가 준비할 현금</div><div id="k-need" class="val">-</div></div>
+      <div class="kpi"><div class="name">예상 월 원리금</div><div id="k-pay" class="val">-</div></div>
     </div>
 
     <div class="card result" style="margin-top:12px">
@@ -255,15 +255,15 @@ function calcBuy(){
     setKpi('a-short',short0>0?eok(short0):'0억',short0>0?'bad':'good');
     const an=$('affordNote');
     if(short0>0){
-      an.textContent='현재 입력 기준으로 목표 매수가 '+eok(price)+'는 자금범위를 초과합니다. 목표가격대 단지는 볼 수 있지만, 각 단지에 부족자금을 함께 표시합니다.';
+      an.textContent='현재 조건으로 '+eok(price)+' 집을 사려면 현금이 '+eok(short0)+' 더 필요합니다.';
       an.className='status warn';
     }else{
-      an.textContent='현재 입력 기준으로 목표 매수가가 자금범위 안에 있습니다.';
+      an.textContent='현재 자금으로 목표가격 '+eok(price)+' 매수가 가능합니다.';
       an.className='status good';
     }
   }else{
     ['a-target','a-max','a-short'].forEach(id=>setKpi(id,'-'));
-    $('affordNote').textContent='목표 매수가·가용 현금·LTV·취득비용을 입력하면 계산됩니다.';
+    $('affordNote').textContent='가용 현금·LTV·비용을 넣으면 자동으로 계산됩니다.';
     $('affordNote').className='status idle';
   }
 
@@ -302,8 +302,8 @@ function calcBuy(){
   }
 
   const L = [];
-  if(need>cash) L.push(['bad','목표 매수가 ',{b:eok(price)},' 기준 필요 현금은 ',{b:eok(need)},'으로 가용 현금보다 ',{b:eok(need-cash)},' 부족합니다.']);
-  else L.push(['good','목표 매수가 ',{b:eok(price)},' 기준 필요 현금 ',{b:eok(need)},'은 가용 현금 범위 안입니다.']);
+  if(need>cash) L.push(['bad',{b:eok(price)},' 집을 사려면 현금이 ',{b:eok(need-cash)},' 더 필요합니다.']);
+  else L.push(['good',{b:eok(price)},' 집을 현재 자금으로 살 수 있습니다.']);
 
   if(hasComplex){
     const discount=(recent-price)/recent*100;
@@ -320,11 +320,10 @@ function calcBuy(){
       L.push(['','선택단지 최근 대표 매매가 대비 전세가율은 ',{b:jr.toFixed(1)+'%'},'입니다.']);
     }
   }else{
-    L.push(['mini','특정 단지를 선택하지 않았으므로 실거래 대비 할인율·매도 호가 비교·전세가율은 계산하지 않습니다.']);
+    L.push(['mini','단지를 선택하면 실거래가·전세가·매도 호가까지 비교해드립니다.']);
   }
 
-  L.push(['', years + '년 원리금균등 월 상환액은 약 ', {b: Math.round(pay).toLocaleString('ko-KR') + '만원'},
-    '(첫 달 이자 ' + Math.round(int1).toLocaleString('ko-KR') + '만 + 원금 ' + Math.round(prin1).toLocaleString('ko-KR') + '만)입니다.']);
+  L.push(['','예상 월 원리금은 약 ',{b:Math.round(pay).toLocaleString('ko-KR')+'만원'},'입니다. (첫 달 이자 약 '+Math.round(int1).toLocaleString('ko-KR')+'만원)']);
   if(years>40)L.push(['warn','상환기간 '+years+'년은 실제 금융기관에서 이용 가능한 만기와 다를 수 있습니다. 대출상품별 최대 만기를 확인하세요.']);
   render('buyDecision', L);
 }
@@ -586,7 +585,7 @@ function renderRecommendations(list){
     const t=document.createElement('div');t.className='rtitle';t.textContent=(i+1)+'. '+r.name;d.appendChild(t);
     const m=document.createElement('div');m.className='rmeta';m.textContent=r.regionName+(r.dong?' · '+r.dong:'')+' · '+r.area+'㎡형 · 최근 3개월 '+r.count+'건';d.appendChild(m);
     const g=document.createElement('div');g.className='recgrid';
-    [['대표 실거래',eok(r.price)],['최근 거래가',eok(r.lastPrice)],['예상 대출',eok(r.loan)],['필요 현금',eok(r.need)],['자금 차이',r.shortfall>0?'부족 '+eok(r.shortfall):'여유 '+eok(r.headroom)]].forEach(([n,v])=>{
+    [['최근 대표가격',eok(r.price)],['가장 최근 거래',eok(r.lastPrice)],['예상 대출금',eok(r.loan)],['내가 준비할 현금',eok(r.need)],['내 자금과 차이',r.shortfall>0?'부족 '+eok(r.shortfall):'여유 '+eok(r.headroom)]].forEach(([n,v])=>{
       const c=document.createElement('div');c.className='reccell';
       const nn=document.createElement('div');nn.className='n';nn.textContent=n;
       const vv=document.createElement('div');vv.className='v';vv.textContent=v;
