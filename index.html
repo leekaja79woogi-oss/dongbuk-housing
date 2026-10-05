@@ -33,6 +33,17 @@ button{border:0;border-radius:13px;padding:12px 14px;font-size:15px;font-weight:
 hr{border:0;border-top:1px solid var(--line);margin:14px 0}
 .hide{display:none}
 .opt{font-weight:400}
+#jMove .card>.grid2>div,
+#jRenew .card>.grid2>div{display:flex;flex-direction:column;min-width:0}
+#jMove .card>.grid2 label,
+#jRenew .card>.grid2 label{min-height:38px;display:flex;align-items:flex-end;line-height:1.35;margin-bottom:7px}
+#jMove .card>.grid2 input,
+#jRenew .card>.grid2 input{margin-top:0}
+#jMove .card>.grid2{column-gap:12px;row-gap:14px}
+@media(max-width:380px){
+  #jMove .card>.grid2 label,
+  #jRenew .card>.grid2 label{font-size:12px;min-height:36px}
+}
 @media(min-width:700px){.kpis{grid-template-columns:repeat(3,1fr)}}
 .status{background:#f2f4f7;border-radius:12px;padding:11px 12px;font-size:13px;line-height:1.5;margin-top:10px}.status.idle{background:#fafafa;border:1px dashed #d7dce3;color:#64748b}.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:12px;margin-top:12px}table{border-collapse:collapse;width:100%;min-width:480px}th,td{padding:10px;border-bottom:1px solid #eee;font-size:13px;white-space:nowrap;text-align:left}th{background:#fafafa}
 
@@ -264,16 +275,16 @@ details.fold-s[open]>summary{margin-bottom:10px}
         <button id="jModeMove" type="button">새 전세 찾기</button>
         <button id="jModeRenew" type="button" class="ghost">현재 집 재계약</button>
       </div>
-      <div id="jModeHelp" class="mini" style="margin-top:8px">처음 전세를 구하거나 새 전세로 이동할 때 필요한 자금과 월 이자를 계산합니다.</div>
+      <div id="jModeHelp" class="mini" style="margin-top:8px">첫 전세 또는 새 전세로 이동할 때 필요한 자금과 월 이자를 계산합니다.</div>
     </div>
 
     <div id="jMove">
       <div class="card">
         <b>전세 자금 조건</b>
         <div class="grid2">
-          <div><label for="cashJ">추가로 쓸 수 있는 현금(억원)</label><input id="cashJ" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 1.00"></div>
-          <div><label for="deposit">기존 보증금 회수액(억원) <span class="opt">· 없으면 0</span></label><input id="deposit" type="number" inputmode="decimal" step="0.01" min="0" value="0" placeholder="예: 0.60"></div>
-          <div><label for="loanLimit">전세대출 가능 한도(억원)</label><input id="loanLimit" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 3.00"></div>
+          <div><label for="cashJ">추가 현금(억원)</label><input id="cashJ" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 1.00"></div>
+          <div><label for="deposit">회수할 보증금(억원) <span class="opt">· 없으면 0</span></label><input id="deposit" type="number" inputmode="decimal" step="0.01" min="0" value="0" placeholder="예: 0.60"></div>
+          <div><label for="loanLimit">전세대출 한도(억원)</label><input id="loanLimit" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 3.00"></div>
           <div><label for="rateJ">전세대출 금리(%)</label><input id="rateJ" type="number" inputmode="decimal" step="0.1" min="0" placeholder="예: 5.2"></div>
         </div>
       </div>
