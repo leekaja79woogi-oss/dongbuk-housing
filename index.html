@@ -965,7 +965,6 @@ try{const saved=JSON.parse(localStorage.getItem('dbh:selected')||'{}');SELECTED=
 updateSelectedUI();updateJSelectedUI();
 setJeonseMode('move');
 calcAll();
-showTab('home');
 document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => showTab(b.dataset.go)));
 
 const TAB_RESET_FIELDS={
