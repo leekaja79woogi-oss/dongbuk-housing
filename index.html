@@ -389,7 +389,7 @@ details.fold-s[open]>summary{margin-bottom:10px}
 <div><label for="renewLoanLimit">추가 대출 가능 금액 <span class="field-unit">(억원)</span></label><input id="renewLoanLimit" type="number" min="0" step="0.01" inputmode="decimal" placeholder="비우면 대출 없음"><div class="field-help">실제로 이용 가능한 한도만 입력</div></div><div><label for="renewRate">추가 대출 금리 <span class="field-unit">(%)</span></label><input id="renewRate" type="number" inputmode="decimal" step="0.1" min="0" placeholder="예: 5.2"></div>
 <div><label for="curMonthlyExtra">현재 관리비·대출 이자 합계 <span class="field-unit">(만원)</span></label><input id="curMonthlyExtra" type="number" min="0" step="0.01" inputmode="decimal" placeholder="비우면 0"></div><div><label for="renewMgmt">재계약 관리비 <span class="field-unit">(만원)</span></label><input id="renewMgmt" type="number" inputmode="decimal" step="0.01" min="0" placeholder="비우면 0"></div>
 <div><label for="renewExistingInterest">기존 대출 월 이자 <span class="field-unit">(만원)</span></label><input id="renewExistingInterest" type="number" inputmode="decimal" step="0.01" min="0" placeholder="비우면 0"></div></div></details></div>      <div class="card">
-        <b>현재 조건 vs 재계약</b>
+        <b>재계약 계산 결과</b><div id="renewFundingStatus" class="status idle"></div>
         <div class="kpis" style="margin-top:12px">
           <div class="kpi"><div class="name">보증금 추가 부담</div><div id="r-deposit" class="val">-</div></div>
           <div class="kpi"><div class="name">월세 증감</div><div id="r-rent" class="val">-</div></div>
@@ -499,7 +499,7 @@ document.querySelectorAll('[data-info-filter]').forEach(b=>b.addEventListener('c
 const $ = id => document.getElementById(id);
 const num = id => { const v = $(id).value.trim(); return v === '' ? NaN : +v; };
 const eok = v => Number.isFinite(v) ? (Math.abs(v)<1 ? Math.round(v*10000).toLocaleString('ko-KR')+'만원' : v.toFixed(4).replace(/\.?0+$/, '')+'억') : '-';
-const man = v => Math.abs(v) >= 10000 ? eok(v / 10000) : Math.round(v).toLocaleString('ko-KR') + '만';
+const man = v => Math.abs(v) >= 10000 ? eok(v / 10000) : Math.round(v).toLocaleString('ko-KR') + '만원';
 const sign = v => (v >= 0 ? '+' : '-') + Math.abs(Math.round(v)).toLocaleString('ko-KR') + '만원';
 
 let DATA=null, SELECTED=null, JSELECTED=null, JMODE='move', TOKEN='';
@@ -648,7 +648,7 @@ function calcBuy(){
     setKpi('a-target',eok(price));
     setKpi('a-loan',eok(loan0));
     setKpi('a-need',eok(need0),need0>cash?'warn':'good');
-    setKpi('a-short',short0>0?eok(short0):'0억',short0>0?'bad':'good');
+    setKpi('a-short',short0>0?eok(short0):'0만원',short0>0?'bad':'good');
     const an=$('affordNote');
     if(short0>0){
       an.textContent=eok(price)+' - 대출 '+eok(loan0)+' + 예상 취득·중개비 '+eok(cost0)+' = 준비할 현금 '+eok(need0)+'. 현재 현금보다 '+eok(short0)+' 부족합니다.';
@@ -808,7 +808,7 @@ function calcJeonse(){
     const ratio=(JSELECTED.sale>0)?j/JSELECTED.sale*100:NaN;
     setKpi('j-price',eok(j));
     setKpi('j-use-loan',eok(loan));
-    setKpi('j-short',short>0?eok(short):'0억',short>0?'bad':'good');
+    setKpi('j-short',short>0?eok(short):'0만원',short>0?'bad':'good');
     setKpi('j-int',Math.round(interest).toLocaleString('ko-KR')+'만');
     setKpi('j-ratio',isNaN(ratio)?'-':ratio.toFixed(1)+'%',ratio>=80?'bad':ratio>=70?'warn':'');
     setKpi('j-count',JSELECTED.jeonseCount+'건');
@@ -853,6 +853,8 @@ function calcJeonse(){
   }
 
   const rs=housingScenario('renew'),curD=num('curDeposit'),curR=num('curRent'),newD=num('renewDeposit'),newR=num('renew');
+  $('renewFundingStatus').textContent=rs?(rs.short>0?'보증금 마련에 '+man(rs.short)+'이 부족합니다.':'추가 준비 현금 '+man(rs.own)+' · 월 주거비 '+man(rs.monthly)+' · 2년 비용 '+man(rs.two)):'재계약 조건을 입력하면 필요한 자금과 월 비용을 확인할 수 있습니다.';
+  $('renewFundingStatus').className='status '+(rs?(rs.short>0?'warn':'good'):'idle');
   const ids=['cmp-cur-dep','cmp-ren-dep','cmp-cur-rent','cmp-ren-rent','cmp-ren-extra','cmp-ren-fin','cmp-cur-month','cmp-ren-month','cmp-cur-2y','cmp-ren-2y'];
   if(rs&&Number.isFinite(curR)&&curR>=0&&optionalNumber('curMonthlyExtra')>=0){
     const diff=newD-curD,rentDiff=newR-curR,curMonthly=curR+optionalNumber('curMonthlyExtra'),renewMonthly=rs.monthly;
@@ -872,7 +874,7 @@ function calcJeonse(){
 function housingCost(deposit,recovered,cash,loan,rate,rent,mgmt,cost){
   const own=Math.max(0,deposit-recovered-loan)*10000+cost;
   const monthly=rent+loan*10000*rate/100/12+mgmt;
-  return {deposit:deposit*10000,loan:loan*10000,own,short:Math.max(0,own-cash*10000),monthly,two:monthly*24+cost,cost};
+  return {deposit:deposit*10000,loan:loan*10000,own,short:Math.max(0,Math.round((own-cash*10000)*100)/100),monthly,two:monthly*24+cost,cost};
 }
 function optionalNumber(id){const n=num(id);return Number.isNaN(n)?0:n;}
 function housingScenario(kind){
