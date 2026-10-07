@@ -169,20 +169,23 @@ details.fold-s[open]>summary{margin-bottom:10px}
 #tab-jeonse .card>.grid2>div>label,#tab-jeonse #jMove .card>.grid2>div>label,#tab-jeonse #jRenew .card>.grid2>div>label{display:block;min-height:38px;line-height:1.45;word-break:keep-all;overflow-wrap:normal;margin:10px 0 7px} .field-unit{display:inline-block;white-space:nowrap}#tab-jeonse .field-help{line-height:1.5;margin-top:6px}#jRenew .card>.grid2{row-gap:10px}
 .rent-modes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:12px 0}.rent-modes button{padding:11px 3px;font-size:13px;min-height:44px;white-space:nowrap}.rent-options{border-top:1px solid var(--line);padding:14px 0 4px;margin-top:18px}.rent-options summary{font-size:14px;font-weight:650;cursor:pointer;color:#475569}.rent-group-title{font-size:14px;font-weight:700;margin-top:20px;padding-bottom:8px;border-bottom:1px solid var(--line)}#tab-jeonse .card .grid2{row-gap:8px}#tab-jeonse .card .grid2>div>label{min-height:0;font-size:12px;margin-top:14px}#tab-jeonse .mini,#tab-jeonse .field-help{word-break:keep-all;line-height:1.6}.rent-start{padding-bottom:18px}
 .credit .mono{position:relative}.credit .mono .mono-r{position:absolute;top:9px;right:8px;font-size:11px;font-weight:700;line-height:1;letter-spacing:0}
-.bottom{grid-template-columns:repeat(5,minmax(0,1fr))}.info-card summary{gap:12px;word-break:keep-all;line-height:1.5}.info-card p,.info-card dd{font-size:14px;line-height:1.7;word-break:keep-all;overflow-wrap:anywhere}.info-card dl{margin:12px 0}.info-card dt{font-size:13px;font-weight:700;margin-top:14px}.info-card dd{margin:4px 0 0;color:#475569}.info-intro{color:var(--muted)}.info-link{display:block;padding:12px 14px;background:#eaf0ff;color:#2f5bff;border-radius:12px;text-decoration:none;font-size:14px;font-weight:600;line-height:1.5;word-break:keep-all}.info-link:focus-visible{outline:2px solid var(--accent);outline-offset:2px}.info-date{margin-top:10px}.first-home-guide{border:1px solid #dbe5ff;background:linear-gradient(135deg,#fff,#f3f7ff)}.first-home-guide summary{font-size:19px;line-height:1.5}.guide-caption{display:block;font-size:13px;font-weight:500;color:var(--muted);margin-top:5px}.guide-sources{display:grid;gap:8px}.guide-calculate{width:100%;margin-top:16px}.first-home-guide dt{font-size:15px}</style>
+.bottom{grid-template-columns:repeat(5,minmax(0,1fr))}.info-card summary{gap:12px;word-break:keep-all;line-height:1.5}.info-card p,.info-card dd{font-size:14px;line-height:1.7;word-break:keep-all;overflow-wrap:anywhere}.info-card dl{margin:12px 0}.info-card dt{font-size:13px;font-weight:700;margin-top:14px}.info-card dd{margin:4px 0 0;color:#475569}.info-intro{color:var(--muted)}.info-link{display:block;padding:12px 14px;background:#eaf0ff;color:#2f5bff;border-radius:12px;text-decoration:none;font-size:14px;font-weight:600;line-height:1.5;word-break:keep-all}.info-link:focus-visible{outline:2px solid var(--accent);outline-offset:2px}.info-date{margin-top:10px}.first-home-guide{border:1px solid #dbe5ff;background:linear-gradient(135deg,#fff,#f3f7ff)}.first-home-guide summary{font-size:19px;line-height:1.5}.guide-caption{display:block;font-size:13px;font-weight:500;color:var(--muted);margin-top:5px}.guide-sources{display:grid;gap:8px}.guide-calculate{width:100%;margin-top:16px}.first-home-guide dt{font-size:15px}body:not([data-tab="home"]) #installBox,body:not([data-tab="home"]) #iosHint{display:none!important}
+.field-unit{white-space:nowrap} label{word-break:keep-all;line-height:1.45} .field-help{line-height:1.5}
+#clearSelectedBtn,#jClearSelectedBtn{font-size:13px;padding:10px;min-height:36px}
+</style>
 </head>
-<body>
+<body data-tab="home">
 <div id="runtimeError" role="alert" aria-live="assertive"></div>
 <div class="app">
   <div class="top">
     <div class="title">집의 기준</div>
-    <div class="sub">실거래로 비교하는 매수 · 전세 · 재계약</div>
+    <div class="sub">실거래로 비교하는 매수 · 전월세 · 재계약</div>
     <svg class="sky" viewBox="0 0 200 90" aria-hidden="true"><g fill="#fff"><rect x="4" y="46" width="22" height="44"/><rect x="30" y="22" width="26" height="68"/><rect x="60" y="38" width="20" height="52"/><rect x="84" y="8" width="28" height="82"/><rect x="116" y="30" width="22" height="60"/><rect x="142" y="50" width="24" height="40"/><rect x="170" y="34" width="26" height="56"/></g><g fill="#0f172a" opacity=".55"><rect x="34" y="30" width="5" height="6"/><rect x="44" y="30" width="5" height="6"/><rect x="90" y="18" width="5" height="6"/><rect x="100" y="18" width="5" height="6"/><rect x="90" y="34" width="5" height="6"/><rect x="100" y="34" width="5" height="6"/><rect x="174" y="42" width="5" height="6"/><rect x="184" y="42" width="5" height="6"/></g></svg>
   </div>
 
   <div id="installBox" class="install">
     홈 화면에 앱처럼 설치할 수 있습니다.
-    <button id="installBtn" type="button">설치</button>
+    <button id="installBtn" type="button">설치</button><button id="dismissInstall" type="button" class="ghost">나중에</button>
   </div>
   <div id="iosHint" class="install">아이폰은 Safari 공유 버튼에서 "홈 화면에 추가"를 누르면 설치됩니다.</div>
 
@@ -199,8 +202,8 @@ details.fold-s[open]>summary{margin-bottom:10px}
   <div class="credit">
     <div class="mono">W<span class="mono-r">R</span></div>
     <div class="cn">Made by <b>Woogi</b></div>
-    <div class="cs">배포일 · <time datetime="2026-10-05">2026.10.05</time></div>
-    <div class="cs">국토교통부 실거래가 공개자료 기반 · 참고용 · v10</div>
+    <div class="cs">배포일 · <time datetime="2026-10-07">2026.10.07</time></div>
+    <div class="cs">국토교통부 실거래가 공개자료 기반 · 참고용 · v11</div>
   </div>
 </div>
 
@@ -240,7 +243,42 @@ details.fold-s[open]>summary{margin-bottom:10px}
   <!-- 매수 -->
   <div class="section hide" id="tab-buy">
   <div class="tab-tools"><button type="button" class="tab-reset" data-reset="buy">입력 초기화</button></div>
-    <div class="card" id="selectedCard">
+    <div class="card">
+      <b>매수 시나리오</b>
+      <div class="grid2">
+        <div><label for="cash">가용 현금 <span class="field-unit">(억원)</span></label><input id="cash" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 1.00"></div>
+        <div><label for="price">목표 매수가 <span class="field-unit">(억원)</span></label><input id="price" type="number" inputmode="decimal" step="0.01" min="0" placeholder="내가 사고 싶은 가격"></div>
+        <div><label for="ltv">집값 대비 대출 비율 <span class="field-unit">(LTV·%)</span></label><input id="ltv" type="number" inputmode="decimal" step="1" min="0" max="100" placeholder="예: 40"></div>
+        <div><label for="rate">주담대 금리 <span class="field-unit">(%)</span></label><input id="rate" type="number" inputmode="decimal" step="0.1" min="0" placeholder="예: 4.5"></div>
+        <div><label for="years">상환기간 <span class="field-unit">(년)</span></label><input id="years" type="number" inputmode="numeric" step="1" min="1" placeholder="예: 30"></div>
+      </div>
+    </div>
+<div class="card result">
+      <b>매수 판정</b>
+      <div class="kpis" style="margin-top:12px">
+        <div class="kpi"><div class="name">내가 사고 싶은 가격</div><div id="a-target" class="val">-</div></div>
+        <div class="kpi"><div class="name">예상 대출금</div><div id="a-loan" class="val">-</div></div>
+        <div class="kpi"><div class="name">내가 준비할 현금</div><div id="a-need" class="val">-</div></div>
+        <div class="kpi"><div class="name">추가로 필요한 현금</div><div id="a-short" class="val">-</div></div>
+      </div>
+      <div id="affordNote" class="status idle">가용 현금·LTV를 넣으면 자동으로 계산합니다.</div>
+<div class="kpis"><div class="kpi"><div class="name">예상 월 원리금</div><div id="k-pay" class="val">-</div></div></div>
+      <div id="buyDecision" style="margin-top:8px"></div>
+      <details class="fold-s"><summary>계산 가정 보기</summary><div class="mini">※ 대출은 LTV만 반영한 간이 계산이며 실제 승인 한도가 아닙니다. 소득·기존 대출·금융기관 심사를 별도로 확인하세요. 취득·중개비는 일반 1주택 매수 기준 예상치이며 주택 수·감면·면적·실제 중개보수에 따라 달라질 수 있습니다.</div></details>
+    </div>
+<details class="card fold" id="detailCard"><summary>상세 지표 보기</summary><div class="card">
+      <b>계산 내역과 시장 지표</b>
+
+    <div class="kpis">
+      <div class="kpi"><div class="name">선택단지 실거래 대비</div><div id="k-disc" class="val">-</div></div>
+      <div class="kpi"><div class="name">선택단지 최근 전세가율</div><div id="k-jratio" class="val">-</div></div>
+      <div class="kpi"><div class="name">예상 대출금</div><div id="k-loan" class="val">-</div></div>
+      <div class="kpi"><div class="name">예상 취득·중개비</div><div id="k-cost" class="val">-</div></div>
+      <div class="kpi"><div class="name">내가 준비할 현금</div><div id="k-need" class="val">-</div></div>
+      
+    </div></div></details>
+
+        <div class="card" id="selectedCard">
       <b>분석할 단지</b>
       <div id="selectedComplex" class="status idle">선택된 단지가 없습니다.</div>
       <div class="grid2" style="margin-top:10px">
@@ -260,42 +298,7 @@ details.fold-s[open]>summary{margin-bottom:10px}
       </div>
     </div>
 
-    <div class="card">
-      <b>매수 시나리오</b>
-      <div class="grid2">
-        <div><label for="cash">가용 현금 <span class="field-unit">(억원)</span></label><input id="cash" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 1.00"></div>
-        <div><label for="price">목표 매수가 <span class="field-unit">(억원)</span></label><input id="price" type="number" inputmode="decimal" step="0.01" min="0" placeholder="내가 사고 싶은 가격"></div>
-        <div><label for="ltv">LTV <span class="field-unit">(%)</span></label><input id="ltv" type="number" inputmode="decimal" step="1" min="0" max="100" placeholder="예: 40"></div>
-        <div><label for="rate">주담대 금리 <span class="field-unit">(%)</span></label><input id="rate" type="number" inputmode="decimal" step="0.1" min="0" placeholder="예: 4.5"></div>
-        <div><label for="years">상환기간 <span class="field-unit">(년)</span></label><input id="years" type="number" inputmode="numeric" step="1" min="1" placeholder="예: 30"></div>
-      </div>
-    </div>
-<div class="card result">
-      <b>매수 판정</b>
-      <div id="buyDecision" style="margin-top:8px"></div>
-      <details class="fold-s"><summary>계산 가정 보기</summary><div class="mini">※ 대출은 LTV만 반영한 간이 계산이며 실제 승인 한도가 아닙니다. 소득·기존 대출·금융기관 심사를 별도로 확인하세요. 취득·중개비는 일반 1주택 매수 기준 예상치이며 주택 수·감면·면적·실제 중개보수에 따라 달라질 수 있습니다.</div></details>
-    </div>
-<details class="card fold" id="detailCard"><summary>상세 지표 보기</summary><div class="card">
-      <b>내 자금으로 가능한지</b>
-      <div class="kpis" style="margin-top:12px">
-        <div class="kpi"><div class="name">내가 사고 싶은 가격</div><div id="a-target" class="val">-</div></div>
-        <div class="kpi"><div class="name">예상 대출금</div><div id="a-loan" class="val">-</div></div>
-        <div class="kpi"><div class="name">내가 준비할 현금</div><div id="a-need" class="val">-</div></div>
-        <div class="kpi"><div class="name">추가로 필요한 현금</div><div id="a-short" class="val">-</div></div>
-      </div>
-      <div id="affordNote" class="status idle">가용 현금·LTV를 넣으면 자동으로 계산합니다.</div>
-    </div>
-
-    <div class="kpis">
-      <div class="kpi"><div class="name">선택단지 실거래 대비</div><div id="k-disc" class="val">-</div></div>
-      <div class="kpi"><div class="name">선택단지 최근 전세가율</div><div id="k-jratio" class="val">-</div></div>
-      <div class="kpi"><div class="name">예상 대출금</div><div id="k-loan" class="val">-</div></div>
-      <div class="kpi"><div class="name">예상 취득·중개비</div><div id="k-cost" class="val">-</div></div>
-      <div class="kpi"><div class="name">내가 준비할 현금</div><div id="k-need" class="val">-</div></div>
-      <div class="kpi"><div class="name">예상 월 원리금</div><div id="k-pay" class="val">-</div></div>
-    </div></details>
-
-    <details class="card fold" id="recommendCard"><summary>추천 단지 찾기</summary>
+<details class="card fold" id="recommendCard"><summary>추천 단지 찾기</summary>
       <div class="grid2">
         <div><label for="recScope">추천지역</label><select id="recScope"></select></div>
         <div><label for="recArea">희망 전용면적</label><select id="recArea">
@@ -305,12 +308,12 @@ details.fold-s[open]>summary{margin-bottom:10px}
         </select></div>
       </div>
       <div class="grid2" style="margin-top:10px">
-        <button id="recommendBtn" type="button" class="recActionBtn"><span>자금에 맞는</span><span>단지 찾기</span></button>
-        <button id="targetRecommendBtn" type="button" class="ghost recActionBtn"><span>희망 매수가로</span><span>찾기</span></button>
-      </div>
-      <div class="grid2" style="margin-top:10px">
         <div><label for="recLoan">대출 가능 금액 <span class="field-unit">(억원)</span></label><input id="recLoan" type="number" min="0" step="0.01" inputmode="decimal" placeholder="대출 없이 찾으려면 0"></div>
         <div><label for="recTarget">희망 매수가 <span class="field-unit">(억원)</span></label><input id="recTarget" type="number" min="0" step="0.01" inputmode="decimal" placeholder="예: 5.00"></div>
+      </div>
+      <div class="grid2" style="margin-top:10px">
+        <button id="recommendBtn" type="button" class="recActionBtn"><span>자금에 맞는</span><span>단지 찾기</span></button>
+        <button id="targetRecommendBtn" type="button" class="ghost recActionBtn"><span>희망 매수가로</span><span>찾기</span></button>
       </div>
       <p class="muted">자금 기준은 위의 가용 현금과 직접 입력한 대출 가능 금액을 사용합니다. 희망가 기준은 최근 실거래가가 희망가 ±10%인 단지를 찾습니다. 입력한 대출금은 승인 여부를 확인한 금액으로 입력하세요.</p>
       <div id="recStatus" class="status idle">지역과 면적을 선택하고 자금 또는 희망 매수가로 찾아보세요.</div>
@@ -383,8 +386,8 @@ details.fold-s[open]>summary{margin-bottom:10px}
 <div id="jRenew" class="hide"><div class="card"><b>현재 조건과 제안 조건</b><div class="rent-group-title">현재 계약</div><div class="grid2"><div><label for="curDeposit">현재 보증금 <span class="field-unit">(억원)</span></label><input id="curDeposit" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 0.60"></div>
 <div><label for="curRent">현재 월세 <span class="field-unit">(만원)</span></label><input id="curRent" type="number" inputmode="decimal" min="0" placeholder="예: 145"><div class="field-help">전세라면 0 입력</div></div></div><div class="rent-group-title">재계약 제안</div><div class="grid2"><div><label for="renewDeposit">제안 보증금 <span class="field-unit">(억원)</span></label><input id="renewDeposit" type="number" inputmode="decimal" step="0.01" min="0" placeholder="예: 0.60"></div>
 <div><label for="renew">제안 월세 <span class="field-unit">(만원)</span></label><input id="renew" type="number" inputmode="decimal" min="0" placeholder="예: 155"><div class="field-help">전세라면 0 입력</div></div></div><details class="rent-options"><summary>대출·관리비 등 선택 입력</summary><div class="mini">해당 항목만 입력하세요. 비용이 없으면 비워두세요.</div><div class="grid2"><div><label for="renewCash">추가 보증금에 쓸 현금 <span class="field-unit">(억원)</span></label><input id="renewCash" type="number" min="0" step="0.01" inputmode="decimal" placeholder="비우면 0"></div>
-<div><label for="renewRate">추가 대출 금리 <span class="field-unit">(%)</span></label><input id="renewRate" type="number" inputmode="decimal" step="0.1" min="0" placeholder="예: 5.2"></div>
-<div><label for="renewMgmt">재계약 관리비 <span class="field-unit">(만원)</span></label><input id="renewMgmt" type="number" inputmode="decimal" step="0.01" min="0" placeholder="비우면 0"></div>
+<div><label for="renewLoanLimit">추가 대출 가능 금액 <span class="field-unit">(억원)</span></label><input id="renewLoanLimit" type="number" min="0" step="0.01" inputmode="decimal" placeholder="비우면 대출 없음"><div class="field-help">실제로 이용 가능한 한도만 입력</div></div><div><label for="renewRate">추가 대출 금리 <span class="field-unit">(%)</span></label><input id="renewRate" type="number" inputmode="decimal" step="0.1" min="0" placeholder="예: 5.2"></div>
+<div><label for="curMonthlyExtra">현재 관리비·대출 이자 합계 <span class="field-unit">(만원)</span></label><input id="curMonthlyExtra" type="number" min="0" step="0.01" inputmode="decimal" placeholder="비우면 0"></div><div><label for="renewMgmt">재계약 관리비 <span class="field-unit">(만원)</span></label><input id="renewMgmt" type="number" inputmode="decimal" step="0.01" min="0" placeholder="비우면 0"></div>
 <div><label for="renewExistingInterest">기존 대출 월 이자 <span class="field-unit">(만원)</span></label><input id="renewExistingInterest" type="number" inputmode="decimal" step="0.01" min="0" placeholder="비우면 0"></div></div></details></div>      <div class="card">
         <b>현재 조건 vs 재계약</b>
         <div class="kpis" style="margin-top:12px">
@@ -431,10 +434,10 @@ details.fold-s[open]>summary{margin-bottom:10px}
         <button id="compareMoveBtn" type="button" class="ghost" style="width:100%;margin-top:10px">새 전세 조건 확인하기</button>
       </div>
 </div>
-<div class="card hide" id="housingCompareCard"><b>선택한 조건 비교</b><div class="mini">비교할 항목만 선택하세요. 한 가지만 선택해도 볼 수 있고, 선택하지 않은 항목은 입력하지 않아도 됩니다.</div><div class="compare-options"><label><input type="checkbox" id="compareJeonse" checked> 전세</label><label><input type="checkbox" id="compareRent" checked> 월세</label><label><input type="checkbox" id="compareRenew"> 재계약</label></div><div id="housingCompareHint" class="mini"></div><div class="tablewrap"><table class="comparetable" aria-label="전세 월세 재계약 비교"><thead id="housingCompareHead"></thead><tbody id="housingCompare"></tbody></table></div><div class="comparehint">월 주거비 = 월세 + 대출 이자 + 입력한 관리비. 2년 비용은 월 주거비 × 24 + 이사·중개비입니다. 재계약 대출금은 추가 보증금에 필요한 대출이며, 기존 대출의 월 이자는 별도 입력합니다. 원금 상환·보증금 기회비용은 제외합니다.  관리비·기존 이자를 입력하지 않으면 0으로 계산합니다.</div></div>
+<div class="card hide" id="housingCompareCard"><b>선택한 조건 비교</b><div class="mini">비교할 항목만 선택하세요. 한 가지만 선택해도 볼 수 있고, 선택하지 않은 항목은 입력하지 않아도 됩니다.</div><div class="compare-options"><label><input type="checkbox" id="compareJeonse" checked> 전세</label><label><input type="checkbox" id="compareRent" checked> 월세</label><label><input type="checkbox" id="compareRenew"> 재계약</label></div><div id="housingCompareHint" class="mini"></div><div id="housingCompareSummary" class="status idle"></div><div class="tablewrap"><table class="comparetable" aria-label="전세 월세 재계약 비교"><thead id="housingCompareHead"></thead><tbody id="housingCompare"></tbody></table></div><div class="comparehint">월 주거비 = 월세 + 대출 이자 + 입력한 관리비. 2년 비용은 월 주거비 × 24 + 이사·중개비입니다. 재계약 대출금은 추가 보증금에 필요한 대출이며, 기존 대출의 월 이자는 별도 입력합니다. 원금 상환·보증금 기회비용은 제외합니다.  관리비·기존 이자를 입력하지 않으면 0으로 계산합니다.</div></div>
 </div>
 
-<div class="section hide" id="tab-info"><div class="card"><b>알아두면 좋은 주거정보</b><p class="mini">집을 살 때, 전월세를 구할 때 필요한 제도를 모았습니다. 항목을 펼쳐 대상 조건과 공식 안내를 확인하세요.</p><div class="chips" aria-label="주거정보 분류"><button type="button" class="chip on" data-info-filter="all" aria-pressed="true">전체</button><button type="button" class="chip" data-info-filter="buy" aria-pressed="false">내 집 마련</button><button type="button" class="chip" data-info-filter="rent" aria-pressed="false">전월세</button><button type="button" class="chip" data-info-filter="contract" aria-pressed="false">계약 준비</button></div><div class="mini">확인일 이후 조건이 바뀔 수 있습니다. 신청 전 공식 안내의 최신 기준을 확인하세요.</div></div><details class="card info-card first-home-guide" data-info-kind="buy" id="firstHomeGuide"><summary><span>첫 집을 사기 전,<br>꼭 확인할 4가지<span class="guide-caption">혜택부터 준비할 현금, 계약 순서까지</span></span></summary>
+<div class="section hide" id="tab-info"><div class="card"><b>알아두면 좋은 주거정보</b><p class="mini">항목을 펼쳐 대상 조건과 공식 안내를 확인하세요.</p><div class="chips" aria-label="주거정보 분류"><button type="button" class="chip on" data-info-filter="all" aria-pressed="true">전체</button><button type="button" class="chip" data-info-filter="buy" aria-pressed="false">내 집 마련</button><button type="button" class="chip" data-info-filter="rent" aria-pressed="false">전월세</button><button type="button" class="chip" data-info-filter="contract" aria-pressed="false">계약 준비</button></div><div class="mini">확인일 이후 조건이 바뀔 수 있습니다. 신청 전 공식 안내의 최신 기준을 확인하세요.</div></div><details class="card info-card first-home-guide" data-info-kind="buy" id="firstHomeGuide"><summary><span>첫 집을 사기 전,<br>꼭 확인할 4가지<span class="guide-caption">혜택부터 준비할 현금, 계약 순서까지</span></span></summary>
 <p class="info-intro">마음에 드는 집을 찾았다면, 계약 전에 아래 순서로 확인해 보세요.</p>
 <dl><dt>1. 내가 생애최초 대상인가?</dt><dd>현재 무주택인지와 본인·배우자의 과거 주택 소유 이력을 먼저 확인하세요. 취득세 감면과 대출 상품의 생애최초 요건은 각각 확인해야 합니다.</dd>
 <dt>2. 어떤 대출을 알아봐야 하나?</dt><dd>디딤돌은 무주택 가구의 구입자금을 지원하는 정책대출이고, 보금자리론은 장기간 고정금리로 상환하는 상품입니다. 소득·자산·주택가격·면적 등 본인에게 적용되는 조건을 확인한 뒤 은행에 상담하세요.</dd>
@@ -442,12 +445,12 @@ details.fold-s[open]>summary{margin-bottom:10px}
 <dt>4. 계약 전에 무엇을 확인해야 하나?</dt><dd>등기부의 소유자·근저당 등 권리관계, 대출 가능 여부, 계약금·잔금 일정을 확인하세요. 대출이 예상보다 적거나 실행되지 않을 때의 처리 조건도 계약 전에 협의하세요.</dd></dl>
 <div class="guide-sources"><a class="info-link" href="https://www.hf.go.kr/ko/sub01/sub01_02_01.do" target="_blank" rel="noopener noreferrer">디딤돌 공식 안내 ↗</a><a class="info-link" href="https://www.hf.go.kr/ko/sub01/sub01_01_01.do" target="_blank" rel="noopener noreferrer">보금자리론 공식 안내 ↗</a><a class="info-link" href="https://www.hf.go.kr/ko/sub01/sub01_10_03.do" target="_blank" rel="noopener noreferrer">계약 준비 공식 안내 ↗</a></div>
 <div class="mini info-date">자료 확인 · 2026.10.05 · 상품별 세부 조건은 아래 개별 항목에서 확인하세요.</div>
-<button type="button" data-go="buy" class="guide-calculate">내 자금으로 매수 계산하기</button></details><details class="card info-card" data-info-kind="buy"><summary>생애최초 취득세 감면</summary><p class="info-intro">첫 집을 구입한다면 감면 대상부터 확인하세요.</p><dl><dt>확인할 조건</dt><dd>본인·배우자의 과거 주택 소유 이력과 취득 주택의 요건을 확인해야 합니다.</dd><dt>신청 전 확인</dt><dd>취득일에 적용되는 감면액, 거주·보유 의무와 추징 조건은 관할 시·군·구 세무부서에 확인하세요.</dd></dl><a class="info-link" href="https://law.go.kr/LSW/admRulLsInfoP.do?admRulId=73402&amp;efYd=0" target="_blank" rel="noopener noreferrer">국가법령정보센터 · 운영기준 ↗</a><div class="mini info-date">공식 자료 확인 · 2026.10.05</div></details><details class="card info-card" data-info-kind="buy"><summary>보금자리론</summary><p class="info-intro">장기간 고정금리로 매수 자금을 준비할 때</p><dl><dt>일반 상품 기준</dt><dd>주택가격 6억원 이하, 부부합산 연소득 7천만원 이하가 기본 기준이며 가구별 예외가 있습니다.</dd><dt>혜택·신청</dt><dd>일반 최대 3.6억원, 생애최초 최대 4.2억원. 실제 금액은 지역·담보·소득 심사에 따라 달라집니다. HF 상품 안내에서 신청절차로 이동하세요.</dd></dl><a class="info-link" href="https://www.hf.go.kr/ko/sub01/sub01_01_01.do" target="_blank" rel="noopener noreferrer">한국주택금융공사 · 상품 안내 ↗</a><div class="mini info-date">공식 자료 확인 · 2026.10.05</div></details><details class="card info-card" data-info-kind="buy"><summary>내집마련 디딤돌대출</summary><p class="info-intro">무주택 가구의 주택 구입을 지원하는 정책대출</p><dl><dt>대상 확인</dt><dd>무주택 세대주를 중심으로 소득·자산·주택가격·면적 요건을 함께 심사합니다.</dd><dt>혜택·신청</dt><dd>일반 최대 2억원, 생애최초 최대 2.4억원, 신혼·2자녀 이상 최대 3.2억원. 신청은 기금e든든 또는 기금 수탁은행에서 진행합니다.</dd></dl><a class="info-link" href="https://www.hf.go.kr/ko/sub01/sub01_02_01.do" target="_blank" rel="noopener noreferrer">한국주택금융공사 · 상품 안내 ↗</a><div class="mini info-date">공식 자료 확인 · 2026.10.05</div></details><details class="card info-card" data-info-kind="rent"><summary>버팀목 전세자금대출</summary><p class="info-intro">전세보증금 대출이 필요한 무주택 가구</p><dl><dt>일반 상품 기준</dt><dd>부부합산 연소득 5천만원 이하가 기본이며 가구별 예외가 있습니다. 세대주·자산·대상 주택 요건도 확인하세요.</dd><dt>혜택·신청</dt><dd>일반 상품은 수도권 최대 1.2억원, 그 외 최대 8천만원. 청년·신혼부부 상품은 조건이 다릅니다. 기금e든든 또는 수탁은행에 신청하세요.</dd></dl><a class="info-link" href="https://www.myhome.go.kr/hws/portal/cont/selectSupLeaseLoanView.do" target="_blank" rel="noopener noreferrer">마이홈 · 버팀목 안내 ↗</a><div class="mini info-date">공식 자료 확인 · 2026.10.05</div></details><details class="card info-card" data-info-kind="rent"><summary>전세보증금 반환보증</summary><p class="info-intro">계약 종료 후 보증금 반환에 대비할 때</p><dl><dt>무엇을 확인하나요?</dt><dd>대출보증과 보증금 반환보증은 역할이 다릅니다. 반환보증은 임대인이 돌려주지 않은 보증금의 반환을 보장하는 상품입니다.</dd><dt>가입 전 확인</dt><dd>신청기한, 주택가격 대비 보증금과 선순위 채권, 보증료를 확인하세요. 보증부 월세도 별도 요건에 따라 확인할 수 있습니다.</dd></dl><a class="info-link" href="https://www.khug.or.kr/hug/web/ig/dr/igdr000001.jsp" target="_blank" rel="noopener noreferrer">HUG · 반환보증 안내 ↗</a><div class="mini info-date">공식 자료 확인 · 2026.10.05</div></details><details class="card info-card" data-info-kind="rent"><summary>월세자금 지원 찾기</summary><p class="info-intro">월세 대출과 주거지원은 별도로 확인하세요.</p><dl><dt>대상 확인</dt><dd>취업준비생·사회초년생 등에게 적용되는 월세대출 상품이 있습니다. 나이·소득·대상 주택 요건을 확인하세요.</dd><dt>신청 전 확인</dt><dd>월세대출은 상환해야 하는 자금입니다. 월세 지원금과 구분해 마이홈 공식 안내에서 본인에게 맞는 제도를 확인하세요.</dd></dl><a class="info-link" href="https://www.myhome.go.kr/hws/portal/cont/selectResidentialMonthlyRentLoanView.do" target="_blank" rel="noopener noreferrer">마이홈 · 주거안정 월세대출 ↗</a><div class="mini info-date">공식 자료 확인 · 2026.10.05</div></details>
+<button type="button" data-go="buy" class="guide-calculate">내 자금으로 매수 계산하기</button></details><details class="card info-card" data-info-kind="buy"><summary>생애최초 취득세 감면</summary><p class="info-intro">첫 집을 구입한다면 감면 대상부터 확인하세요.</p><dl><dt>확인할 조건</dt><dd>본인·배우자의 과거 주택 소유 이력과 취득 주택의 요건을 확인해야 합니다.</dd><dt>신청 전 확인</dt><dd>취득일에 적용되는 감면액, 거주·보유 의무와 추징 조건은 관할 시·군·구 세무부서에 확인하세요.</dd></dl><a class="info-link" href="https://law.go.kr/LSW/admRulLsInfoP.do?admRulId=73402&amp;efYd=0" target="_blank" rel="noopener noreferrer">국가법령정보센터 · 운영기준 ↗</a><div class="mini info-date">공식 자료 확인 · 2026.10.07</div></details><details class="card info-card" data-info-kind="buy"><summary>보금자리론</summary><p class="info-intro">장기간 고정금리로 매수 자금을 준비할 때</p><dl><dt>일반 상품 기준</dt><dd>주택가격 6억원 이하, 부부합산 연소득 7천만원 이하가 기본 기준이며 가구별 예외가 있습니다.</dd><dt>혜택·신청</dt><dd>일반 최대 3.6억원, 생애최초 최대 4.2억원. 실제 금액은 지역·담보·소득 심사에 따라 달라집니다. HF 상품 안내에서 신청절차로 이동하세요.</dd></dl><a class="info-link" href="https://www.hf.go.kr/ko/sub01/sub01_01_01.do" target="_blank" rel="noopener noreferrer">한국주택금융공사 · 상품 안내 ↗</a><div class="mini info-date">공식 자료 확인 · 2026.10.05</div></details><details class="card info-card" data-info-kind="buy"><summary>내집마련 디딤돌대출</summary><p class="info-intro">무주택 가구의 주택 구입을 지원하는 정책대출</p><dl><dt>대상 확인</dt><dd>무주택 세대주를 중심으로 소득·자산·주택가격·면적 요건을 함께 심사합니다.</dd><dt>혜택·신청</dt><dd>일반 최대 2억원, 생애최초 최대 2.4억원, 신혼·2자녀 이상 최대 3.2억원. 신청은 기금e든든 또는 기금 수탁은행에서 진행합니다.</dd></dl><a class="info-link" href="https://www.hf.go.kr/ko/sub01/sub01_02_01.do" target="_blank" rel="noopener noreferrer">한국주택금융공사 · 상품 안내 ↗</a><div class="mini info-date">공식 자료 확인 · 2026.10.05</div></details><details class="card info-card" data-info-kind="rent"><summary>버팀목 전세자금대출</summary><p class="info-intro">전세보증금 대출이 필요한 무주택 가구</p><dl><dt>일반 상품 기준</dt><dd>부부합산 연소득 5천만원 이하가 기본이며 가구별 예외가 있습니다. 세대주·자산·대상 주택 요건도 확인하세요.</dd><dt>혜택·신청</dt><dd>일반 상품은 수도권 최대 1.2억원, 그 외 최대 8천만원. 청년·신혼부부 상품은 조건이 다릅니다. 기금e든든 또는 수탁은행에 신청하세요.</dd></dl><a class="info-link" href="https://www.myhome.go.kr/hws/portal/cont/selectSupLeaseLoanView.do" target="_blank" rel="noopener noreferrer">마이홈 · 버팀목 안내 ↗</a><div class="mini info-date">공식 자료 확인 · 2026.10.05</div></details><details class="card info-card" data-info-kind="rent"><summary>전세보증금 반환보증</summary><p class="info-intro">계약 종료 후 보증금 반환에 대비할 때</p><dl><dt>무엇을 확인하나요?</dt><dd>대출보증과 보증금 반환보증은 역할이 다릅니다. 반환보증은 임대인이 돌려주지 않은 보증금의 반환을 보장하는 상품입니다.</dd><dt>가입 전 확인</dt><dd>신청기한, 주택가격 대비 보증금과 선순위 채권, 보증료를 확인하세요. 보증부 월세도 별도 요건에 따라 확인할 수 있습니다.</dd></dl><a class="info-link" href="https://www.khug.or.kr/hug/web/ig/dr/igdr000001.jsp" target="_blank" rel="noopener noreferrer">HUG · 반환보증 안내 ↗</a><div class="mini info-date">공식 자료 확인 · 2026.10.05</div></details><details class="card info-card" data-info-kind="rent"><summary>월세자금 지원 찾기</summary><p class="info-intro">월세 대출과 주거지원은 별도로 확인하세요.</p><dl><dt>대상 확인</dt><dd>취업준비생·사회초년생 등에게 적용되는 월세대출 상품이 있습니다. 나이·소득·대상 주택 요건을 확인하세요.</dd><dt>신청 전 확인</dt><dd>월세대출은 상환해야 하는 자금입니다. 월세 지원금과 구분해 마이홈 공식 안내에서 본인에게 맞는 제도를 확인하세요.</dd></dl><a class="info-link" href="https://www.myhome.go.kr/hws/portal/cont/selectResidentialMonthlyRentLoanView.do" target="_blank" rel="noopener noreferrer">마이홈 · 주거안정 월세대출 ↗</a><div class="mini info-date">공식 자료 확인 · 2026.10.05</div></details>
 <details class="card info-card" data-info-kind="contract"><summary>계약 전 확인할 것</summary><dl><dt>매수 자금</dt><dd>계약금·잔금 일정에 맞춰 대출 승인과 실행일을 확인하고, 취득세·중개비 등 별도 비용을 준비하세요.</dd><dt>전월세 보증금</dt><dd>등기부의 소유자·권리관계, 계약 상대방과 보증금 반환보증 가입 가능 여부를 확인하세요.</dd><dt>공식 안내</dt><dd>HF 계약 준비 안내와 HUG 반환보증 안내에서 준비사항을 확인할 수 있습니다.</dd></dl><a class="info-link" href="https://www.hf.go.kr/ko/sub01/sub01_10_03.do" target="_blank" rel="noopener noreferrer">HF 계약 준비 안내 ↗</a><div class="grid2"><button type="button" class="ghost" data-go="buy">매수 계산하기</button><button type="button" class="ghost" data-go="jeonse">전월세 계산하기</button></div></details>
 <div class="card"><b>지역별 지원·모집 공고</b><p class="mini">지자체 지원과 공공임대 모집은 지역·접수기간에 따라 다릅니다. 마이홈에서 관심 지역의 최신 공고를 확인하세요.</p><a class="info-link" href="https://www.myhome.go.kr/hws/portal/sch/selectRsdtRcritNtcView.do" target="_blank" rel="noopener noreferrer">마이홈 모집 공고 보기 ↗</a></div></div>
 </div>
 <nav class="bottom">
-  <button type="button" id="nav-home" class="active" data-tab="home"><svg viewBox="0 0 24 24"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/></svg><span>홈</span></button>
+  <button type="button" id="nav-home" class="active" data-tab="home"><svg viewBox="0 0 24 24"><path d="M3 11 12 3l9 8"/><path d="M5 10v11h14V10"/></svg><span>홈</span></button>
   <button type="button" id="nav-search" data-tab="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>검색</span></button>
   <button type="button" id="nav-buy" data-tab="buy"><svg viewBox="0 0 24 24"><path d="M5 21V4h10v17"/><path d="M15 9h4v12"/><path d="M8 8h4M8 12h4M8 16h4"/><path d="M3 21h18"/></svg><span>매수</span></button>
   <button type="button" id="nav-jeonse" data-tab="jeonse"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg><span>전월세</span></button>
@@ -571,6 +574,7 @@ function renderSelectedSummary(price,cash,ltv){
   let cls='warn';
   if(score>=4){verdict='조건이 잘 맞는 매수 후보';cls='good'}
   else if(score<=0){verdict='현재 조건에서는 자금계획 조정이 필요합니다';cls='bad'}
+  if(!Number.isFinite(short)){verdict='자금조건 입력 후 매수 가능성을 확인하세요';cls='idle';}
   $('selectedVerdict').textContent=verdict;
   $('selectedVerdict').className=cls;
 
@@ -662,9 +666,9 @@ function calcBuy(){
   const bad = [];
   if (!(price > 0)) bad.push('목표 매수가');
   if (!(cash >= 0)) bad.push('가용 현금');
-  if (!(rate >= 0)) bad.push('금리');
+  if (ltv>0 && !(rate >= 0)) bad.push('금리');
   if (!(ltv >= 0 && ltv <= 100)) bad.push('LTV(0~100)');
-  if (!(years >= 1)) bad.push('상환기간');
+  if (ltv>0 && !(years >= 1)) bad.push('상환기간');
   if (isNaN(price) && isNaN(cash)) { clearKpis(kp); return render('buyDecision', [['mini','자금조건을 입력하면 매수 가능성을 계산합니다. 단지검색에서 특정 단지를 선택하면 실거래·전세가율까지 함께 분석합니다.']]); }
   if (bad.length) return invalid('buyDecision', kp, bad);
 
@@ -672,8 +676,8 @@ function calcBuy(){
   const costs = estimatedBuyCosts(price,areaForCost);
   const need = Math.max(0, price - loan + costs.total);
   const N = Math.round(years * 12), mr = rate / 100 / 12, loanM = loan * 10000;
-  const pay = mr === 0 ? loanM / N : loanM * mr * Math.pow(1 + mr, N) / (Math.pow(1 + mr, N) - 1);
-  const int1 = loanM * mr, prin1 = pay - int1;
+  const pay = loan===0 ? 0 : mr === 0 ? loanM / N : loanM * mr * Math.pow(1 + mr, N) / (Math.pow(1 + mr, N) - 1);
+  const int1 = loan===0?0:loanM * mr, prin1 = pay - int1;
 
   setKpi('k-loan', eok(loan));
   setKpi('k-cost', eok(costs.total));
@@ -717,6 +721,7 @@ function calcBuy(){
 
 function setJeonseMode(mode){
   JMODE=mode;
+  if(window.housingInitialized)try{localStorage.setItem('dbh:jmode',mode);}catch(e){}
   $('jMove').classList.toggle('hide',mode!=='move');
   $('jRenew').classList.toggle('hide',mode!=='renew');
   $('jRent').classList.toggle('hide',mode!=='rent');
@@ -758,6 +763,7 @@ function selectCurrentForJeonse(){
   calcJeonse();calcHousingCompare();
   setJeonseMode('move');
   showTab('jeonse');
+  $('jSummaryCard').closest('details').open=true;
   requestAnimationFrame(()=>$('jSummaryCard').scrollIntoView({behavior:'smooth',block:'start'}));
 }
 function clearJSelected(){
@@ -767,16 +773,16 @@ function clearJSelected(){
 }
 function calcJeonse(){
   const cash=num('cashJ'), depositRaw=num('deposit'), deposit=isNaN(depositRaw)?0:depositRaw, limit=Number.isNaN(num('loanLimit'))?0:num('loanLimit'), rateJ=Number.isNaN(num('rateJ'))&&limit===0?0:num('rateJ');
-  const vals=[cash,limit,rateJ];
+  const vals=[cash,limit,optionalNumber('moveCost')];
   const actualInput=num('actualJeonse');
   const ready=vals.every(v=>Number.isFinite(v)&&v>=0)&&deposit>=0&&(isNaN(actualInput)||actualInput>0);
   if(ready){
-    const maxJ=deposit+cash+limit;
+    const maxJ=deposit+Math.max(0,cash-optionalNumber('moveCost')/10000)+limit;
     setKpi('j-base',eok(deposit));
     setKpi('j-loan',eok(limit));
     setKpi('j-cash',eok(cash));
     setKpi('j-max',eok(maxJ),'good');
-    $('jRangeNote').textContent=eok(deposit)+' 보증금 + '+eok(cash)+' 추가 현금 + '+eok(limit)+' 전세대출 = 최대 '+eok(maxJ)+'까지 검토 가능합니다.';
+    $('jRangeNote').textContent=eok(deposit)+' 보증금 + '+eok(cash)+' 추가 현금 + '+eok(limit)+' 전세대출에서 이사·중개비를 확보하면 최대 '+eok(maxJ)+'까지 검토 가능합니다.';
     $('jRangeNote').className='status good';
   }else{
     setKpi('j-base',eok(deposit));
@@ -793,14 +799,12 @@ function calcJeonse(){
     $('jRangeNote').className='status warn';
   }
 
-  if(JSELECTED&&ready){
+  const js=housingScenario('jeonse');
+  if(JSELECTED&&ready&&js){
     const actual=num('actualJeonse');
     const j=actual>0?actual:JSELECTED.jeonse;
-    const gap=Math.max(0,j-deposit);
-    const loan=Math.min(limit,Math.max(0,gap-cash));
-    const self=Math.max(0,gap-loan);
-    const short=Math.max(0,self-cash);
-    const interest=loan*10000*rateJ/100/12;
+    const loan=js.loan/10000,self=js.own/10000,short=js.short/10000;
+    const interest=loan*10000*(loan>0?rateJ:0)/100/12;
     const ratio=(JSELECTED.sale>0)?j/JSELECTED.sale*100:NaN;
     setKpi('j-price',eok(j));
     setKpi('j-use-loan',eok(loan));
@@ -821,7 +825,7 @@ function calcJeonse(){
     const L=[];
     L.push(['',{b:JSELECTED.complexName},' · '+JSELECTED.area+'㎡형 · 최근 '+(JSELECTED.months||3)+'개월 신규 전세 '+JSELECTED.jeonseCount+'건']);
     L.push(['','분석에 적용한 전세금은 ',{b:eok(j)},'입니다.']);
-    L.push(['','현재 보증금 '+eok(deposit)+'을 돌려받고 전세대출 '+eok(loan)+'을 쓰면 추가로 준비할 자기자금은 ',{b:eok(self)},'입니다.']);
+    L.push(['','현재 보증금 '+eok(deposit)+'을 돌려받고 전세대출 '+eok(loan)+'을 쓰면 이사·중개비를 포함해 준비할 현금은 ',{b:eok(self)},'입니다.']);
     if(short>0)L.push(['bad','현재 추가 현금보다 ',{b:eok(short)},' 부족합니다.']);
     else L.push(['good','현재 입력한 자금으로 전세금 마련이 가능합니다.']);
     L.push(['','예상 전세대출 월 이자는 약 ',{b:Math.round(interest).toLocaleString('ko-KR')+'만원'},'입니다.']);
@@ -836,7 +840,7 @@ function calcJeonse(){
 
     const plan=$('jPlan');
     if(short>0){
-      const affordable=deposit+cash+limit;
+      const affordable=deposit+Math.max(0,cash-optionalNumber('moveCost')/10000)+limit;
       plan.textContent='이 단지가 불가능하다는 뜻은 아닙니다. 현재 조건에서는 약 '+eok(affordable)+' 이하 전세가 현실적인 범위입니다. 이 단지를 유지하려면 현금 '+eok(short)+'을 더 준비하거나 전세대출 가능 한도를 다시 확인해야 합니다. 아래 추천에서 현재 자금으로 가능한 단지를 바로 찾아볼 수 있습니다.';
       plan.className='status warn';
     }else{
@@ -848,117 +852,20 @@ function calcJeonse(){
     $('jSummaryCard').classList.add('hide');
   }
 
-  // 현재 조건 vs 재계약 비교
-  const curD=num('curDeposit'),curR=num('curRent'),newD=num('renewDeposit'),newR=num('renew');
-  const renewRateRaw=num('renewRate'),renewRate=isNaN(renewRateRaw)?0:renewRateRaw;
-  const moveCostRaw=num('moveCost'),moveCost=isNaN(moveCostRaw)?0:moveCostRaw;
-  const renewReady=[curD,curR,newD,newR,renewRate,moveCost,num('renewCash')||0].every(v=>Number.isFinite(v)&&v>=0);
-  if(renewReady){
-    const depDiff=newD-curD;
-    const renewCash=Math.min(Math.max(0,num('renewCash')||0),Math.max(0,depDiff));
-    const financedExtra=Math.max(0,depDiff-renewCash);
-    const renewFinMonth=financedExtra*10000*renewRate/100/12;
-    const curMonthly=curR;
-    const renewMonthly=newR+renewFinMonth;
-    const cur2y=curMonthly*24;
-    const renew2y=renewMonthly*24;
-    const rentDiff=newR-curR, y=rentDiff*12, y2=rentDiff*24;
-
-    setKpi('r-deposit',(depDiff>=0?'+':'')+eok(depDiff));
-    setKpi('r-rent',(rentDiff>=0?'+':'')+Math.round(rentDiff).toLocaleString('ko-KR')+'만',rentDiff>0?'bad':'good');
-    setKpi('r-year',(y>=0?'+':'')+Math.round(y).toLocaleString('ko-KR')+'만');
-    setKpi('r-2year',(y2>=0?'+':'')+Math.round(y2).toLocaleString('ko-KR')+'만');
-
-    $('cmp-cur-dep').textContent=eok(curD);
-    $('cmp-ren-dep').textContent=eok(newD);
-    $('cmp-cur-rent').textContent=Math.round(curR).toLocaleString('ko-KR')+'만';
-    $('cmp-ren-rent').textContent=Math.round(newR).toLocaleString('ko-KR')+'만';
-    $('cmp-ren-extra').textContent=depDiff>0?eok(depDiff):'0억';
-    $('cmp-ren-fin').textContent=Math.round(renewFinMonth).toLocaleString('ko-KR')+'만';
-    $('cmp-cur-month').textContent=Math.round(curMonthly).toLocaleString('ko-KR')+'만';
-    $('cmp-ren-month').textContent=Math.round(renewMonthly).toLocaleString('ko-KR')+'만';
-    $('cmp-cur-2y').textContent=Math.round(cur2y).toLocaleString('ko-KR')+'만';
-    $('cmp-ren-2y').textContent=Math.round(renew2y).toLocaleString('ko-KR')+'만';
-
-    const R=[];
-    if(depDiff>0)R.push(['warn','보증금이 ',{b:eok(depDiff)},' 늘고, 입력한 금리 기준 월 금융비용은 약 '+Math.round(renewFinMonth).toLocaleString('ko-KR')+'만원입니다.']);
-    else if(depDiff<0)R.push(['good','보증금이 ',{b:eok(Math.abs(depDiff))},' 줄어듭니다.']);
-    else R.push(['','보증금은 현재와 같습니다.']);
-    const monthlyGap=renewMonthly-curMonthly;
-    if(monthlyGap>0)R.push(['bad','재계약 후 월 실질 부담이 현재보다 약 ',{b:Math.round(monthlyGap).toLocaleString('ko-KR')+'만원'},' 증가합니다.']);
-    else if(monthlyGap<0)R.push(['good','재계약 후 월 실질 부담이 현재보다 약 ',{b:Math.abs(Math.round(monthlyGap)).toLocaleString('ko-KR')+'만원'},' 줄어듭니다.']);
-    else R.push(['good','재계약 후 월 실질 부담은 현재와 거의 같습니다.']);
-    render('renewDecision',R);
-
-    const rp=$('renewPlan');
-    const gap2y=renew2y-cur2y;
-    if(gap2y>0){
-      rp.textContent='재계약은 현재보다 2년 기준 약 '+Math.round(gap2y).toLocaleString('ko-KR')+'만원 부담이 늘어납니다. 새 전세 후보가 있다면 아래 비교표에서 함께 확인하세요.';
-      rp.className='status warn';
-    }else{
-      rp.textContent='재계약은 현재보다 2년 기준 약 '+Math.abs(Math.round(gap2y)).toLocaleString('ko-KR')+'만원 부담이 낮거나 비슷합니다. 이사비용까지 고려하면 유지 쪽이 유리할 수 있습니다.';
-      rp.className='status good';
-    }
-
-    // 재계약 vs 새 전세
-    const mcStatus=$('moveCompareStatus'),mcWrap=$('moveCompareWrap');
-    if(JSELECTED&&ready){
-      const actual=num('actualJeonse'), movePrice=actual>0?actual:JSELECTED.jeonse;
-      const gap=Math.max(0,movePrice-deposit);
-      const moveLoan=Math.min(limit,Math.max(0,gap-cash));
-      const moveCash=Math.max(0,gap-moveLoan);
-      const moveInterest=moveLoan*10000*rateJ/100/12;
-      const move2y=moveInterest*24+moveCost;
-
-      $('cmp2-ren-dep').textContent=eok(newD);
-      $('cmp2-move-dep').textContent=eok(movePrice);
-      $('cmp2-ren-loan').textContent=financedExtra>0?eok(financedExtra):'0억';
-      $('cmp2-move-loan').textContent=eok(moveLoan);
-      $('cmp2-ren-cash').textContent=eok(renewCash);
-      $('cmp2-move-cash').textContent=eok(moveCash);
-      $('cmp2-ren-month').textContent=Math.round(renewMonthly).toLocaleString('ko-KR')+'만';
-      $('cmp2-move-month').textContent=Math.round(moveInterest).toLocaleString('ko-KR')+'만';
-      $('cmp2-ren-2y').textContent=Math.round(renew2y).toLocaleString('ko-KR')+'만';
-      $('cmp2-move-2y').textContent=Math.round(move2y).toLocaleString('ko-KR')+'만';
-      $('cmp2-move-cost').textContent=Math.round(moveCost).toLocaleString('ko-KR')+'만';
-
-      mcStatus.textContent=JSELECTED.complexName+' · '+JSELECTED.area+'㎡형과 재계약 조건을 비교합니다.';
-      mcStatus.className='status good';
-      mcWrap.classList.remove('hide');
-
-      const diff=move2y-renew2y;
-      const md=$('moveCompareDecision');
-      if(moveCash>cash){
-        md.textContent='새 전세는 현재 현금보다 '+eok(moveCash-cash)+' 부족합니다. 자금을 충족하기 전에는 비용만으로 이동을 결정하기 어렵습니다.';
-        md.className='status bad';
-      }else if(Math.abs(diff)<100){
-        md.textContent='2년 기준 비용 차이가 약 '+Math.abs(Math.round(diff)).toLocaleString('ko-KR')+'만원으로 크지 않습니다. 자금 여유, 이사 번거로움, 주거 선호를 함께 보는 편이 좋습니다.';
-        md.className='status idle';
-      }else if(diff<0){
-        md.textContent='새 전세가 2년 기준 약 '+Math.abs(Math.round(diff)).toLocaleString('ko-KR')+'만원 저렴합니다. 다만 추가 자기자금 '+eok(moveCash)+'과 보증금 안전성을 함께 확인하세요.';
-        md.className='status good';
-      }else{
-        md.textContent='재계약이 2년 기준 약 '+Math.round(diff).toLocaleString('ko-KR')+'만원 저렴합니다. 현재 집 만족도가 낮지 않다면 재계약 우선 검토가 합리적입니다.';
-        md.className='status good';
-      }
-    }else{
-      mcWrap.classList.add('hide');
-      if(!JSELECTED){
-        mcStatus.textContent='비교할 새 전세 단지를 먼저 선택하세요. 단지검색 또는 새 전세 찾기에서 선택할 수 있습니다.';
-      }else{
-        mcStatus.textContent='새 전세의 추가 현금·대출한도·금리를 입력하면 비교표가 완성됩니다.';
-      }
-      mcStatus.className='status idle';
-    }
+  const rs=housingScenario('renew'),curD=num('curDeposit'),curR=num('curRent'),newD=num('renewDeposit'),newR=num('renew');
+  const ids=['cmp-cur-dep','cmp-ren-dep','cmp-cur-rent','cmp-ren-rent','cmp-ren-extra','cmp-ren-fin','cmp-cur-month','cmp-ren-month','cmp-cur-2y','cmp-ren-2y'];
+  if(rs&&Number.isFinite(curR)&&curR>=0&&optionalNumber('curMonthlyExtra')>=0){
+    const diff=newD-curD,rentDiff=newR-curR,curMonthly=curR+optionalNumber('curMonthlyExtra'),renewMonthly=rs.monthly;
+    setKpi('r-deposit',(diff>=0?'+':'')+eok(diff));setKpi('r-rent',(rentDiff>=0?'+':'')+man(rentDiff));setKpi('r-year',man(rentDiff*12));setKpi('r-2year',man(rentDiff*24));
+    const values=[eok(curD),eok(newD),man(curR),man(newR),eok(Math.max(0,diff)),man(rs.loan*optionalNumber('renewRate')/100/12),man(curMonthly),man(renewMonthly),man(curMonthly*24),man(rs.two)];
+    ids.forEach((id,i)=>$(id).textContent=values[i]);
+    render('renewDecision',[[rs.short>0?'bad':'',rs.short>0?'추가 자금 '+man(rs.short)+'이 부족합니다. 입력한 추가 대출 가능 금액까지만 반영했습니다.':'입력한 현금과 추가 대출금으로 보증금을 마련할 수 있습니다.'],['','재계약 월 주거비는 월세·추가 대출 이자·관리비·기존 대출 이자를 합산합니다.']]);
+    const gap=rs.two-curMonthly*24;
+    $('renewPlan').textContent=rs.short>0?'보증금 부족액을 먼저 해결한 뒤 월 비용을 비교하세요.':'현재 월 주거비 대비 재계약의 2년 비용은 '+man(Math.abs(gap))+(gap>0?' 늘어납니다.':' 줄거나 같습니다.')+' 현재 집 관리비·기존 이자는 선택 입력에서 반영할 수 있습니다.';
+    $('renewPlan').className='status '+(rs.short>0||gap>0?'warn':'good');
   }else{
-    ['r-deposit','r-rent','r-year','r-2year'].forEach(id=>setKpi(id,'-'));
-    ['cmp-cur-dep','cmp-ren-dep','cmp-cur-rent','cmp-ren-rent','cmp-ren-extra','cmp-ren-fin','cmp-cur-month','cmp-ren-month','cmp-cur-2y','cmp-ren-2y'].forEach(id=>{$(id).textContent='-'});
-    $('renewDecision').textContent='';
-    $('renewPlan').textContent=moveCost<0||(num('renewCash')<0)||renewRate<0?'금리·현금·이사비는 0 이상으로 입력하세요.':'현재 보증금·월세와 집주인 제안조건을 입력하면 실제 비교표가 완성됩니다.';
-    $('renewPlan').className='status idle';
-    $('moveCompareWrap').classList.add('hide');
-    $('moveCompareStatus').textContent='새 전세 단지를 선택하고 전세 자금조건을 입력하면 비교표가 완성됩니다.';
-    $('moveCompareStatus').className='status idle';
+    ['r-deposit','r-rent','r-year','r-2year'].forEach(id=>setKpi(id,'-'));ids.forEach(id=>$(id).textContent='-');$('renewDecision').textContent='';
+    $('renewPlan').textContent='현재·제안 보증금과 월세를 입력하세요. 추가 대출을 사용하면 가능 금액과 금리를 입력하세요. 금액은 0 이상이어야 합니다.';$('renewPlan').className='status idle';
   }
 }
 
@@ -967,37 +874,47 @@ function housingCost(deposit,recovered,cash,loan,rate,rent,mgmt,cost){
   const monthly=rent+loan*10000*rate/100/12+mgmt;
   return {deposit:deposit*10000,loan:loan*10000,own,short:Math.max(0,own-cash*10000),monthly,two:monthly*24+cost,cost};
 }
+function optionalNumber(id){const n=num(id);return Number.isNaN(n)?0:n;}
+function housingScenario(kind){
+ const z=optionalNumber, required=ids=>ids.every(id=>Number.isFinite(num(id))&&num(id)>=0), optional=ids=>ids.every(id=>Number.isFinite(z(id))&&z(id)>=0);
+ let deposit,recovered,cash,loan,rate,rent,mgmt,cost;
+ if(kind==='rent'){
+  if(!required(['rentCash','rentDeposit','rentMonthly'])||!optional(['rentRecovered','rentLoan','rentRate','rentMgmt','rentMoveCost']))return null;
+  deposit=num('rentDeposit');recovered=z('rentRecovered');cash=num('rentCash');loan=z('rentLoan');rate=num('rentRate');rent=num('rentMonthly');mgmt=z('rentMgmt');cost=z('rentMoveCost');
+  if(loan>deposit)return null;
+ }else if(kind==='jeonse'){
+  deposit=Number.isNaN(num('actualJeonse'))?JSELECTED?.jeonse:num('actualJeonse');
+  if(!(deposit>0)||!required(['cashJ'])||!optional(['deposit','loanLimit','rateJ','jeonseMgmt','moveCost']))return null;
+  recovered=z('deposit');cash=num('cashJ');cost=z('moveCost');loan=Math.min(z('loanLimit'),Math.max(0,deposit-recovered-Math.max(0,cash-cost/10000)));rate=num('rateJ');rent=0;mgmt=z('jeonseMgmt');
+ }else{
+  if(!required(['curDeposit','renewDeposit','renew'])||!optional(['renewCash','renewLoanLimit','renewRate','renewMgmt','renewExistingInterest']))return null;
+  deposit=num('renewDeposit');recovered=num('curDeposit');cash=z('renewCash');cost=0;loan=Math.min(z('renewLoanLimit'),Math.max(0,deposit-recovered-cash));rate=num('renewRate');rent=num('renew')+z('renewExistingInterest');mgmt=z('renewMgmt');
+ }
+ if(loan>0&&!(Number.isFinite(rate)&&rate>=0))return null;
+ return housingCost(deposit,recovered,cash,loan,loan>0?rate:0,rent,mgmt,cost);
+}
 function calcHousingCompare(){
-  const v=id=>num(id),z=id=>{const x=v(id);return Number.isNaN(x)?0:x;};
-  const optional=ids=>ids.every(id=>Number.isFinite(z(id))&&z(id)>=0);
-  const required=ids=>ids.every(id=>Number.isFinite(v(id))&&v(id)>=0);
-  let rent=null,jeonse=null,renewal=null;
-  const ro=['rentRecovered','rentLoan','rentRate','rentMgmt','rentMoveCost'];
-  if(required(['rentCash','rentDeposit','rentMonthly'])&&optional(ro)&&z('rentLoan')<=v('rentDeposit')){
-    rent=housingCost(v('rentDeposit'),z('rentRecovered'),v('rentCash'),z('rentLoan'),z('rentRate'),v('rentMonthly'),z('rentMgmt'),z('rentMoveCost'));
-  }
+  const rent=housingScenario('rent'),jeonse=housingScenario('jeonse'),renewal=housingScenario('renew');
   ['rentOwn','rentShort','rentMonth','rentTwo'].forEach((id,i)=>setKpi(id,rent?man([rent.own,rent.short,rent.monthly,rent.two][i]):'-'));
-  $('rentStatus').textContent=rent?(rent.short>0?'추가 자금 '+man(rent.short)+'이 필요합니다.':'입력한 현금과 대출금으로 보증금 및 이사비를 충당할 수 있습니다.'):'추가 현금·보증금·월세를 입력하세요. 금액은 0 이상, 대출금은 보증금 이하로 입력하세요.';
+  $('rentStatus').textContent=rent?(rent.short>0?'추가 자금 '+man(rent.short)+'이 필요합니다.':'입력한 자금으로 보증금과 이사비를 충당할 수 있습니다.'):'현금·보증금·월세를 입력하세요. 대출이 있으면 금리를 입력하세요. 대출금은 보증금 이하, 금액은 0 이상이어야 합니다.';
   $('rentStatus').className='status '+(rent?(rent.short>0?'warn':'good'):'idle');
-  const jp=Number.isNaN(v('actualJeonse'))?JSELECTED?.jeonse:v('actualJeonse');
-  if(jp>0&&required(['cashJ'])&&optional(['loanLimit','rateJ','deposit','jeonseMgmt','moveCost'])&&(z('loanLimit')===0||Number.isFinite(v('rateJ')))){
-    const loan=Math.min(z('loanLimit'),Math.max(0,jp-z('deposit')-v('cashJ')));
-    jeonse=housingCost(jp,z('deposit'),v('cashJ'),loan,z('rateJ'),0,z('jeonseMgmt'),z('moveCost'));
-  }
-  if(required(['curDeposit','renewDeposit','renew'])&&optional(['renewCash','renewRate','renewMgmt','renewExistingInterest'])){
-    const extra=Math.max(0,v('renewDeposit')-v('curDeposit')),own=Math.min(extra,z('renewCash')),loan=extra-own;
-    renewal=housingCost(v('renewDeposit'),v('curDeposit'),z('renewCash'),loan,z('renewRate'),v('renew')+z('renewExistingInterest'),z('renewMgmt'),0);
-  }
   ['jeonseQuickOwn','jeonseQuickShort','jeonseQuickMonth','jeonseQuickTwo'].forEach((id,i)=>setKpi(id,jeonse?man([jeonse.own,jeonse.short,jeonse.monthly,jeonse.two][i]):'-'));
   $('jeonseQuickStatus').textContent=jeonse?(jeonse.short>0?'자금이 '+man(jeonse.short)+' 부족합니다.':'입력한 자금으로 보증금과 이사비를 충당할 수 있습니다.'):'현금과 새 전세금을 입력하세요. 대출을 사용하면 한도와 금리도 입력하세요.';
   $('jeonseQuickStatus').className='status '+(jeonse?(jeonse.short>0?'warn':'good'):'idle');
   const rows=[['보증금','deposit'],['대출금','loan'],['추가 필요 현금','own'],['자금 부족액','short'],['월 주거비','monthly'],['2년 예상 비용','two'],['이사·중개비','cost']];
   const choices=[['compareJeonse','새 전세',jeonse],['compareRent','새 월세',rent],['compareRenew','재계약',renewal]].filter(([id])=>$(id).checked);
+  const complete=choices.filter(x=>x[2]),summary=$('housingCompareSummary');
+  summary.className='status idle';
+  if(complete.length!==choices.length)summary.textContent='선택한 항목의 조건을 입력하면 비용 차이를 확인할 수 있습니다.';
+  else if(!complete.length)summary.textContent='비교할 항목을 선택하세요.';
+  else if(complete.some(x=>x[2].short>0)){summary.textContent=complete.filter(x=>x[2].short>0).map(x=>x[1]+' 자금 부족 '+man(x[2].short)).join(' · ')+'. 부족액을 먼저 확인하세요.';summary.className='status warn';}
+  else if(complete.length>1){const sorted=[...complete].sort((a,b)=>a[2].two-b[2].two);summary.textContent=sorted[0][1]+'의 2년 예상 비용이 가장 낮습니다. 가장 높은 조건과 차이는 '+man(sorted.at(-1)[2].two-sorted[0][2].two)+'입니다. 주거 조건과 보증금 안전성도 함께 확인하세요.';}
+  else summary.textContent=complete[0][1]+' 조건만 표시합니다.';
   const head=$('housingCompareHead');head.textContent='';
   const hr=document.createElement('tr');
   for(const label of ['비교항목',...choices.map(x=>x[1])]){const th=document.createElement('th');th.textContent=label;hr.appendChild(th);}
   head.appendChild(hr);
-  $('housingCompareHint').textContent=choices.length?'선택한 항목의 조건만 입력하면 됩니다. 금액 단위: 만원.':'위에서 보고 싶은 항목을 선택하세요.';
+  $('housingCompareHint').textContent=choices.length?'선택한 항목의 조건만 입력하면 됩니다. 금액은 만원·억원으로 표시합니다. 대출이 있으면 금리도 입력하세요.':'위에서 보고 싶은 항목을 선택하세요.';
   const box=$('housingCompare');box.textContent='';
   if(!choices.length)return;
   for(const [label,key] of rows){
@@ -1016,7 +933,7 @@ function showTab(t){
     $('tab-' + k).classList.toggle('hide', k !== t);
     $('nav-' + k).classList.toggle('active', k === t);
   });
-  const titles={info:['주거정보','주택 구입·전월세 지원과 계약 준비'],home:['집의 기준','실거래로 비교하는 매수 · 전세 · 재계약'],search:['단지 검색','최근 실거래와 전월세 흐름 확인'],buy:['매수 분석','내 자금 · 실거래 · 대출 조건을 한 번에 비교'],jeonse:['전월세 · 재계약','전세·월세 이동과 현재 집 재계약 비교']};
+  const titles={info:['주거정보','주택 구입·전월세 지원과 계약 준비'],home:['집의 기준','실거래로 비교하는 매수 · 전월세 · 재계약'],search:['단지 검색','최근 실거래와 전월세 흐름 확인'],buy:['매수 분석','내 자금 · 실거래 · 대출 조건을 한 번에 비교'],jeonse:['전월세 · 재계약','전세·월세 이동과 현재 집 재계약 비교']};
   const tt=titles[t]||titles.home;
   document.querySelector('.title').textContent=tt[0];
   document.querySelector('.sub').textContent=tt[1];
@@ -1027,7 +944,7 @@ function showTab(t){
 document.querySelectorAll('.bottom button').forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
 
 // 입력값 저장·복원 (실패해도 앱은 동작)
-const FIELDS = ['rentCash','rentRecovered','rentDeposit','rentMonthly','rentLoan','rentRate','rentMgmt','rentMoveCost','jeonseMgmt','renewMgmt','renewExistingInterest','complex','recent','cash','price','jeonse','ltv','rate','years','recScope','recArea','recLoan','recTarget','cashJ','deposit','loanLimit','rateJ','curDeposit','curRent','renewDeposit','renew','renewRate','moveCost','renewCash','actualJeonse'];
+const FIELDS = ['renewLoanLimit','curMonthlyExtra','jRecScope','jRecArea','rentCash','rentRecovered','rentDeposit','rentMonthly','rentLoan','rentRate','rentMgmt','rentMoveCost','jeonseMgmt','renewMgmt','renewExistingInterest','complex','recent','cash','price','jeonse','ltv','rate','years','recScope','recArea','recLoan','recTarget','cashJ','deposit','loanLimit','rateJ','curDeposit','curRent','renewDeposit','renew','renewRate','moveCost','renewCash','actualJeonse'];
 try {
   const saved = JSON.parse(localStorage.getItem('dbh:v4') || '{}');
   FIELDS.forEach(id=>{if(id in saved&&$(id))$(id).value=saved[id];});
@@ -1052,7 +969,7 @@ document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', 
 const TAB_RESET_FIELDS={
   search:['complex'],
   buy:['cash','price','ltv','rate','years','recScope','recArea','recLoan','recTarget'],
-  jeonse:['rentCash','rentRecovered','rentDeposit','rentMonthly','rentLoan','rentRate','rentMgmt','rentMoveCost','jeonseMgmt','renewMgmt','renewExistingInterest','cashJ','deposit','loanLimit','rateJ','curDeposit','curRent','renewDeposit','renew','renewRate','moveCost','renewCash','actualJeonse','jRecScope','jRecArea']
+  jeonse:['renewLoanLimit','curMonthlyExtra','rentCash','rentRecovered','rentDeposit','rentMonthly','rentLoan','rentRate','rentMgmt','rentMoveCost','jeonseMgmt','renewMgmt','renewExistingInterest','cashJ','deposit','loanLimit','rateJ','curDeposit','curRent','renewDeposit','renew','renewRate','moveCost','renewCash','actualJeonse','jRecScope','jRecArea']
 };
 function resetTabInputs(tab){
   const names={search:'검색',buy:'매수',jeonse:'전세 · 재계약'};
@@ -1065,7 +982,7 @@ function resetTabInputs(tab){
   if(tab==='search'){
     DATA=null;SCOPE='';SUB='';TX_KIND='all';
     localStorage.removeItem('dbh:scope');
-    document.querySelectorAll('#chips .chip').forEach(x=>x.classList.toggle('on',false));
+    document.querySelectorAll('#chips .chip').forEach(x=>x.classList.toggle('on',x===document.querySelector('#chips .chip')));
     document.querySelectorAll('#txFilter .chip').forEach(x=>x.classList.toggle('on',x.dataset.kind==='all'));
     fillSubs();$('cands').textContent='';$('result').classList.add('hide');
     say('조회 전 · 단지명을 입력하세요.','idle');
@@ -1090,7 +1007,7 @@ async function api(qs){
   return d;
 }
 async function search(region,apt,dong){
-  const q=$('complex').value.trim();if(!q)return;
+  const q=$('complex').value.trim();if(!q){say('검색할 단지명을 입력하세요.','warn');$('complex').focus();return;}
   const b=$('searchBtn');b.disabled=true;b.textContent='빠른 조회 중…';say('최근 거래정보를 확인 중입니다…','load');
   $('cands').textContent='';$('result').classList.add('hide');
   try{
@@ -1336,7 +1253,7 @@ function appendNaverLink(card,r){
     card.appendChild(note);
   }
 }
-function renderRecommendations(list){
+function renderRecommendations(list,fundingKnown=true){
   const box=$('recResults');box.textContent='';
   if(!list.length){
     const d=document.createElement('div');d.className='status warn';d.textContent='현재 조건으로 추천할 수 있는 최근 거래 단지가 없습니다. 지역을 넓히거나 자금조건을 조정해보세요.';box.appendChild(d);return;
@@ -1346,7 +1263,7 @@ function renderRecommendations(list){
     const t=document.createElement('div');t.className='rtitle';t.textContent=(i+1)+'. '+r.name;d.appendChild(t);
     const m=document.createElement('div');m.className='rmeta';m.textContent=r.regionName+(r.dong?' · '+r.dong:'')+' · '+r.area+'㎡형 · 최근 3개월 '+r.count+'건';d.appendChild(m);
     const g=document.createElement('div');g.className='recgrid';
-    [['최근 대표가격',eok(r.price)],['가장 최근 거래',eok(r.lastPrice)],['입력 대출금 적용',eok(r.loan)],['예상 취득·중개비',eok(r.costs||0)],['내가 준비할 현금',eok(r.need)],['내 자금과 차이',r.shortfall>0?'부족 '+eok(r.shortfall):'여유 '+eok(r.headroom)]].forEach(([n,v])=>{
+    [['최근 대표가격',eok(r.price)],['가장 최근 거래',eok(r.lastPrice)],['예상 취득·중개비',eok(r.costs||0)],...(fundingKnown?[['입력 대출금 적용',eok(r.loan)],['내가 준비할 현금',eok(r.need)],['내 자금과 차이',r.shortfall>0?'부족 '+eok(r.shortfall):'여유 '+eok(r.headroom)]]:[['자금 가능 여부','현금·대출 입력 후 확인']])].forEach(([n,v])=>{
       const c=document.createElement('div');c.className='reccell';
       const nn=document.createElement('div');nn.className='n';nn.textContent=n;
       const vv=document.createElement('div');vv.className='v';vv.textContent=v;
@@ -1406,7 +1323,7 @@ async function recommend(strategy='budget'){
   try{
     const d=await api(p.toString());
     recSay((strategy==='target'?'희망 매수가 ±10%':'자금범위 내')+' 최근 3개월 실거래 추천 '+d.recommendations.length+'개'+(d.partialErrors?' · 일부 지역 조회 실패 '+d.partialErrors+'건':''),d.partialErrors?'warn':'');
-    renderRecommendations(d.recommendations);
+    renderRecommendations(d.recommendations,strategy==='budget'||(num('cash')>=0&&num('recLoan')>=0));
   }catch(e){recSay(e.message,'bad')}
   finally{b.disabled=false;b.innerHTML=strategy==='target'?'<span>희망 매수가로</span><span>찾기</span>':'<span>자금에 맞는</span><span>단지 찾기</span>'}
 }
@@ -1431,7 +1348,7 @@ function renderJRecommendations(list){
     const t=document.createElement('div');t.className='rtitle';t.textContent=(i+1)+'. '+r.name;d.appendChild(t);
     const m=document.createElement('div');m.className='rmeta';m.textContent=r.regionName+(r.dong?' · '+r.dong:'')+' · '+r.area+'㎡형 · 최근 신규 전세 '+r.count+'건';d.appendChild(m);
     const g=document.createElement('div');g.className='recgrid';
-    [['최근 대표 전세',eok(r.price)],['가장 최근 전세',eok(r.latest)],['예상 전세대출',eok(r.loan)],['추가 자기자금',eok(r.own)]].forEach(([n,v])=>{
+    [['최근 대표 전세',eok(r.price)],['가장 최근 전세',eok(r.latest)],['예상 전세대출',eok(r.loan)],['이사비 포함 준비 현금',eok(r.own+optionalNumber('moveCost')/10000)]].forEach(([n,v])=>{
       const c=document.createElement('div');c.className='reccell';
       const nn=document.createElement('div');nn.className='n';nn.textContent=n;
       const vv=document.createElement('div');vv.className='v';vv.textContent=v;
@@ -1444,8 +1361,8 @@ function renderJRecommendations(list){
   });
 }
 async function jRecommend(){
-  const cash=num('cashJ'),deposit=num('deposit'),limit=num('loanLimit');
-  if([cash,deposit,limit].some(v=>isNaN(v)||v<0)){jRecSay('보증금·추가 현금·전세대출 한도를 먼저 입력하세요.','warn');return}
+  const available=num('cashJ'),cost=optionalNumber('moveCost'),cash=Math.max(0,available-cost/10000),deposit=optionalNumber('deposit'),limit=optionalNumber('loanLimit');
+  if([available,deposit,limit,cost].some(v=>!Number.isFinite(v)||v<0)||available*10000<cost){jRecSay('보증금·추가 현금·전세대출 한도를 먼저 입력하세요.','warn');return}
   if(!$('jRecScope').value){jRecSay('추천지역을 먼저 선택하세요. 지역을 선택하면 공공데이터 호출량을 크게 줄일 수 있습니다.','warn');return;}
   const [amin,amax]=$('jRecArea').value.split(',').map(Number);
   const p=new URLSearchParams({mode:'jeonseRecommend',cash,deposit,loanLimit:limit,areaMin:amin,areaMax:amax});
@@ -1478,6 +1395,8 @@ async function selectJRecommendation(r,btn){
 $('jRecommendBtn').addEventListener('click',jRecommend);
 $('jRecScope').addEventListener('change',saveConditions);$('jRecArea').addEventListener('change',saveConditions);
 try{const saved=JSON.parse(localStorage.getItem('dbh:v4')||'{}');$('recArea').value=saved.recArea||'74,85';}catch(e){}
+try{const saved=JSON.parse(localStorage.getItem('dbh:v4')||'{}');for(const id of ['recScope','jRecScope','jRecArea'])if(saved[id]!==undefined)$(id).value=saved[id];const mode=localStorage.getItem('dbh:jmode');setJeonseMode(['move','rent','renew','compare'].includes(mode)?mode:'move');const tab=localStorage.getItem('dbh:tab');showTab(['home','search','buy','jeonse','info'].includes(tab)?tab:'home');}catch(e){}
+window.housingInitialized=true;
 calcAll();
 
 // PWA: http(s)에서만 서비스워커 등록
@@ -1485,7 +1404,8 @@ if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
 }
 let deferredPrompt = null;
-window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; $('installBox').style.display = 'block'; });
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; if(!sessionStorage.getItem('dbh:installDismissed')&&!matchMedia('(display-mode: standalone)').matches)$('installBox').style.display = 'block'; });
+$('dismissInstall').addEventListener('click',()=>{$('installBox').style.display='none';sessionStorage.setItem('dbh:installDismissed','1');});
 $('installBtn').addEventListener('click', async () => {
   if (!deferredPrompt) return;
   deferredPrompt.prompt(); await deferredPrompt.userChoice;
