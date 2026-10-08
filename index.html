@@ -216,7 +216,7 @@ details.fold-s[open]>summary{margin-bottom:10px}
       <label for="complex">단지명</label>
       <input id="complex" autocomplete="off" placeholder="단지명 입력">
       <button id="searchBtn" type="button" style="width:100%;margin-top:10px">빠른 조회</button>
-      <div id="status" class="status idle">조회 전 · 결과가 이 영역에 표시됩니다.</div><div id="cands"></div>
+      <div id="status" role="status" aria-live="polite" class="status idle">조회 전 · 결과가 이 영역에 표시됩니다.</div><div id="cands"></div>
       <div id="result" class="hide"><label for="areaSelect">전용면적</label><select id="areaSelect"></select>
         <div class="kpis" style="margin-top:12px">
           <div class="kpi"><div class="name">최근 매매(3건 중앙값)</div><div id="sTrade" class="val">-</div></div>
@@ -316,7 +316,7 @@ details.fold-s[open]>summary{margin-bottom:10px}
         <button id="targetRecommendBtn" type="button" class="ghost recActionBtn"><span>희망 매수가로</span><span>찾기</span></button>
       </div>
       <p class="muted">자금 기준은 위의 가용 현금과 직접 입력한 대출 가능 금액을 사용합니다. 희망가 기준은 최근 실거래가가 희망가 ±10%인 단지를 찾습니다. 입력한 대출금은 승인 여부를 확인한 금액으로 입력하세요.</p>
-      <div id="recStatus" class="status idle">지역과 면적을 선택하고 자금 또는 희망 매수가로 찾아보세요.</div>
+      <div id="recStatus" role="status" aria-live="polite" class="status idle">지역과 면적을 선택하고 자금 또는 희망 매수가로 찾아보세요.</div>
       <div id="recResults"></div>
     </details>
 
@@ -357,7 +357,7 @@ details.fold-s[open]>summary{margin-bottom:10px}
           </select></div>
         </div>
         <button id="jRecommendBtn" type="button" style="width:100%;margin-top:10px">가능한 전세단지 찾기</button>
-        <div id="jRecStatus" class="status idle">지역을 선택하고 자금조건을 입력하면 최근 신규 전세 실거래 기준으로 추천합니다.</div>
+        <div id="jRecStatus" role="status" aria-live="polite" class="status idle">지역을 선택하고 자금조건을 입력하면 최근 신규 전세 실거래 기준으로 추천합니다.</div>
         <div id="jRecResults"></div>
       </details>
 <details class="rent-options"><summary>선택단지 상세 분석</summary>      <div class="card hide" id="jSummaryCard">
@@ -502,7 +502,7 @@ const eok = v => Number.isFinite(v) ? (Math.abs(v)<1 ? Math.round(v*10000).toLoc
 const man = v => Math.abs(v) >= 10000 ? eok(v / 10000) : Math.round(v).toLocaleString('ko-KR') + '만원';
 const sign = v => (v >= 0 ? '+' : '-') + Math.abs(Math.round(v)).toLocaleString('ko-KR') + '만원';
 
-let DATA=null, SELECTED=null, JSELECTED=null, JMODE='move', TOKEN='';
+let DATA=null, SELECTED=null, JSELECTED=null, JMODE='move', TOKEN='', SEARCH_VERSION=0;
 function setKpi(id, text, cls){ const e = $(id); e.textContent = text; e.className = 'val ' + (cls || ''); }
 function clearKpis(ids){ ids.forEach(id => setKpi(id, '-')); }
 // 문자열은 텍스트로, {b:'..', c:'good'}는 굵은 글씨로 넣어 XSS를 피한다
@@ -981,8 +981,8 @@ function resetTabInputs(tab){
     else el.value=el.defaultValue;
   });
   if(tab==='search'){
-    DATA=null;SCOPE='';SUB='';TX_KIND='all';
-    localStorage.removeItem('dbh:scope');
+    SEARCH_VERSION++;DATA=null;SCOPE='';SUB='';TX_KIND='all';
+    try{localStorage.removeItem('dbh:scope')}catch(e){}
     document.querySelectorAll('#chips .chip').forEach(x=>x.classList.toggle('on',x===document.querySelector('#chips .chip')));
     document.querySelectorAll('#txFilter .chip').forEach(x=>x.classList.toggle('on',x.dataset.kind==='all'));
     fillSubs();$('cands').textContent='';$('result').classList.add('hide');
@@ -1001,48 +1001,75 @@ document.querySelectorAll('[data-reset]').forEach(b=>b.addEventListener('click',
 const med=a=>{if(!a.length)return NaN;const s=[...a].sort((x,y)=>x-y),m=s.length>>1;return s.length%2?s[m]:(s[m-1]+s[m])/2};
 const setVal=(id,v)=>{$(id).value=v;$(id).dispatchEvent(new Event('input',{bubbles:true}))};
 function say(t,c){const s=$('status');s.textContent=t;s.className='status '+(c||'')}
-async function api(qs){
-  const r=await fetch('/api/realestate?'+qs,{credentials:'same-origin'});
-  const d=await r.json().catch(()=>({error:'응답을 읽지 못했습니다.'}));
-  if(!r.ok)throw new Error(d.error||'조회 실패');
+async function api(qs, retryToken=true){
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),65000);
+  let r,d;
+  try{
+    r=await fetch('/api/realestate?'+qs,{credentials:'same-origin',signal:controller.signal,headers:TOKEN?{'x-app-token':TOKEN}:{}});
+    d=await r.json().catch(()=>({error:'서버 응답을 읽지 못했습니다. 잠시 후 다시 조회하세요.'}));
+  }catch(e){
+    throw new Error(e.name==='AbortError'?'조회 시간이 오래 걸립니다. 지역을 좁혀 다시 시도하세요.':'서버에 연결하지 못했습니다. 인터넷 연결을 확인하고 다시 시도하세요.');
+  }finally{clearTimeout(timer)}
+  if(r.status===401&&retryToken){
+    const token=prompt(TOKEN?'접근 토큰이 올바르지 않습니다. 다시 입력하세요.':'이 앱의 접근 토큰을 입력하세요.');
+    if(token===null||!token.trim())throw new Error('접근 토큰 입력을 취소했습니다. 다시 조회하면 입력할 수 있습니다.');
+    TOKEN=token.trim();
+    try{sessionStorage.setItem('dbh:token',TOKEN)}catch(e){}
+    return api(qs,false);
+  }
+  if(!r.ok){
+    if(r.status===401){TOKEN='';try{sessionStorage.removeItem('dbh:token')}catch(e){}}
+    throw new Error(d.error?.includes('DATA_GO_KR_SERVICE_KEY')?'실거래 조회 설정이 아직 완료되지 않았습니다. 운영자에게 공공데이터 인증키 설정을 요청하세요.':d.error||'조회하지 못했습니다. 잠시 후 다시 시도하세요.');
+  }
   return d;
+}
+try{TOKEN=sessionStorage.getItem('dbh:token')||''}catch(e){}
+function fillTransactionAreas(preferred){
+  const areas=[...new Set([...DATA.trades,...DATA.rents].map(x=>Math.floor(x.area)).filter(a=>a>0))].sort((a,b)=>a-b);
+  $('areaSelect').textContent='';
+  areas.forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a+'㎡형 · 전용 약 '+(a/3.3058).toFixed(1)+'평';$('areaSelect').appendChild(o)});
+  const near=areas.filter(a=>a>=74&&a<=84).sort((x,y)=>Math.abs(x-84)-Math.abs(y-84))[0];
+  $('areaSelect').value=areas.includes(+preferred)?preferred:near??areas[0]??'';
+  return areas;
 }
 async function search(region,apt,dong){
   const q=$('complex').value.trim();if(!q){say('검색할 단지명을 입력하세요.','warn');$('complex').focus();return;}
+  const version=++SEARCH_VERSION;DATA=null;
   const b=$('searchBtn');b.disabled=true;b.textContent='빠른 조회 중…';say('최근 거래정보를 확인 중입니다…','load');
   $('cands').textContent='';$('result').classList.add('hide');
   try{
     const p=new URLSearchParams({complex:q,months:3});if(region){p.set('region',region);p.set('apt',apt);if(dong)p.set('dong',dong)}else{if(SCOPE)p.set('scope',SCOPE);if(SUB)p.set('sub',SUB)}
     const d=await api(p.toString());
+    if(version!==SEARCH_VERSION)return;
     if(d.candidates){
-      say('같은 이름의 단지가 여러 곳 있습니다. 선택하세요.');
+      say('같은 이름의 단지가 여러 곳 있습니다. 선택하세요.'+(d.partialErrors?' 일부 지역 조회가 실패해 목록이 완전하지 않을 수 있습니다.':''),d.partialErrors?'warn':'');
       d.candidates.forEach(c=>{const x=document.createElement('button');x.type='button';x.style.cssText='display:block;width:100%;margin-top:8px;text-align:left';x.textContent=c.regionName+(c.dong?' · '+c.dong:'')+' · '+c.name;x.onclick=()=>search(c.region,c.name,c.dong);$('cands').appendChild(x)});
       return;
     }
     d.rents=d.rents||[];
     DATA=d;
     say(d.complexName+' · '+d.regionName+' · 최근 '+d.months+'개월 · 매매 '+d.trades.length+'건 · 임대차 '+d.rents.length+'건'+(d.rentError?'\n전월세 조회 실패: '+d.rentError:''),d.rentError?'warn':'');
-    const areas=[...new Set([...d.trades,...d.rents].map(x=>Math.floor(x.area)).filter(Boolean))].sort((a,b)=>a-b);
+    const areas=fillTransactionAreas();
     if(!areas.length){say('거래 내역이 없습니다.','warn');return}
-    $('areaSelect').textContent='';
-    areas.forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a+'㎡형 · 전용 약 '+(a/3.3058).toFixed(1)+'평';$('areaSelect').appendChild(o)});
     saveConditions();
-    const near=areas.filter(a=>a>=74&&a<=84).sort((x,y)=>Math.abs(x-84)-Math.abs(y-84))[0];
-    if(near!==undefined)$('areaSelect').value=near;
     $('result').classList.remove('hide');applyArea();
-  }catch(e){say(e.message,'bad')}
+  }catch(e){if(version===SEARCH_VERSION)say(e.message,'bad')}
   finally{b.disabled=false;b.textContent='빠른 조회'}
 }
 async function loadDetail(){
   if(!DATA)return;
+  const version=SEARCH_VERSION,previous=DATA,area=$('areaSelect').value;
   const b=$('detailBtn');b.disabled=true;b.textContent='12개월 조회 중…';say('최근 12개월 매매·전월세를 불러오는 중입니다.','load');
   try{
     const p=new URLSearchParams({complex:DATA.complexName,months:12,region:DATA.regionCode,apt:DATA.complexName,dong:DATA.dong||''});
-    DATA=await api(p.toString());
+    const detail=await api(p.toString());
+    if(version!==SEARCH_VERSION||DATA!==previous)return;
+    DATA=detail;
     DATA.rents=DATA.rents||[];
     say(DATA.complexName+' · '+DATA.regionName+' · 최근 12개월 · 매매 '+DATA.trades.length+'건 · 임대차 '+DATA.rents.length+'건'+(DATA.rentError?'\n전월세 조회 실패: '+DATA.rentError:''),DATA.rentError?'warn':'');
-    applyArea();
-  }catch(e){say(e.message,'bad')}
+    fillTransactionAreas(area);applyArea();
+  }catch(e){if(version===SEARCH_VERSION&&DATA===previous)say(e.message,'bad')}
   finally{b.disabled=false;b.textContent='최근 12개월 상세조회'}
 }
 let TX_KIND='all';
@@ -1180,10 +1207,11 @@ const SUBREGIONS={
 };
 let SUB='';
 let SCOPE='';
+try{const scope=localStorage.getItem('dbh:scope');if(SCOPES.some(([c])=>c===scope))SCOPE=scope}catch(e){}
 SCOPES.forEach(([c,n])=>{const b=document.createElement('button');b.type='button';b.className='chip'+(c===SCOPE?' on':'');b.textContent=n;
   b.onclick=()=>{
   if(SCOPE===c)return;
-  SCOPE=c;SUB='';TX_KIND='all';DATA=null;
+  SEARCH_VERSION++;SCOPE=c;SUB='';TX_KIND='all';DATA=null;
   $('complex').value='';
   $('cands').textContent='';
   $('result').classList.add('hide');
@@ -1205,7 +1233,7 @@ function fillSubs(){
   (SUBREGIONS[SCOPE]||[]).forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n;sel.appendChild(o)});
   sel.value=SUB;
 }
-$('subregion').addEventListener('change',e=>{SUB=e.target.value});
+$('subregion').addEventListener('change',e=>{SEARCH_VERSION++;SUB=e.target.value;DATA=null;$('result').classList.add('hide');$('cands').textContent='';say('동 선택이 변경되었습니다. 다시 조회하세요.','idle')});
 fillSubs();
 $('searchBtn').addEventListener('click',()=>search());
 $('detailBtn').addEventListener('click',loadDetail);

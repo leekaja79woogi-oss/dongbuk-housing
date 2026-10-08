@@ -68,7 +68,7 @@ async function page(url,key,lawd,ym,p){
   ];
   let last;
   for(const u of urls){
-    const r=await fetch(u);const t=await r.text();
+    const r=await fetch(u,{signal:AbortSignal.timeout(15000)});const t=await r.text();
     if(r.ok){
       const code=tag(t,["returnReasonCode","resultCode"]);
       if(code&&!/^0+$/.test(code)){
@@ -267,7 +267,7 @@ export default async function handler(req,res){
         return res.status(404).json({error:"최근 3개월 매매 거래에서 단지를 찾지 못했습니다. 표기를 바꿔 다시 검색해보세요."});
       }
       const cands=[...found].map(([k,n])=>{const [c,nm,dong]=k.split("|");return{region:c,regionName:REGIONS[c],name:nm,dong,count:n}}).sort((a,b)=>b.count-a.count);
-      if(cands.length>1)return ok({candidates:cands});
+      if(cands.length>1)return ok({candidates:cands,partialErrors:errs.length},errs.length===0);
       code=cands[0].region;apt=cands[0].name;dong=cands[0].dong||"";
     }
     if(!REGIONS[code])return res.status(400).json({error:"지원하지 않는 지역입니다."});
@@ -281,6 +281,6 @@ export default async function handler(req,res){
     const byDate=(a,b)=>b.date.localeCompare(a.date);
     const trades=tr.flatMap(r=>parseTrade(r.v)).filter(sameTrade).sort(byDate);
     const rents=rr.filter(r=>!r.e).flatMap(r=>parseRent(r.v)).filter(sameRent).sort(byDate);
-    return ok({complexName:apt,regionCode:code,regionName:REGIONS[code],dong,months,trades,rents,rentError:rentErr?rentErr.e.message+" — 전월세 API 활용신청/승인을 확인하세요.":""});
+    return ok({complexName:apt,regionCode:code,regionName:REGIONS[code],dong,months,trades,rents,rentError:rentErr?rentErr.e.message+" — 전월세 API 활용신청/승인을 확인하세요.":""},!rentErr);
   }catch(e){noStore(res);return res.status(isAuthOrQuotaError(e)?502:500).json({error:e.message||"공공데이터 조회 중 오류가 발생했습니다."})}
 }
